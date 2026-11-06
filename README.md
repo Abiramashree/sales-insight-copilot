@@ -101,6 +101,28 @@ project and are not real Rossmann policy.
   Insight-card actions must be one of that playbook's plays and cite it, which code enforces.
   The agent has a `get_playbook` tool, and the store explorer shows the matching playbook.
 
+### Store opportunity scoring
+
+This is the store version of lead scoring: which stores have the most upside from management
+attention? Each store gets a **risk-adjusted weekly € upside** from three levers
+([src/sic/opportunity/score.py](src/sic/opportunity/score.py)):
+
+| Lever | How it's measured | Weight |
+|---|---|---|
+| Grow with promos | Measured causal promo lift × the store's baseline (one extra promo week per quarter) | 1.0 |
+| Defend vs competitor | A competitor opened within 5 km in the last 6 months (DiD effect × defensible share) | 0.9 |
+| Lift basket to peer level | Spend per customer vs the 10 most similar stores × the store's own customers × capture rate | 0.5 |
+
+A momentum flag (improving, stable or sliding) and a plain-English reason come with each store.
+**Validation:**
+- Promo lift ranks stores the same way when estimated on two separate periods (Spearman 0.95).
+- The basket gap is persistent (0.99) and only weakly related to store size (0.21).
+- The first peer metric I tried, *sales per day* vs peers, was rejected: it correlated 0.90
+  with store size, so it measured catchment rather than anything a manager can change.
+
+The scores appear in the app's **🎯 Opportunities** tab (with a one-click what-if to size an
+action) and through the copilot's `get_opportunities` tool.
+
 ### What-if simulator (causal inference + AI)
 
 Ask *"What if a competitor opens 300 m from store 262?"* or *"What if we add a promo week in
@@ -144,6 +166,7 @@ which numbers in the answer were verified against tool outputs.
 | `docs/playbooks/` | Governed store-response playbooks (status, version, review date, triggers) |
 | `src/sic/playbooks` | Playbook retrieval: governance filter, evidence matching, semantic search |
 | `src/sic/whatif` | What-if scenario engine: causal effects x baselines, Monte Carlo ranges |
+| `src/sic/opportunity` | Store opportunity scoring (promo, competitor, basket-vs-peers levers) |
 | `config.yaml` | Paths, backtest folds, detection thresholds, causal windows |
 
 ## Method notes

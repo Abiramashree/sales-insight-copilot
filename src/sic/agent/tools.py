@@ -199,6 +199,29 @@ def simulate_scenario(scenario: str, store_ids: list[int] | None = None,
         raise SQLError(str(e)) from None
 
 
+def get_opportunities(limit: int | None = 10, opportunity_type: str | None = None,
+                      store_type: str | None = None, store_id: int | None = None) -> dict:
+    """Ranked store opportunities (weekly EUR upside, risk-adjusted) with explanations."""
+    o = pd.read_parquet(config.path("outputs") / "opportunity_scores.parquet")
+    if store_id is not None:
+        o = o[o.store_id == int(store_id)]
+        if o.empty:
+            raise SQLError(f"Store {store_id} has no opportunity score.")
+    if opportunity_type:
+        o = o[o.primary_lever == opportunity_type]
+    if store_type:
+        o = o[o.store_type == store_type.lower()]
+    cols = ["rank", "store_id", "store_type", "score_eur", "opportunity_type", "eur_peer",
+            "eur_promo", "eur_competitor", "momentum", "why"]
+    top = o.head(min(int(limit or 10), 30))[cols].round(0)
+    return {"opportunities": json.loads(top.to_json(orient="records")),
+            "levers": {"peer": "basket below look-alike stores (observational, weight 0.5)",
+                       "promo": "measured causal promo lift x baseline (weight 1.0)",
+                       "competitor": "recent competitor within 5 km (DiD estimate, weight 0.9)"},
+            "note": "score_eur = risk-adjusted weekly EUR upside. Assumptions in config.yaml "
+                    "(opportunity:). Use simulate_scenario to size a specific action."}
+
+
 TOOLS = {
     "run_sql": run_sql,
     "lookup_definition": lookup_definition,
@@ -206,9 +229,23 @@ TOOLS = {
     "get_recommendations": get_recommendations,
     "get_playbook": get_playbook,
     "simulate_scenario": simulate_scenario,
+    "get_opportunities": get_opportunities,
 }
 
 TOOL_SPECS = [
+    {"type": "function", "function": {
+        "name": "get_opportunities",
+        "description": "Ranked store opportunities: which stores have the most upside from "
+                       "management attention, with a weekly EUR score, the main lever (peer = "
+                       "basket below look-alikes, promo = high measured promo response, "
+                       "competitor = recent nearby competitor), momentum and a plain-English "
+                       "reason. Use for 'which stores should we prioritize / focus on'.",
+        "parameters": {"type": "object", "properties": {
+            "limit": {"type": ["integer", "null"]},
+            "opportunity_type": {"type": ["string", "null"],
+                                 "enum": ["peer", "promo", "competitor", None]},
+            "store_type": {"type": ["string", "null"]},
+            "store_id": {"type": ["integer", "null"]}}}}},
     {"type": "function", "function": {
         "name": "simulate_scenario",
         "description": "What-if simulation using MEASURED causal effects (never estimate "

@@ -100,8 +100,8 @@ st.caption("Detect what changed, diagnose why, recommend what to do — every nu
            "Rossmann data (1,115 stores, through 2015-07-31).")
 
 kpis = load("weekly_kpis.parquet")
-tabs = st.tabs(["📊 Weekly KPIs", "🗂 Insight cards", "🏪 Store explorer", "💬 Ask the Copilot",
-                "🔬 Model & methods", "✅ Evals & monitoring"])
+tabs = st.tabs(["📊 Weekly KPIs", "🗂 Insight cards", "🎯 Opportunities", "🏪 Store explorer",
+                "💬 Ask the Copilot", "🔬 Model & methods", "✅ Evals & monitoring"])
 
 # ================================================================ 1. KPIs
 with tabs[0]:
@@ -282,7 +282,7 @@ with tabs[1]:
 
 
 # ================================================================ 3. Stores
-with tabs[2]:
+with tabs[3]:
     sw, ep, lift, recs = (load("store_weeks.parquet"), load("episode_rca.parquet"),
                           load("promo_lift_by_store.parquet"), load("recommendations.parquet"))
     if sw is None:
@@ -421,7 +421,7 @@ def show_your_work(meta: dict, key: str) -> None:
             st.warning(f"Not found in any tool output: {', '.join(uns)}")
 
 
-with tabs[3]:
+with tabs[4]:
     chat_tab, sim_tab = st.tabs(["💬 Chat", "🧪 What-if simulator"])
 
     with chat_tab:
@@ -515,7 +515,7 @@ with tabs[3]:
 
 
 # ================================================================ 5. Model
-with tabs[4]:
+with tabs[5]:
     bt, bt1 = load_json("m2_backtest_metrics.json"), load_json("m2_backtest_metrics_v1.json")
     pl, did = load_json("m3_promo_lift.json"), load_json("m3_promo2_did.json")
     if bt:
@@ -572,7 +572,7 @@ with tabs[4]:
 
 
 # ================================================================ 6. Evals
-with tabs[5]:
+with tabs[6]:
     ret, qa, qal = (load_json("m5_retrieval_eval.json"), load_json("m5_card_qa_eval.json"),
                     load_json("m5_card_qa_eval_llm.json"))
     ag, ab, dr, ob = (load_json("m5_agent_eval.json"), load_json("m5_ab_design.json"),
@@ -659,3 +659,99 @@ with tabs[5]:
         st.dataframe(pd.DataFrame(ob["by_provider_model"])[[
             "provider", "model", "calls", "error_rate", "rate_limited", "truncated",
             "latency_p50_s", "latency_p95_s"]].round(3), hide_index=True, width="stretch")
+
+
+# ================================================================ Opportunities
+with tabs[2]:
+    opp, oj = load("opportunity_scores.parquet"), load_json("m3_opportunity.json")
+    if opp is None:
+        st.warning("Run `uv run python -m sic.opportunity.score` first.")
+    else:
+        st.write("Which stores have the most upside from management attention? Each store's "
+                 "score is a **risk-adjusted weekly € upside** from three levers. Causal levers "
+                 "count fully; the observational one is down-weighted.")
+        m = st.columns(4)
+        m[0].metric("Top-10 upside / week", eur(opp.head(10).score_eur.sum()))
+        m[1].metric("Grow with promos", f"{(opp.primary_lever == 'promo').sum()} stores")
+        m[2].metric("Lift basket to peer level", f"{(opp.primary_lever == 'peer').sum()} stores")
+        m[3].metric("Defend vs competitor", f"{(opp.primary_lever == 'competitor').sum()} stores")
+
+        f1, f2, f3, f4 = st.columns(4)
+        lever = f1.selectbox("Main lever", ["All", "promo", "peer", "competitor"],
+                             format_func=lambda x: {"All": "All", "promo": "Grow with promos",
+                                                    "peer": "Lift basket to peer level",
+                                                    "competitor": "Defend vs competitor"}[x])
+        stype = f2.selectbox("Store type", ["All", "a", "b", "c", "d"])
+        mom = f3.selectbox("Momentum", ["All", "sliding", "stable", "improving"])
+        n = f4.slider("Show top", 5, 50, 15)
+        v = opp.copy()
+        if lever != "All":
+            v = v[v.primary_lever == lever]
+        if stype != "All":
+            v = v[v.store_type == stype]
+        if mom != "All":
+            v = v[v.momentum == mom]
+        v = v.head(n)
+        w = config.load()["opportunity"]["confidence_weights"]
+
+        fig = go.Figure()
+        ylab = [f"#{r} · store {s_}" for r, s_ in zip(v["rank"], v.store_id, strict=False)][::-1]
+        for col, color, name, wt in (("eur_promo", BLUE, "Promo lever", w["promo"]),
+                                     ("eur_peer", ORANGE, "Basket vs peers", w["peer"]),
+                                     ("eur_competitor", AQUA, "Competitor defense",
+                                      w["competitor"])):
+            fig.add_bar(y=ylab, x=(v[col] * wt)[::-1], name=name, orientation="h",
+                        marker_color=color, marker_line_color="white", marker_line_width=1)
+        fig.update_xaxes(tickprefix="€", title="Risk-adjusted weekly upside")
+        plot(st, style(fig, max(260, 26 * len(v) + 80)).update_layout(
+            title="Opportunity score by lever", barmode="stack", hovermode="y unified"),
+            width="stretch")
+
+        st.dataframe(pd.DataFrame({
+            "Rank": v["rank"], "Store": v.store_id, "Type": v.store_type,
+            "Upside / week": v.score_eur.map(eur), "Main lever": v.opportunity_type,
+            "Momentum": v.momentum, "Why": v.why}), hide_index=True, width="stretch")
+
+        st.subheader("Store detail")
+        c1, c2 = st.columns([1, 3])
+        sid = c1.selectbox("Store", v.store_id.tolist() or opp.store_id.head(1).tolist(),
+                           key="opp_store")
+        r = opp[opp.store_id == sid].iloc[0]
+        c2.markdown(f"**#{r['rank']} · store {sid} · {r.opportunity_type}**  \n{r.why}")
+        d1, d2 = st.columns(2)
+        with d1:
+            peers = opp[opp.store_id.isin(list(r.peers))][["store_id", "basket", "spd"]]
+            if len(peers):
+                st.caption(f"Look-alike stores (same type {r.store_type}, assortment; similar "
+                           f"competition and Promo2): median basket €{r.peer_basket:.2f} vs "
+                           f"this store €{r.basket:.2f}")
+                st.dataframe(peers.rename(columns={"store_id": "Peer store", "basket": "Basket €",
+                                                   "spd": "Sales / open day €"}).round(2),
+                             hide_index=True, width="stretch")
+        with d2:
+            st.caption("Size an action with the what-if engine (no LLM, zero tokens)")
+            if st.button(f"Simulate one extra promo week in store {sid}"):
+                from sic.whatif.engine import run as run_sim
+                st.session_state["opp_sim"] = run_sim(scenario="extra_promo_week",
+                                                      store_ids=[int(sid)])
+        if st.session_state.get("opp_sim") and st.session_state["opp_sim"]["inputs"].get(
+                "store_ids") == [int(sid)]:
+            render_sim(st.session_state["opp_sim"], "opp")
+
+        if oj and oj.get("validation"):
+            val = oj["validation"]
+            with st.expander("How we know the levers are real (validation & assumptions)"):
+                st.markdown(
+                    f"- **Promo lift is a stable store trait**: per-store lift estimated on two "
+                    f"independent periods ranks stores the same way (Spearman "
+                    f"**{val['promo_lift_split_sample_spearman']:.2f}**, "
+                    f"{val['promo_lift_stores']} stores).\n"
+                    f"- **Basket gap vs peers is persistent** (year-over-year Spearman "
+                    f"**{val['basket_gap_year_over_year_spearman']:.2f}**) and only weakly tied "
+                    f"to store size ({val['basket_gap_vs_store_size_spearman']:.2f}), so it is "
+                    f"not just location.\n"
+                    f"- **Rejected**: {val['rejected_lever']}.\n"
+                    f"- Assumptions (config.yaml): capture rate "
+                    f"{oj['assumptions']['peer_capture_rate']:.0%} of the basket gap; one extra "
+                    f"promo week per quarter; {oj['assumptions']['competitor_protectable_share']:.0%}"
+                    f" of the expected competitor loss is defensible; weights {w}.")

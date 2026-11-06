@@ -73,3 +73,13 @@ agent:
   sql_row_limit: 100
   tool_result_max_chars: 8000
   trace_path: data/outputs/agent_traces.jsonl
+
+opportunity:                          # store opportunity scoring (src/sic/opportunity)
+  peers: 10                           # look-alike stores per store (same type + assortment)
+  recent_weeks: 13                    # window for productivity and momentum
+  peer_capture_rate: 0.25             # share of the gap to peers that action could close
+  extra_promo_weeks_per_quarter: 1    # promo lever: one extra promo week per quarter
+  competitor_protectable_share: 0.30  # share of the expected competitor loss defensible
+  competitor_lookback_days: 183       # competitor openings counted as "recent"
+  competitor_max_m: 5000              # beyond this a new competitor is not a local threat
+  confidence_weights: {promo: 1.0, competitor: 0.9, peer: 0.5}   # causal > observational

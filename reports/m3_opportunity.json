@@ -1,0 +1,120 @@
+{
+ "stores_scored": 1115,
+ "assumptions": {
+  "peers": 10,
+  "recent_weeks": 13,
+  "peer_capture_rate": 0.25,
+  "extra_promo_weeks_per_quarter": 1,
+  "competitor_protectable_share": 0.3,
+  "competitor_lookback_days": 183,
+  "competitor_max_m": 5000,
+  "confidence_weights": {
+   "promo": 1.0,
+   "competitor": 0.9,
+   "peer": 0.5
+  }
+ },
+ "total_weekly_eur_risk_adjusted": 1385293.5190257872,
+ "top10_weekly_eur": 40086.882294533636,
+ "by_type": {
+  "Grow with promos": 790,
+  "Lift basket to peer level": 317,
+  "Defend vs new competitor": 8
+ },
+ "momentum": {
+  "stable": 769,
+  "improving": 222,
+  "sliding": 124
+ },
+ "top10": [
+  {
+   "store_id": 1114,
+   "rank": 1,
+   "score_eur": 6783.0,
+   "opportunity_type": "Lift basket to peer level",
+   "momentum": "improving",
+   "why": "basket \u20ac6.71 is 23% below its 10 look-alike stores (\u20ac8.75); promo lift +21% (\u2248\u20ac20,161 per promo week); momentum improving (+5% vs forecast, last 13 weeks)"
+  },
+  {
+   "store_id": 586,
+   "rank": 2,
+   "score_eur": 4274.0,
+   "opportunity_type": "Lift basket to peer level",
+   "momentum": "stable",
+   "why": "basket \u20ac6.55 is 18% below its 10 look-alike stores (\u20ac8.01); promo lift +33% (\u2248\u20ac21,420 per promo week); momentum stable (+4% vs forecast, last 13 weeks)"
+  },
+  {
+   "store_id": 615,
+   "rank": 3,
+   "score_eur": 4045.0,
+   "opportunity_type": "Lift basket to peer level",
+   "momentum": "stable",
+   "why": "basket \u20ac7.88 is 28% below its 10 look-alike stores (\u20ac10.99); promo lift +41% (\u2248\u20ac16,005 per promo week); momentum stable (+0% vs forecast, last 13 weeks)"
+  },
+  {
+   "store_id": 741,
+   "rank": 4,
+   "score_eur": 3824.0,
+   "opportunity_type": "Lift basket to peer level",
+   "momentum": "stable",
+   "why": "basket \u20ac8.50 is 30% below its 10 look-alike stores (\u20ac12.21); promo lift +40% (\u2248\u20ac13,802 per promo week); momentum stable (+3% vs forecast, last 13 weeks)"
+  },
+  {
+   "store_id": 925,
+   "rank": 5,
+   "score_eur": 3768.0,
+   "opportunity_type": "Lift basket to peer level",
+   "momentum": "improving",
+   "why": "basket \u20ac5.60 is 36% below its 10 look-alike stores (\u20ac8.78); promo lift +29% (\u2248\u20ac8,469 per promo week); momentum improving (+8% vs forecast, last 13 weeks)"
+  },
+  {
+   "store_id": 492,
+   "rank": 6,
+   "score_eur": 3655.0,
+   "opportunity_type": "Lift basket to peer level",
+   "momentum": "stable",
+   "why": "basket \u20ac6.95 is 30% below its 10 look-alike stores (\u20ac9.87); promo lift +42% (\u2248\u20ac13,926 per promo week); momentum stable (+3% vs forecast, last 13 weeks)"
+  },
+  {
+   "store_id": 269,
+   "rank": 7,
+   "score_eur": 3578.0,
+   "opportunity_type": "Defend vs new competitor",
+   "momentum": "sliding",
+   "why": "basket \u20ac7.75 is 0% below its 10 look-alike stores (\u20ac7.79); promo lift +56% (\u2248\u20ac20,002 per promo week); competitor opened 60 m away recently; momentum sliding (+4% vs forecast, last 13 weeks)"
+  },
+  {
+   "store_id": 333,
+   "rank": 8,
+   "score_eur": 3525.0,
+   "opportunity_type": "Lift basket to peer level",
+   "momentum": "stable",
+   "why": "basket \u20ac8.00 is 23% below its 10 look-alike stores (\u20ac10.37); promo lift +37% (\u2248\u20ac15,983 per promo week); momentum stable (+4% vs forecast, last 13 weeks)"
+  },
+  {
+   "store_id": 756,
+   "rank": 9,
+   "score_eur": 3352.0,
+   "opportunity_type": "Lift basket to peer level",
+   "momentum": "stable",
+   "why": "basket \u20ac7.34 is 10% below its 10 look-alike stores (\u20ac8.15); promo lift +35% (\u2248\u20ac24,497 per promo week); momentum stable (+9% vs forecast, last 13 weeks)"
+  },
+  {
+   "store_id": 335,
+   "rank": 10,
+   "score_eur": 3284.0,
+   "opportunity_type": "Grow with promos",
+   "momentum": "stable",
+   "why": "basket \u20ac5.97 is 8% below its 6 look-alike stores (\u20ac6.49); promo lift +50% (\u2248\u20ac30,953 per promo week); momentum stable (+5% vs forecast, last 13 weeks)"
+  }
+ ],
+ "validation": {
+  "promo_lift_split_sample_spearman": 0.9489630485863771,
+  "promo_lift_stores": 936,
+  "basket_gap_year_over_year_spearman": 0.9863573506702066,
+  "basket_gap_stores": 1114,
+  "basket_gap_vs_store_size_spearman": 0.21014841257532368,
+  "rejected_lever": "sales-per-day gap vs peers: stable (0.97) but 0.90 correlated with store size, i.e. catchment, not something a manager can fix",
+  "reading": "Persistence shows a lever is a real store trait, not noise; low correlation with store size shows it is not just location."
+ }
+}

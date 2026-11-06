@@ -1,6 +1,6 @@
 RUN = uv run python -m
 
-.PHONY: setup data eda forecast detect rca causal recommend kpis report all test lint
+.PHONY: setup data eda forecast detect rca causal recommend opportunity kpis report all test lint
 
 setup:      ## install deps into .venv
 	uv sync
@@ -28,13 +28,16 @@ causal:     ## M3: promo lift + Promo2 DiD + competitor-opening impact
 recommend:  ## M3: ranked recommendations
 	$(RUN) sic.causal.recommend
 
+opportunity: ## store opportunity scores -> data/outputs/opportunity_scores.parquet
+	$(RUN) sic.opportunity.score
+
 kpis:       ## weekly KPI scorecard -> reports/weekly_kpis.md
 	$(RUN) sic.kpi.weekly
 
 report:     ## build reports/REVIEW_M1_M3.md
 	$(RUN) sic.report.build
 
-all: data eda forecast detect rca causal recommend kpis report
+all: data eda forecast detect rca causal recommend opportunity kpis report
 
 test:
 	uv run pytest -q

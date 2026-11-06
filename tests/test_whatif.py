@@ -47,10 +47,10 @@ def test_promo2_is_low_confidence_and_skips_enrolled_stores():
 
 
 @needs_outputs
-@pytest.mark.parametrize("kw", [dict(scenario="price_cut", all_stores=True),
-                                dict(scenario="competitor_opens", store_ids=[262]),
-                                dict(scenario="extra_promo_week", store_ids=[99999]),
-                                dict(scenario="extra_promo_week")])
+@pytest.mark.parametrize("kw", [{"scenario": "price_cut", "all_stores": True},
+                                {"scenario": "competitor_opens", "store_ids": [262]},
+                                {"scenario": "extra_promo_week", "store_ids": [99999]},
+                                {"scenario": "extra_promo_week"}])
 def test_invalid_scenarios_are_rejected(kw):
     from sic.whatif.engine import ScenarioError, run
     with pytest.raises(ScenarioError):
