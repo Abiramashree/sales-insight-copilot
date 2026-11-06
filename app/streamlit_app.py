@@ -74,6 +74,26 @@ def style(fig: go.Figure, height: int = 320, pct_axis: bool = False) -> go.Figur
     return fig
 
 
+def finalize(fig: go.Figure) -> go.Figure:
+    """Title in its own row at the top, legend in a row just above the plot area, top
+    margin sized to fit, so titles and legends never overlap."""
+    title = fig.layout.title.text if fig.layout.title else None
+    named = [t for t in fig.data if t.showlegend is not False and t.name]
+    legend = len(named) > 1
+    top = (40 if title else 8) + (32 if legend else 0)
+    fig.update_layout(
+        title={"text": title, "x": 0, "xanchor": "left", "y": 1, "yanchor": "top",
+               "yref": "container", "pad": {"t": 8}, "font": {"size": 14}} if title else None,
+        legend={"orientation": "h", "x": 0, "xanchor": "left", "y": 1.0, "yanchor": "bottom",
+                "font": {"size": 11}},
+        showlegend=legend, margin={"l": 8, "r": 8, "t": top, "b": 8})
+    return fig
+
+
+def plot(container, fig: go.Figure, **kw) -> None:
+    container.plotly_chart(finalize(fig), **kw)
+
+
 # ---------------------------------------------------------------- header
 st.title("Sales Insight Copilot")
 st.caption("Detect what changed, diagnose why, recommend what to do — every number traceable. "
@@ -139,14 +159,14 @@ with tabs[0]:
         fig.add_scatter(x=k.week_start, y=k.sales_vs_forecast_4wk, name="Rolling 4 weeks",
                         line={"color": BLUE, "width": 2.5})
         fig.add_vline(x=pd.Timestamp(wk), line_dash="dot", line_color=NEUTRAL)
-        g1.plotly_chart(style(fig, pct_axis=True).update_layout(title="Sales vs forecast"),
+        plot(g1, style(fig, pct_axis=True).update_layout(title="Sales vs forecast"),
                         width="stretch")
         ky = k.dropna(subset=["yoy_growth"])
         ky = ky[~ky.partial_week]
         fig = go.Figure()
         fig.add_bar(x=ky.week_start, y=ky.yoy_customers_growth, name="Customers", marker_color=BLUE)
         fig.add_bar(x=ky.week_start, y=ky.yoy_basket_growth, name="Basket", marker_color=ORANGE)
-        g2.plotly_chart(style(fig, pct_axis=True).update_layout(
+        plot(g2, style(fig, pct_axis=True).update_layout(
             title="Same-store YoY: customers vs basket", barmode="group", bargap=0.25),
             width="stretch")
 
@@ -224,8 +244,7 @@ with tabs[1]:
     snap = load_snapshot()
     st.write("Weekly briefing cards written by the LLM **only from verified facts**; every "
              "number is fact-checked and a critic reviews claims before a card is published.")
-    c1, c2, c3 = st.columns([2, 2, 3])
-    show_held = c3.toggle("Show held cards", value=False)
+    c1, c2, _ = st.columns([2, 2, 3])
     if c1.button("⚡ Generate live cards", type="primary"):
         budget = config.load()["insights"].get("live_time_budget_s", 240)
         with st.spinner(f"Generating with {config.load()['llm']['provider']} "
@@ -252,7 +271,10 @@ with tabs[1]:
         st.warning("No saved demo cards yet — click **Generate live cards** while the LLM "
                    "is healthy (a good run is saved automatically for demos).")
     if cards:
-        shown = [c for c in cards if show_held or c["qa"]["published"]]
+        shown = [c for c in cards if c["qa"]["published"]]
+        held = len(cards) - len(shown)
+        if held:
+            st.caption(f"{held} card(s) did not pass QA and are held back for review.")
         cols = st.columns(2)
         for i, c in enumerate(shown):
             with cols[i % 2]:
@@ -283,7 +305,7 @@ with tabs[2]:
         fig.add_scatter(x=a.week_start, y=a.sales, mode="markers", name="Anomalous week",
                         marker={"color": ORANGE, "size": 10, "line": {"color": "white", "width": 2}})
         fig.update_yaxes(tickprefix="€")
-        st.plotly_chart(style(fig, 340).update_layout(title=f"Store {sid}: weekly sales vs forecast"),
+        plot(st, style(fig, 340).update_layout(title=f"Store {sid}: weekly sales vs forecast"),
                         width="stretch")
         c1, c2 = st.columns(2)
         with c1:
@@ -351,7 +373,7 @@ def render_sim(r: dict, key: str) -> None:
                 marker_color=BLUE if t["mean"] >= 0 else ORANGE)
     fig.update_xaxes(tickprefix="€")
     fig.update_yaxes(title="Store")
-    st.plotly_chart(style(fig, 260).update_layout(title="Largest expected impacts by store",
+    plot(st, style(fig, 260).update_layout(title="Largest expected impacts by store",
                                                   hovermode="closest"),
                     width="stretch", key=f"simfig_{key}")
     c1, c2 = st.columns(2)
@@ -521,14 +543,14 @@ with tabs[4]:
         fig.add_bar(x=f.start, y=[d["wape"] for d in f.p50], name="Current model",
                     marker_color=BLUE)
         fig.update_yaxes(tickformat=".0%")
-        st.plotly_chart(style(fig).update_layout(title="Daily WAPE by fold", barmode="group"),
+        plot(st, style(fig).update_layout(title="Daily WAPE by fold", barmode="group"),
                         width="stretch")
     c1, c2 = st.columns(2)
     if pl:
         lift = load("promo_lift_by_store.parquet")
         fig = go.Figure(go.Histogram(x=lift.lift, nbinsx=40, marker_color=BLUE))
         fig.update_xaxes(tickformat=".0%")
-        c1.plotly_chart(style(fig).update_layout(
+        plot(c1, style(fig).update_layout(
             title=f"Causal promo lift per store (pooled {pct(pl['pooled_lift'])})",
             hovermode="closest"), width="stretch")
     if did:
@@ -542,7 +564,7 @@ with tabs[4]:
                             error_y={"type": "data", "symmetric": False, "array": d.hi - d.coef,
                                          "arrayminus": d.coef - d.lo, "color": color})
         fig.update_xaxes(title="Weeks relative to Promo2 enrollment")
-        c2.plotly_chart(style(fig, pct_axis=True).update_layout(
+        plot(c2, style(fig, pct_axis=True).update_layout(
             title=f"Promo2 event study: {pct(did['effect']['effect_pct'])} "
                   f"(pre-trend p={did['pretrend_test']['p_value']:.3f}: suggestive)",
             hovermode="closest"), width="stretch")
@@ -611,7 +633,7 @@ with tabs[5]:
             fig.add_hline(y=0.8, line_dash="dot", line_color=NEUTRAL)
             fig.update_xaxes(tickformat=".0%", title="True effect (2 promo cycles)")
             fig.update_yaxes(tickformat=".0%", title="Power")
-            st.plotly_chart(style(fig).update_layout(hovermode="closest"), width="stretch")
+            plot(st, style(fig).update_layout(hovermode="closest"), width="stretch")
             st.caption(ab["recommendation"])
     with c2:
         st.subheader("Drift & model health")
@@ -627,7 +649,7 @@ with tabs[5]:
             fig.add_scatter(x=wk.week_start, y=wk.bias, name="Bias (+ = over-forecast)",
                             line={"color": ORANGE})
             fig.update_yaxes(tickformat=".0%")
-            st.plotly_chart(style(fig, 260), width="stretch")
+            plot(st, style(fig, 260), width="stretch")
             st.dataframe(pd.DataFrame(dr["features"]).rename(columns={
                 "psi_vs_training_year": "PSI vs training", "psi_vs_same_weeks_last_year":
                 "PSI vs last year", "status_seasonal_adjusted": "status (seasonal)"}),

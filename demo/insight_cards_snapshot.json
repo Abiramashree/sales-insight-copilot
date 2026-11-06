@@ -1,9 +1,9 @@
 {
  "meta": {
-  "generated_at": "2026-11-06T02:11:27+00:00",
-  "provider": "groq",
-  "model": "openai/gpt-oss-120b",
-  "publish_rate": 0.9090909090909091,
+  "generated_at": "2026-11-06T04:32:46+00:00",
+  "provider": "gemini",
+  "model": "gemini-3.5-flash",
+  "publish_rate": 1.0,
   "data_week": "2015-07-27"
  },
  "cards": [
@@ -11,21 +11,60 @@
    "subject": "Chain performance, week of 2015-07-27",
    "kind": "chain_weekly",
    "card": {
-    "title": "Strong Weekly Sales Performance",
-    "headline": "Chain sales rose to \u20ac47.23M, beating forecast by 1.4% [f1, f2]",
+    "title": "Weekly Chain Sales Performance Update",
+    "headline": "Chain sales reached \u20ac47.23M this week, performing 1.4% above forecast [f1, f2].",
     "bullets": [
-     "Sales increased 19.9% versus the prior week [f3].",
-     "All store types posted positive forecast variance, with type c at +3.4% [f10].",
-     "Same\u2011store customer visits were down 3.2% year\u2011over\u2011year while average basket size rose 4.4% [f15, f16]."
+     "Sales grew 19.9% compared to the prior week, and this was a promo week [f3, f18].",
+     "Out of 1113 stores reporting, 47 stores were flagged as anomalous, with 28 above forecast and 19 below forecast [f4, f5, f6, f7].",
+     "Same-store sales rose 1.1% compared to the same days last year, with average basket up 4.4% and customer visits down 3.2% [f14, f15, f16]."
     ],
-    "action": "Review traffic drivers in stores that are below forecast to boost visits this week.",
+    "action": "Focus support on the 19 anomalous stores that were below forecast this week.",
     "cited_facts": [
      "f1",
      "f2",
      "f3",
-     "f10",
+     "f4",
+     "f5",
+     "f6",
+     "f7",
+     "f14",
      "f15",
-     "f16"
+     "f16",
+     "f18"
+    ],
+    "confidence": "high"
+   },
+   "qa": {
+    "numeric_accuracy": 1.0,
+    "numbers_checked": 11,
+    "unsupported_numbers": [],
+    "critic_pass": true,
+    "open_issues": [],
+    "attempts": 2,
+    "published": true,
+    "latency_s": 21.1
+   }
+  },
+  {
+   "subject": "Store type c, week of 2014-12-22",
+   "kind": "segment_anomaly",
+   "card": {
+    "title": "Store Type C Sales Above Weekly Forecast",
+    "headline": "Store type c sales exceeded the weekly forecast by +16.0% due to holiday timing [f1, f3].",
+    "bullets": [
+     "Sales across 91% of stores moved in the same direction, peaking on Tuesday, December 23 at +39% above forecast [f2, f6].",
+     "Daily sales vs forecast showed +14% on 2014-12-22, -1% on 2014-12-24, and +4% on 2014-12-27 [f5, f7, f8]."
+    ],
+    "action": "Adjust inventory and staffing models to account for holiday stock-up shifts that forecasting tools only partly capture [f4].",
+    "cited_facts": [
+     "f1",
+     "f2",
+     "f3",
+     "f4",
+     "f5",
+     "f6",
+     "f7",
+     "f8"
     ],
     "confidence": "high"
    },
@@ -37,158 +76,68 @@
     "open_issues": [],
     "attempts": 1,
     "published": true,
-    "latency_s": 37.57
-   }
-  },
-  {
-   "subject": "Store type c, week of 2014-12-22",
-   "kind": "segment_anomaly",
-   "card": {
-    "title": "Holiday Timing Boosts Store Type C",
-    "headline": "Early signal: Store type C sales are +16.0% above forecast",
-    "bullets": [
-     "91% of stores moved the same way [f2]",
-     "Peak on Tue 23 Dec was +39% versus forecast [f6]",
-     "Sales dipped to -1% on Dec 24 then rose to +4% on Dec 27 [f7, f8]"
-    ],
-    "action": "Review holiday stock\u2011up plans to sustain the uplift this week",
-    "cited_facts": [
-     "f1",
-     "f2",
-     "f6",
-     "f7",
-     "f8"
-    ],
-    "confidence": "high"
-   },
-   "qa": {
-    "numeric_accuracy": 1.0,
-    "numbers_checked": 5,
-    "unsupported_numbers": [],
-    "critic_pass": true,
-    "open_issues": [],
-    "attempts": 1,
-    "published": true,
-    "latency_s": 2.95
+    "latency_s": 7.35
    }
   },
   {
    "subject": "Promo mechanics pilot",
    "kind": "promo_targeting_pilot",
    "card": {
-    "title": "Low\u2011Lift Store Promo Review",
-    "headline": "Low\u2011lift stores are delivering far below the chain median promo lift",
+    "title": "Promo Mechanics Pilot Performance Insights",
+    "headline": "Early signals show 111 stores in the lowest-lift group achieved a +22% median lift [f2, f3].",
     "bullets": [
-     "111 stores fall in the lowest\u2011lift group with a median lift of +22% [f2, f3]",
-     "The chain\u2019s pooled causal promo lift is +37.8% and the chain median store lift is +40% [f1, f4]",
-     "Weekly promo revenue at stake in this group is \u20ac405.0k [f6]",
-     "Lift is measured versus non\u2011promo weeks and may include pull\u2011forward"
+     "Chain pooled causal promo lift reached +37.8% [f1], while the chain median store lift stood at +40% [f4].",
+     "Store type b saw a +14% median promo lift [f8], compared to +38% for type a [f7], +42% for type c [f9], and +43% for type d [f10].",
+     "Weekly promo revenue at stake in the lowest-lift group is \u20ac405.0k [f6]."
     ],
-    "action": "Randomize half the low\u2011lift group to an alternative mechanic for the next two promo cycles [f11]",
+    "action": "Randomize half the group to an alternative mechanic for 2 promo cycles [f11].",
     "cited_facts": [
      "f1",
      "f2",
      "f3",
      "f4",
      "f6",
+     "f7",
+     "f8",
+     "f9",
+     "f10",
      "f11"
     ],
     "confidence": "medium"
    },
    "qa": {
     "numeric_accuracy": 1.0,
-    "numbers_checked": 5,
+    "numbers_checked": 10,
     "unsupported_numbers": [],
     "critic_pass": true,
     "open_issues": [],
-    "attempts": 2,
+    "attempts": 1,
     "published": true,
-    "latency_s": 38.49
+    "latency_s": 9.01
    }
   },
   {
    "subject": "Promo2 program effect",
    "kind": "promo2_program",
    "card": {
-    "title": "Promo2 Enrollment Impact Overview",
-    "headline": "Early signals show a modest lift of about +2.9%, though some rebound effect may be present [f1, f6]",
+    "title": "Uncertain Gains from Promo2 Enrollment",
+    "headline": "Promo2 enrollment shows early positive signals, but results are not definitive as part of the lift may reflect a simple rebound.",
     "bullets": [
-     "The estimated effect is +2.9% with a 95% confidence interval from +1.1% to +4.6% [f1, f2, f3]",
-     "Trend\u2011adjusted estimate suggests a +4.7% lift [f4]",
-     "Analysis covers 98 newly enrolled stores versus 519 comparison stores [f8, f9]"
+     "The estimated effect of enrolling is +2.9% [f1], with a trend-adjusted estimate of +4.7% [f4] based on 98 newly enrolled stores [f8] and 519 never-enrolled stores [f9].",
+     "Alternative models show a donut estimate of +2.2% [f5], while the 95% CI ranges from +1.1% [f2] to +4.6% [f3].",
+     "A placebo estimate of -2.7% [f6] and a pre-trend test p-value of 0.0007 [f7] indicate potential pre-existing store trends."
     ],
-    "action": "Review the enrollment criteria and consider a follow\u2011up test to isolate rebound effects.",
+    "action": "Review Promo2 performance carefully before expanding enrollment to additional stores.",
     "cited_facts": [
      "f1",
      "f2",
      "f3",
      "f4",
+     "f5",
      "f6",
+     "f7",
      "f8",
      "f9"
-    ],
-    "confidence": "low"
-   },
-   "qa": {
-    "numeric_accuracy": 1.0,
-    "numbers_checked": 7,
-    "unsupported_numbers": [],
-    "critic_pass": true,
-    "open_issues": [],
-    "attempts": 2,
-    "published": true,
-    "latency_s": 14.14
-   }
-  },
-  {
-   "subject": "Store 722",
-   "kind": "investigate_underperformance",
-   "card": {
-    "title": "Store 722 Traffic Gap",
-    "headline": "Store 722 is 23% below forecast as customer traffic is 22% below forecast",
-    "bullets": [
-     "Gap vs forecast is -23% [f3]",
-     "Traffic shortfall accounts for 95% of the gap [f10]",
-     "The weekly revenue shortfall equals -\u20ac13.4k [f5]"
-    ],
-    "action": "Check for local disruptions such as roadworks, parking issues or nearby closures (PB-TRAFFIC-DROP v1)",
-    "cited_facts": [
-     "f3",
-     "f5",
-     "f10"
-    ],
-    "confidence": "low"
-   },
-   "qa": {
-    "numeric_accuracy": 1.0,
-    "numbers_checked": 7,
-    "unsupported_numbers": [],
-    "critic_pass": true,
-    "open_issues": [],
-    "attempts": 2,
-    "published": true,
-    "latency_s": 105.93
-   }
-  },
-  {
-   "subject": "Store 921",
-   "kind": "investigate_underperformance",
-   "card": {
-    "title": "Store 921 Traffic Gap",
-    "headline": "Early signal: Store 921 down 21% vs forecast as traffic fell 23% [f3, f11]",
-    "bullets": [
-     "Weekly gap equals \u20ac12.3k [f5]",
-     "Traffic explains 107% of the shortfall [f10]",
-     "Promo lift was +27% versus chain median +40% [f13, f14]"
-    ],
-    "action": "Check for local disruptions: roadworks, parking, nearby closures or anchor\u2011store changes (Area manager, Week 1) (PB-TRAFFIC-DROP v1)",
-    "cited_facts": [
-     "f3",
-     "f5",
-     "f10",
-     "f11",
-     "f13",
-     "f14"
     ],
     "confidence": "low"
    },
@@ -200,21 +149,88 @@
     "open_issues": [],
     "attempts": 1,
     "published": true,
-    "latency_s": 23.61
+    "latency_s": 5.6
+   }
+  },
+  {
+   "subject": "Store 722",
+   "kind": "investigate_underperformance",
+   "card": {
+    "title": "Store 722 Sales Gap Investigation",
+    "headline": "Early signals show Store 722 recorded a gap of -23% against forecast over 1 week [f3, f6].",
+    "bullets": [
+     "The weekly gap vs forecast reached -\u20ac13.4k [f5].",
+     "Customer traffic vs forecast was -22%, explaining 95% of the sales gap [f10, f11]."
+    ],
+    "action": "Check for local disruptions: roadworks, parking, nearby closures or anchor-store changes (PB-TRAFFIC-DROP v1).",
+    "cited_facts": [
+     "f3",
+     "f5",
+     "f6",
+     "f10",
+     "f11",
+     "f15",
+     "f16"
+    ],
+    "confidence": "low"
+   },
+   "qa": {
+    "numeric_accuracy": 1.0,
+    "numbers_checked": 7,
+    "unsupported_numbers": [],
+    "critic_pass": true,
+    "open_issues": [],
+    "attempts": 1,
+    "published": true,
+    "latency_s": 10.84
+   }
+  },
+  {
+   "subject": "Store 921",
+   "kind": "investigate_underperformance",
+   "card": {
+    "title": "Early Underperformance Signal for Store 921",
+    "headline": "Early signals show Store 921 fell below its sales forecast for one anomalous week from 2015-07-27 to 2015-08-02 [f6, f7, f8].",
+    "bullets": [
+     "Sales finished 21% below forecast, representing a gap of -\u20ac12.3k for the week [f3, f4, f5].",
+     "Customer traffic was 23% below forecast, explaining 107% of the sales gap [f10, f11]."
+    ],
+    "action": "Check for local disruptions: roadworks, parking, nearby closures or anchor-store changes (PB-TRAFFIC-DROP v1).",
+    "cited_facts": [
+     "f3",
+     "f4",
+     "f5",
+     "f6",
+     "f7",
+     "f8",
+     "f10",
+     "f11"
+    ],
+    "confidence": "low"
+   },
+   "qa": {
+    "numeric_accuracy": 1.0,
+    "numbers_checked": 6,
+    "unsupported_numbers": [],
+    "critic_pass": true,
+    "open_issues": [],
+    "attempts": 1,
+    "published": true,
+    "latency_s": 8.47
    }
   },
   {
    "subject": "Store 1066",
    "kind": "investigate_underperformance",
    "card": {
-    "title": "Store 1066 Traffic Gap",
-    "headline": "Store 1066 missed forecast by 17% due to traffic drop [f3, f11]",
+    "title": "Store 1066 Sales Performance Review",
+    "headline": "Store 1066 has shown 3 consecutive anomalous weeks with sales falling 17% below forecast [f3, f6].",
     "bullets": [
-     "Gap vs forecast is -17% and equals -\u20ac31.6k for the episode [f3, f4]",
-     "Gap per week is -\u20ac10.5k and has lasted 3 consecutive weeks [f5, f6]",
-     "Traffic accounts for 101% of the gap, classified as unexplained [f10, f12]"
+     "The sales gap reached -\u20ac31.6k over the whole episode, averaging -\u20ac10.5k per week [f4, f5].",
+     "Customer traffic dropped 17% vs forecast, explaining 101% of the overall sales gap [f10, f11].",
+     "The underlying root cause for the underperformance remains unexplained [f12]."
     ],
-    "action": "Check for local disruptions such as roadworks or parking issues (PB-TRAFFIC-DROP v1)",
+    "action": "Check for local disruptions: roadworks, parking, nearby closures or anchor-store changes (PB-TRAFFIC-DROP v1).",
     "cited_facts": [
      "f3",
      "f4",
@@ -234,26 +250,32 @@
     "open_issues": [],
     "attempts": 1,
     "published": true,
-    "latency_s": 63.4
+    "latency_s": 5.1
    }
   },
   {
    "subject": "Store 711",
    "kind": "investigate_underperformance",
    "card": {
-    "title": "Store 711 Traffic Drop",
-    "headline": "Store 711 was 19% below forecast as customer traffic fell 15% below forecast",
+    "title": "Store 711 Performance Review",
+    "headline": "Early signals show Store 711 fell 19% below forecast for the week of 2015-07-27 to 2015-08-02.",
     "bullets": [
-     "Gap vs forecast is -19% [f3]",
-     "Traffic was -15% versus forecast, accounting for 78% of the gap [f11, f10]",
-     "Only 1 consecutive anomalous week was recorded [f6]"
+     "The sales gap for the single anomalous week totaled -\u20ac8,711 [f4, f5, f6, f7, f8].",
+     "Customer traffic was 15% below forecast and explained 78% of the gap [f10, f11].",
+     "The store maintains a +48% causal promo lift compared to the chain median of +40% [f13, f14]."
     ],
-    "action": "Check for local disruptions: roadworks, parking, nearby closures or anchor-store changes (PB-TRAFFIC-DROP v1) [f16]",
+    "action": "Check for local disruptions: roadworks, parking, nearby closures or anchor-store changes (PB-TRAFFIC-DROP v1).",
     "cited_facts": [
      "f3",
-     "f11",
-     "f10",
+     "f4",
+     "f5",
      "f6",
+     "f7",
+     "f8",
+     "f10",
+     "f11",
+     "f13",
+     "f14",
      "f16"
     ],
     "confidence": "low"
@@ -264,28 +286,30 @@
     "unsupported_numbers": [],
     "critic_pass": true,
     "open_issues": [],
-    "attempts": 2,
+    "attempts": 1,
     "published": true,
-    "latency_s": 167.79
+    "latency_s": 5.74
    }
   },
   {
    "subject": "Store 909",
    "kind": "replicate_outperformance",
    "card": {
-    "title": "Store 909 Outperforms Forecast",
-    "headline": "Early signal: Store 909 delivered a +36% gap versus forecast [f3]",
+    "title": "Store 909 Reopening Outperformance",
+    "headline": "Store 909 shows an early signal of outperformance following its reopening.",
     "bullets": [
-     "Gap equals \u20ac26.2k for the week [f5]",
-     "Customer traffic was +15% above forecast, explaining 44% of the gap [f11, f10]",
-     "Promo lift was +47%, above the chain median of +40% [f14, f15]"
+     "Store 909 beat its forecast by +36% or \u20ac26.2k over 1 consecutive anomalous week [f1, f3, f4, f6].",
+     "Customer traffic was +15% above forecast, explaining 44% of the gap [f10, f11].",
+     "The store's causal promo lift is +47%, compared to the chain median promo lift of +40% [f14, f15]."
     ],
-    "action": "Run a loyalty sign\u2011up drive during the first 4 weeks after reopening (PB-REOPEN v1) [f18]",
+    "action": "Run a loyalty sign-up drive during the first 4 weeks after reopening (CRM + Store manager, Weeks 1-4) (PB-REOPEN v1).",
     "cited_facts": [
+     "f1",
      "f3",
-     "f5",
-     "f11",
+     "f4",
+     "f6",
      "f10",
+     "f11",
      "f14",
      "f15",
      "f18"
@@ -294,13 +318,13 @@
    },
    "qa": {
     "numeric_accuracy": 1.0,
-    "numbers_checked": 9,
+    "numbers_checked": 13,
     "unsupported_numbers": [],
     "critic_pass": true,
     "open_issues": [],
-    "attempts": 2,
+    "attempts": 1,
     "published": true,
-    "latency_s": 75.47
+    "latency_s": 5.99
    }
   },
   {
@@ -308,56 +332,68 @@
    "kind": "replicate_outperformance",
    "card": {
     "title": "Store 827 Outperforms Forecast",
-    "headline": "Store 827 delivered a +31% gap versus forecast [f3]",
+    "headline": "Store 827 achieved a gap vs forecast of +31% across 3 consecutive anomalous weeks [f3, f6].",
     "bullets": [
-     "Gap equals \u20ac68.4k for the episode [f4]",
-     "Traffic drove +27% versus forecast, explaining 89% of the gap [f11, f10]",
-     "This is the third consecutive anomalous week [f6]"
+     "The gap vs forecast totaled \u20ac68.4k over the episode, representing \u20ac22.8k per week [f4, f5].",
+     "Customer traffic explained 89% of the performance gap, with customer traffic vs forecast reaching +27% [f10, f11].",
+     "The underlying root-cause classification for this store remains unexplained [f12]."
     ],
-    "action": "Split the gain into customer visits vs basket and document what changed locally (PB-OUTPERFORM v1)",
+    "action": "Split the gain into customer visits vs basket and document what changed locally (Area manager, Week 1-2) (PB-OUTPERFORM v1)",
     "cited_facts": [
      "f3",
      "f4",
-     "f11",
+     "f5",
+     "f6",
      "f10",
-     "f6"
+     "f11",
+     "f12",
+     "f16"
     ],
     "confidence": "high"
    },
    "qa": {
     "numeric_accuracy": 1.0,
-    "numbers_checked": 6,
+    "numbers_checked": 10,
     "unsupported_numbers": [],
     "critic_pass": true,
     "open_issues": [],
     "attempts": 1,
     "published": true,
-    "latency_s": 43.95
+    "latency_s": 10.38
    }
   },
   {
    "subject": "Store 286",
    "kind": "competitor_response",
    "card": {
-    "title": "",
-    "headline": "",
-    "bullets": [],
-    "action": "",
-    "_raw": null,
+    "title": "Store 286 Performance Gap Insights",
+    "headline": "Store 286 experienced 13 consecutive anomalous weeks with a sales gap of 20% below forecast [f3, f6].",
+    "bullets": [
+     "Customer traffic accounted for 80% of the sales gap, running 16% below forecast [f10, f11].",
+     "A competitor opened 1460 m away from the store [f13].",
+     "The total sales gap for the whole episode was -\u20ac70.7k, averaging -\u20ac5,437 per week [f4, f5]."
+    ],
+    "action": "Send a loyalty nudge to lapsed customers in the overlap area (PB-COMP-FAR v1).",
+    "cited_facts": [
+     "f3",
+     "f4",
+     "f5",
+     "f6",
+     "f10",
+     "f11",
+     "f13"
+    ],
     "confidence": "high"
    },
    "qa": {
     "numeric_accuracy": 1.0,
-    "numbers_checked": 0,
+    "numbers_checked": 9,
     "unsupported_numbers": [],
-    "critic_pass": false,
-    "open_issues": [
-     "The action must come from the approved playbook and cite (PB-COMP-FAR v1).",
-     "LLM error while writing: RateLimitError: Error code: 429 - Rate limit reached for model `openai/gpt-oss-120b` in organization `org_<redacted>` service tier `on_demand` on tokens per day (TPD): Limit 200000, Used 199173, Reque"
-    ],
-    "attempts": 2,
-    "published": false,
-    "latency_s": 28.32
+    "critic_pass": true,
+    "open_issues": [],
+    "attempts": 1,
+    "published": true,
+    "latency_s": 4.78
    }
   }
  ]
