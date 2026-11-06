@@ -1,0 +1,47 @@
+{
+ "n": 1,
+ "infra_errors": 0,
+ "correctness": 1.0,
+ "tool_selection_accuracy": 1.0,
+ "mean_numeric_accuracy": 0.9629629629629629,
+ "latency_p50_s": 8.43,
+ "latency_p95_s": 8.43,
+ "mean_tool_calls": 3.0,
+ "llm_calls": 3,
+ "prompt_tokens": 9317,
+ "completion_tokens": 487,
+ "rate_limit_errors_logged": 0,
+ "model": "gemini-3.5-flash",
+ "provider": "gemini",
+ "rows": [
+  {
+   "id": "whatif_competitor_262",
+   "q": "What would happen to store 262 if a competitor opened 300 metres away?",
+   "answer": "Opening a competitor 300 metres from Store 262 is expected to reduce weekly sales by **15.4%** (an average loss of **-\u20ac21,208 per week**, or **-\u20ac551,413 over 26 weeks**).\n\n### Key Details & Evidence\n* **90% Confidence Range:** Loss of **-\u20ac17,836 to -\u20ac24,458 per week** (-12.9% to -17.7%), representing a 26-week total impact between -\u20ac463,739 and -\u20ac635,900.\n* **Baseline Forecast:** Store 262's baseline sales are projected at \u20ac3,583,416 over 26 weeks (~\u20ac137,824/week).\n* **Methodology & Confidence:** High confidence, calculated using stacked difference-in-differences across 120 historical competitor openings within 1 km.\n* **Caveat:** Past data shows competitor openings cause a lasting shift with no meaningful recovery over 6 months; actual impact may vary based on competitor format.\n\n### Recommended Next Steps (Playbook PB-COMP-NEAR v2)\n1. **Defend Catchment:** Conduct a price-perception check on the top 50 traffic items and launch CRM retention offers for loyalty customers.\n2. **Operational Support:** Ensure full stock and peak staffing during promo weeks, and resolve service/queue bottlenecks.\n3. **Re-baseline Forecast:** Adjust the store's sales baseline down by ~15.4% in Week 2 so performance tracking reflects the new normal.\n4. **What NOT to do:** Avoid sitewide price matching or cutting staffing hours in response to initial traffic drops.",
+   "error": null,
+   "correct": true,
+   "checks": [
+    {
+     "ok": true,
+     "what": "simulation value -551,413"
+    },
+    {
+     "ok": true,
+     "what": "contains one of ['high confidence', 'confidence: high', 'confidence high']\u2026"
+    }
+   ],
+   "tools_used": [
+    "simulate_scenario",
+    "get_playbook",
+    "get_playbook"
+   ],
+   "tool_ok": true,
+   "numeric_accuracy": 0.9629629629629629,
+   "unsupported_numbers": [
+    "\u20ac137,824"
+   ],
+   "steps": 3,
+   "latency_s": 8.43
+  }
+ ]
+}

@@ -326,48 +326,170 @@ with tabs[2]:
                     st.caption("Measure: " + "; ".join(b["measure"]))
 
 
-# ================================================================ 4. Chat
-with tabs[3]:
-    st.write("Ask about stores, KPIs or programs. The agent answers from tools (SQL, store "
-             "explainer, KPI docs) and every number in its answer is fact-checked.")
-    examples = ["Why is store 921 below forecast?", "What does traffic-driven mean?",
-                "Which store types had the highest same-store YoY growth last week?",
-                "Is the Promo2 effect proven?"]
-    ex = st.columns(len(examples))
-    for i, q in enumerate(examples):
-        if ex[i].button(q, width="stretch"):
-            st.session_state["pending_q"] = q
-    st.session_state.setdefault("chat", [])
-    for msg in st.session_state["chat"]:
-        with st.chat_message(msg["role"]):
-            st.markdown(msg["content"])
-            if msg.get("meta"):
-                st.caption(msg["meta"])
-    q = st.chat_input("Ask the Copilot…") or st.session_state.pop("pending_q", None)
-    if q:
-        st.session_state["chat"].append({"role": "user", "content": q})
-        with st.chat_message("user"):
-            st.markdown(q)
-        with st.chat_message("assistant"), st.spinner("Thinking…"):
-            from sic.agent.chat import ask
-            hist = [{"role": m["role"], "content": m["content"]}
-                    for m in st.session_state["chat"][:-1]][-6:]
+# ================================================================ 4. Chat + What-if
+TOOL_LABELS = {"run_sql": "SQL query", "explain_store": "Store explainer",
+               "lookup_definition": "KPI / methodology search", "get_recommendations":
+               "Ranked recommendations", "get_playbook": "Approved playbook",
+               "simulate_scenario": "What-if simulation"}
+
+
+def render_sim(r: dict, key: str) -> None:
+    """Shared display for a simulation result (chat 'show your work' and the form)."""
+    conf_icon = {"high": "🟢", "medium": "🟡", "low": "🔴"}.get(r["confidence"], "⚪")
+    t, w, pc = r["total_eur"], r["per_week_eur"], r["pct_of_baseline"]
+    m = st.columns(4)
+    m[0].metric("Expected impact", eur(t["mean"]), f"{pct(pc['mean'])} vs baseline",
+                delta_color="normal")
+    m[1].metric("90% range", f"{eur(t['p5'])} to {eur(t['p95'])}")
+    m[2].metric("Per week", eur(w["mean"]))
+    m[3].metric("Confidence", f"{conf_icon} {r['confidence']}")
+    st.caption(f"{r['description']}: {r['selection']}, {r['weeks']} week(s). Effect used: "
+               f"{r['effect_used']}. Method: {r['method']}. {r['uncertainty']}.")
+    fig = go.Figure()
+    fig.add_bar(y=[str(x["store_id"]) for x in r["top_stores"]][::-1],
+                x=[x["expected_eur"] for x in r["top_stores"]][::-1], orientation="h",
+                marker_color=BLUE if t["mean"] >= 0 else ORANGE)
+    fig.update_xaxes(tickprefix="€")
+    fig.update_yaxes(title="Store")
+    st.plotly_chart(style(fig, 260).update_layout(title="Largest expected impacts by store",
+                                                  hovermode="closest"),
+                    width="stretch", key=f"simfig_{key}")
+    c1, c2 = st.columns(2)
+    c1.markdown("**Assumptions**\n" + "\n".join(f"- {a}" for a in r["assumptions"]))
+    c2.markdown("**Caveats**\n" + "\n".join(f"- {c}" for c in r["caveats"]))
+
+
+def show_your_work(meta: dict, key: str) -> None:
+    with st.expander("🔍 Show your work"):
+        if not meta.get("tool_calls"):
+            st.caption("No tools were called: the answer came from the model alone.")
+        for i, c in enumerate(meta.get("tool_calls", []), start=1):
+            label = TOOL_LABELS.get(c["tool"], c["tool"])
+            st.markdown(f"**{i}. {label}** `{c['tool']}` · {'✅ ok' if c['ok'] else '❌ error'} "
+                        f"· {c['latency_s']:.2f}s")
             try:
-                t0 = time.time()
-                r = ask(q, history=hist)
-                meta = (f"{r['steps']} tool call(s) · {time.time() - t0:.1f}s · numeric accuracy "
-                        f"{r['numeric_accuracy']:.0%}"
-                        + (f" · unverified: {', '.join(r['unsupported_numbers'])}"
-                           if r["unsupported_numbers"] else ""))
-                answer = r["answer"]
-            except Exception as e:  # noqa: BLE001
-                answer = (f"⚠️ The live LLM is unavailable right now ({type(e).__name__}). "
-                          "The dashboards, store explorer and saved insight cards still work.")
-                meta = None
-            st.markdown(answer)
-            if meta:
-                st.caption(meta)
-        st.session_state["chat"].append({"role": "assistant", "content": answer, "meta": meta})
+                args = json.loads(c["arguments"] or "{}")
+            except json.JSONDecodeError:
+                args = {"raw": c["arguments"]}
+            args = {k: v for k, v in args.items() if v is not None}
+            if c["tool"] == "run_sql" and "query" in args:
+                st.code(args["query"], language="sql")
+            else:
+                st.code(json.dumps(args, indent=1), language="json")
+            try:
+                res = json.loads(c.get("result_preview", ""))
+            except json.JSONDecodeError:
+                res = None
+            if isinstance(res, dict) and "rows" in res and "columns" in res:
+                st.dataframe(pd.DataFrame(res["rows"], columns=res["columns"]).head(20),
+                             hide_index=True, width="stretch")
+            elif isinstance(res, dict) and c["tool"] == "simulate_scenario" and "total_eur" in res:
+                render_sim(res, f"{key}_{i}")
+            elif isinstance(res, dict) and res.get("playbooks"):
+                for b in res["playbooks"][:2]:
+                    st.markdown(f"📘 {b['citation']}: {b['title']}")
+            elif res is not None:
+                st.json(res, expanded=False)
+            elif c.get("result_preview"):
+                st.caption(c["result_preview"][:600])
+        st.markdown("**Fact-check of the answer**")
+        sup, uns = meta.get("supported_numbers", []), meta.get("unsupported_numbers", [])
+        st.caption(f"Verified against tool outputs: {', '.join(sup) if sup else '—'}")
+        if uns:
+            st.warning(f"Not found in any tool output: {', '.join(uns)}")
+
+
+with tabs[3]:
+    chat_tab, sim_tab = st.tabs(["💬 Chat", "🧪 What-if simulator"])
+
+    with chat_tab:
+        st.write("Ask about stores, KPIs, programs or **what-if scenarios**. The agent answers "
+                 "from tools, and every number is fact-checked — open **Show your work** under "
+                 "an answer to see the queries, simulations and sources behind it.")
+        examples = ["Why is store 921 below forecast?",
+                    "What if a competitor opens 300 m from store 262?",
+                    "What if we add a promo week in the 20 lowest-response stores?",
+                    "Is the Promo2 effect proven?"]
+        ex = st.columns(len(examples))
+        for i, q in enumerate(examples):
+            if ex[i].button(q, width="stretch", key=f"ex_{i}"):
+                st.session_state["pending_q"] = q
+        st.session_state.setdefault("chat", [])
+        for j, msg in enumerate(st.session_state["chat"]):
+            with st.chat_message(msg["role"]):
+                st.markdown(msg["content"])
+                if msg.get("meta"):
+                    st.caption(msg["meta"])
+                if msg.get("work"):
+                    show_your_work(msg["work"], f"hist{j}")
+        q = st.chat_input("Ask the Copilot…") or st.session_state.pop("pending_q", None)
+        if q:
+            st.session_state["chat"].append({"role": "user", "content": q})
+            with st.chat_message("user"):
+                st.markdown(q)
+            work = None
+            with st.chat_message("assistant"), st.spinner("Thinking…"):
+                from sic.agent.chat import ask
+                hist = [{"role": m["role"], "content": m["content"]}
+                        for m in st.session_state["chat"][:-1]][-6:]
+                try:
+                    t0 = time.time()
+                    r = ask(q, history=hist)
+                    meta = (f"{r['steps']} tool call(s) · {time.time() - t0:.1f}s · numeric "
+                            f"accuracy {r['numeric_accuracy']:.0%}"
+                            + (f" · unverified: {', '.join(r['unsupported_numbers'])}"
+                               if r["unsupported_numbers"] else ""))
+                    answer = r["answer"]
+                    work = {k: r.get(k) for k in ("tool_calls", "supported_numbers",
+                                                   "unsupported_numbers")}
+                except Exception as e:  # noqa: BLE001
+                    answer = (f"⚠️ The live LLM is unavailable right now ({type(e).__name__}). "
+                              "The dashboards, store explorer, what-if simulator and saved "
+                              "insight cards still work.")
+                    meta = None
+                st.markdown(answer)
+                if meta:
+                    st.caption(meta)
+                if work:
+                    show_your_work(work, f"new{len(st.session_state['chat'])}")
+            st.session_state["chat"].append({"role": "assistant", "content": answer,
+                                             "meta": meta, "work": work})
+
+    with sim_tab:
+        from sic.whatif.engine import SCENARIOS, ScenarioError
+        from sic.whatif.engine import run as run_sim
+
+        st.write("Run a scenario directly — **no LLM, zero tokens**. Numbers come from causal "
+                 "effects measured in the pipeline, with a 90% range from Monte Carlo draws.")
+        c1, c2, c3 = st.columns([2, 2, 1])
+        scen = c1.selectbox("Scenario", list(SCENARIOS), format_func=lambda k: SCENARIOS[k])
+        how = c2.selectbox("Stores", ["Specific stores", "Store type", "Lowest promo response",
+                                      "Furthest below forecast", "All stores"])
+        weeks = c3.number_input("Weeks", 1, 52, 1 if scen.endswith("promo_week") else 26)
+        kw: dict = {"scenario": scen, "weeks": int(weeks)}
+        c1, c2 = st.columns(2)
+        if how == "Specific stores":
+            ids = c1.text_input("Store IDs (comma-separated)", "262, 770")
+            kw["store_ids"] = [int(x) for x in re.findall(r"\d+", ids)]
+        elif how == "Store type":
+            kw["store_type"] = c1.selectbox("Type", ["a", "b", "c", "d"])
+        elif how == "Lowest promo response":
+            kw["lowest_lift_n"] = int(c1.number_input("How many stores", 1, 1115, 20))
+        elif how == "Furthest below forecast":
+            kw["weakest_n"] = int(c1.number_input("How many stores", 1, 1115, 10))
+        else:
+            kw["all_stores"] = True
+        if scen == "competitor_opens":
+            kw["competitor_distance_m"] = float(c2.number_input(
+                "Competitor distance (m)", 10, 20000, 300, step=50))
+        if st.button("Run simulation", type="primary"):
+            try:
+                st.session_state["sim"] = run_sim(**kw)
+            except ScenarioError as e:
+                st.session_state["sim"] = None
+                st.error(str(e))
+        if st.session_state.get("sim"):
+            render_sim(st.session_state["sim"], "form")
 
 
 # ================================================================ 5. Model

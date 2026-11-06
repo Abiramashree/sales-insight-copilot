@@ -135,7 +135,9 @@ class LLM:
         try:
             resp = self._create_with_rate_limit_wait(kwargs)
         except Exception as e:  # logged, then re-raised
-            error = redact(f"{type(e).__name__}: {e}")
+            body = getattr(e, "body", None)
+            detail = json.dumps(body)[:500] if body else ""
+            error = redact(f"{type(e).__name__}: {e} {detail}".strip())
             raise
         finally:
             latency = time.time() - t0

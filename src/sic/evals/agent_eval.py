@@ -41,6 +41,15 @@ def run_check(answer: str, c: dict) -> tuple[bool, str]:
         v = float(node)
         ok = bool(check(answer, [v], allow_small=False).supported)
         return ok, f"report value {v:.4g} ({c['report']})"
+    if "sim" in c:  # expected value from the what-if engine (same inputs as the question)
+        from sic.whatif.engine import run as run_sim
+
+        node = run_sim(**c["sim"])
+        for key in c["path"].split("."):
+            node = node[key]
+        v = float(node)
+        ok = bool(check(answer, [v], allow_small=False).supported)
+        return ok, f"simulation value {v:,.0f}"
     if "text" in c:
         v = _scalar(c["text"])
         pat = c.get("pattern", r"\b{v}\b").replace("{v}", re.escape(str(v)))

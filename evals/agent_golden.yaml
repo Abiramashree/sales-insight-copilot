@@ -81,3 +81,16 @@
   tools: [get_playbook]
   checks:
     - {report: m3_competitor_impact.json, path: by_distance.within_1000m.effect_pct, kind: pct}
+
+# ---------- what-if simulations (expected values computed by the engine at eval time) ----------
+- id: whatif_competitor_262
+  q: What would happen to store 262 if a competitor opened 300 metres away?
+  tools: [simulate_scenario]
+  checks:
+    - {sim: {scenario: competitor_opens, store_ids: [262], competitor_distance_m: 300}, path: total_eur.mean, kind: eur}
+    - {contains_any: [high confidence, "confidence: high", "confidence high", "(high)"]}
+- id: whatif_promo2_weakest
+  q: What if we enrolled the 10 stores furthest below forecast in Promo2?
+  tools: [simulate_scenario]
+  checks:
+    - {contains_any: [not proven, low confidence, uncertain, suggestive, "confidence: low"]}

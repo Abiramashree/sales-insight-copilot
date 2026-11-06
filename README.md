@@ -101,6 +101,27 @@ project and are not real Rossmann policy.
   Insight-card actions must be one of that playbook's plays and cite it, which code enforces.
   The agent has a `get_playbook` tool, and the store explorer shows the matching playbook.
 
+### What-if simulator (causal inference + AI)
+
+Ask *"What if a competitor opens 300 m from store 262?"* or *"What if we add a promo week in
+the 20 lowest-response stores?"*. The work is split between the LLM and the models:
+
+- **The LLM translates.** The copilot maps the question onto a supported scenario and store
+  selection by calling the `simulate_scenario` tool, then explains the result.
+- **Causal estimates compute.** [src/sic/whatif/engine.py](src/sic/whatif/engine.py) applies
+  effects measured earlier in the pipeline to each store's baseline: per-store promo lift,
+  competitor-opening impact (within or beyond 1 km), and Promo2 (marked low confidence). It
+  returns the expected € impact with a **90% range from Monte Carlo draws**, plus the method,
+  assumptions and caveats.
+- **Scenarios the engine doesn't support** are refused, and the copilot lists the ones it can
+  run.
+- **A form in the app** (Ask the Copilot → What-if simulator) runs the same engine with **zero
+  LLM tokens**.
+
+**Show your work.** Every chat answer has an expandable panel listing each tool call with its
+SQL or parameters, the data returned (as tables, simulation charts or playbook citations), and
+which numbers in the answer were verified against tool outputs.
+
 ## Layout
 
 | Path | Purpose |
@@ -122,6 +143,7 @@ project and are not real Rossmann policy.
 | `demo/` | Saved insight-card snapshot used when the live LLM is unavailable |
 | `docs/playbooks/` | Governed store-response playbooks (status, version, review date, triggers) |
 | `src/sic/playbooks` | Playbook retrieval: governance filter, evidence matching, semantic search |
+| `src/sic/whatif` | What-if scenario engine: causal effects x baselines, Monte Carlo ranges |
 | `config.yaml` | Paths, backtest folds, detection thresholds, causal windows |
 
 ## Method notes

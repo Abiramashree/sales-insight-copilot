@@ -37,7 +37,7 @@ causal:
   placebo_shift_weeks: 13     # fake start this many weeks before the real one
 
 llm:
-  provider: groq                      # groq (default) | gemini (free tier: 20 requests/day/model)
+  provider: gemini                    # gemini (default, gemini-2.5-flash) | groq (fallback)
   temperature: 0.2
   max_tokens: 4000                    # includes hidden reasoning tokens
   timeout_s: 60
@@ -46,7 +46,7 @@ llm:
   providers:
     gemini:                           # Google AI Studio, OpenAI-compatible endpoint
       base_url: https://generativelanguage.googleapis.com/v1beta/openai/
-      model: gemini-3.5-flash         # pinned; 3.7/3.8-flash returned 503 "high demand" on free tier
+      model: gemini-3.5-flash         # user choice; gemini-2.5-flash blocked for new accounts (404)
       api_key_env: GEMINI_API_KEY
       reasoning_effort: low
       price_per_mtok: {input: 0.0, output: 0.0}   # free tier; check aistudio for paid rates

@@ -183,15 +183,52 @@ def get_playbook(situation: str | None = None, store_id: int | None = None,
     return res
 
 
+def simulate_scenario(scenario: str, store_ids: list[int] | None = None,
+                      store_type: str | None = None, lowest_lift_n: int | None = None,
+                      weakest_n: int | None = None, all_stores: bool | None = None,
+                      weeks: int | None = None,
+                      competitor_distance_m: float | None = None) -> dict:
+    from sic.whatif.engine import ScenarioError, run
+
+    try:
+        return run(scenario=scenario, store_ids=store_ids, store_type=store_type,
+                   lowest_lift_n=lowest_lift_n, weakest_n=weakest_n,
+                   all_stores=bool(all_stores), weeks=weeks,
+                   competitor_distance_m=competitor_distance_m)
+    except ScenarioError as e:
+        raise SQLError(str(e)) from None
+
+
 TOOLS = {
     "run_sql": run_sql,
     "lookup_definition": lookup_definition,
     "explain_store": explain_store,
     "get_recommendations": get_recommendations,
     "get_playbook": get_playbook,
+    "simulate_scenario": simulate_scenario,
 }
 
 TOOL_SPECS = [
+    {"type": "function", "function": {
+        "name": "simulate_scenario",
+        "description": "What-if simulation using MEASURED causal effects (never estimate "
+                       "scenario impacts yourself). Scenarios: extra_promo_week, "
+                       "remove_promo_week, competitor_opens (needs competitor_distance_m), "
+                       "promo2_enroll. Select stores with store_ids, store_type, "
+                       "lowest_lift_n (lowest promo response), weakest_n (furthest below "
+                       "forecast) or all_stores. Returns expected EUR impact with a 90% "
+                       "range, confidence, method, assumptions and caveats; report all of them.",
+        "parameters": {"type": "object", "properties": {
+            "scenario": {"type": "string", "enum": ["extra_promo_week", "remove_promo_week",
+                                                     "competitor_opens", "promo2_enroll"]},
+            "store_ids": {"type": ["array", "null"], "items": {"type": "integer"}},
+            "store_type": {"type": ["string", "null"]},
+            "lowest_lift_n": {"type": ["integer", "null"]},
+            "weakest_n": {"type": ["integer", "null"]},
+            "all_stores": {"type": ["boolean", "null"]},
+            "weeks": {"type": ["integer", "null"]},
+            "competitor_distance_m": {"type": ["number", "null"]}},
+            "required": ["scenario"]}}},
     {"type": "function", "function": {
         "name": "get_playbook",
         "description": "Approved store-response playbooks (what to do, who owns it, when, "

@@ -30,6 +30,10 @@ How to work:
   opening, a type of drop) and for the typical impact of competitor openings, call
   get_playbook and cite the playbook (e.g. "PB-COMP-NEAR v2"). Never invent actions or
   impacts that no tool returned.
+- For "what if" / "what would happen" questions (adding or cancelling promos, a competitor
+  opening, enrolling stores in Promo2), call simulate_scenario. Report the expected impact,
+  the 90% range, the confidence level and the main caveat. If the scenario is not one of the
+  supported ones, say so and list what can be simulated.
 - Say how certain a finding is. Flag early signals (1-2 weeks) and estimates the docs call
   uncertain (e.g. the Promo2 effect is suggestive, not proven).
 - Do not invent causes. If the root cause is "unexplained", say local investigation is needed.
@@ -46,6 +50,15 @@ Tables you can query with run_sql:
 
 def _system() -> str:
     return SYSTEM.format(schema=T.schema_description())
+
+
+def _tool_call_dict(c) -> dict:
+    """Echo a tool call back to the provider unchanged. Gemini 3 attaches a thought
+    signature (extra_content) that must be returned on the next turn, or it answers 400."""
+    if hasattr(c, "model_dump"):
+        return c.model_dump(exclude_none=True)
+    return {"id": c.id, "type": "function",
+            "function": {"name": c.function.name, "arguments": c.function.arguments}}
 
 
 def _call_tool(name: str, args_json: str) -> tuple[dict, bool]:
@@ -76,10 +89,7 @@ def ask(question: str, llm=None, history: list[dict] | None = None) -> dict:
             answer = msg.content or ""
             break
         messages.append({"role": "assistant", "content": msg.content or "",
-                         "tool_calls": [{"id": c.id, "type": "function",
-                                         "function": {"name": c.function.name,
-                                                      "arguments": c.function.arguments}}
-                                        for c in calls]})
+                         "tool_calls": [_tool_call_dict(c) for c in calls]})
         for c in calls:
             ts = time.time()
             result, ok = _call_tool(c.function.name, c.function.arguments)
@@ -92,14 +102,16 @@ def ask(question: str, llm=None, history: list[dict] | None = None) -> dict:
             trace.append({"step": step, "tool": c.function.name,
                           "arguments": c.function.arguments, "ok": ok,
                           "latency_s": round(time.time() - ts, 3),
-                          "result_chars": len(payload)})
+                          "result_chars": len(payload),
+                          "result_preview": payload[:4000]})
     if answer is None:
         answer = ("I couldn't finish within the step limit. Try a narrower question "
                   "(e.g. one store or one metric).")
     fc = check(answer, numbers_in(evidence) + numbers_in(question))
     record = {"ts": time.time(), "model": getattr(llm, "model", "?"), "question": question, "answer": answer, "tool_calls": trace,
               "steps": len(trace), "latency_s": round(time.time() - t0, 2),
-              "numeric_accuracy": fc.accuracy, "unsupported_numbers": fc.unsupported}
+              "numeric_accuracy": fc.accuracy, "unsupported_numbers": fc.unsupported,
+              "supported_numbers": fc.supported}
     p = config.ROOT / cfg["trace_path"]
     p.parent.mkdir(parents=True, exist_ok=True)
     with open(p, "a") as f:
