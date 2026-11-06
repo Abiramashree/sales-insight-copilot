@@ -1,0 +1,21 @@
+# HELD-OUT set: written before any retriever tuning; never used to tune. Report this one.
+- q: what is the typical amount a shopper spends in one visit
+  expect: ["kpis.yaml#basket"]
+- q: when do you consider a store's week abnormal
+  expect: ["methodology.md#What counts as an anomaly"]
+- q: did enrolling stores in the long-running promo program help sales
+  expect: ["programs.md#Promo2", "kpis.yaml#promo2_effect"]
+- q: what are the weaknesses of the prediction model
+  expect: ["methodology.md#Known limitations"]
+- q: how do you split a sales drop into fewer visitors versus smaller purchases
+  expect: ["methodology.md#Root-cause lenses"]
+- q: how much do sales jump on promotion days
+  expect: ["kpis.yaml#promo_lift", "programs.md#Promo (daily promotion)"]
+- q: how many customers came in compared with the same week last year
+  expect: ["kpis.yaml#yoy_customers_growth"]
+- q: how far off was our forecast this week in percent
+  expect: ["kpis.yaml#forecast_wape", "kpis.yaml#forecast_attainment"]
+- q: what share of stores looked unusual this week
+  expect: ["kpis.yaml#anomaly_rate"]
+- q: how is the expected sales range widened to be reliable
+  expect: ["methodology.md#Prediction interval"]

@@ -1,0 +1,85 @@
+{
+ "n": 3,
+ "infra_errors": 0,
+ "correctness": 0.6666666666666666,
+ "tool_selection_accuracy": 0.6666666666666666,
+ "mean_numeric_accuracy": 0.9,
+ "latency_p50_s": 10.11,
+ "latency_p95_s": 28.127999999999997,
+ "mean_tool_calls": 1.0,
+ "llm_calls": 6,
+ "prompt_tokens": 12204,
+ "completion_tokens": 728,
+ "rate_limit_errors_logged": 0,
+ "model": "openai/gpt-oss-20b",
+ "provider": "groq",
+ "rows": [
+  {
+   "id": "pb_competitor_near_plan",
+   "q": "A competitor just opened 300 metres from one of our stores. What is our approved response plan?",
+   "answer": "**Approved response plan**  \nUse playbook **PB\u2011COMP\u2011NEAR v2** \u2013 \u201cNew competitor within 1\u202fkm\u202f\u2014\u202fdefend the catchment\u201d.\n\n**Key actions**  \n- Price\u2011perception check on the 50 highest\u2011traffic items (Weeks\u202f1\u20112).  \n- Retention offer to existing loyalty customers (Weeks\u202f1\u20114).  \n- Protect promo\u2011week execution: full stock & peak\u2011hour staffing (ongoing).  \n- Fix service gaps the competitor can exploit (Weeks\u202f1\u20114).  \n- Re\u2011baseline the store\u2019s forecast to the expected \u201315.4\u202f% impact (Week\u202f2).  \n\n**What to measure**  \n- Customer visits vs forecast (weekly).  \n- Same\u2011store YoY.  \n- Basket size (review at week\u202f8).  \n\n**What to avoid**  \n- Do not match competitor prices across the whole range.  \n- Do not cut staffing hours in response to the initial dip.  \n\n**Owner**: Sales Operations (approved by Regional Sales Director).  \n\nNext step: schedule the price\u2011perception check and loyalty retention offer immediately.",
+   "error": null,
+   "correct": true,
+   "checks": [
+    {
+     "ok": true,
+     "what": "contains one of ['PB-COMP-NEAR']\u2026"
+    }
+   ],
+   "tools_used": [
+    "get_playbook"
+   ],
+   "tool_ok": true,
+   "numeric_accuracy": 1.0,
+   "unsupported_numbers": [],
+   "steps": 1,
+   "latency_s": 1.59
+  },
+  {
+   "id": "pb_store_competitor",
+   "q": "What should the manager of store 770 do about its recent sales drop?",
+   "answer": "**Answer:**  \nThe drop is mainly due to a competitor opening 100\u202fm away, which has cut traffic and sales by about 15\u202f% for the last five weeks.  \n- Competitor opened 100\u202fm away (root cause in anomaly episodes).  \n- Gap of \u2013\u20ac24\u202f488 (\u201315\u202f%) over the 5\u2011week episode.  \n- Traffic driver with 1.48\u202f% share of the gap.  \n- Recommendation: investigate underperformance (weekly impact \u20ac4\u202f898, confidence high).  \n\n**Next step:**  \nSchedule a store\u2011level investigation to confirm the competitor\u2019s impact and explore mitigation actions (e.g., local promotions, signage, or partnership with the new competitor).",
+   "error": null,
+   "correct": false,
+   "checks": [
+    {
+     "ok": false,
+     "what": "contains one of ['PB-COMP-NEAR']\u2026"
+    }
+   ],
+   "tools_used": [
+    "explain_store"
+   ],
+   "tool_ok": false,
+   "numeric_accuracy": 0.7,
+   "unsupported_numbers": [
+    "\u2013\u20ac24",
+    "488",
+    "898"
+   ],
+   "steps": 1,
+   "latency_s": 10.11
+  },
+  {
+   "id": "pb_competitor_impact",
+   "q": "How much do weekly sales typically drop when a competitor opens within 1 km of a store?",
+   "answer": "**Typical drop:**\u202fA competitor opening within 1\u202fkm usually reduces weekly sales by about **\u201115.4\u202f%** (95\u202f%\u202fCI\u202f\u201118.2\u202f% to \u201112.4\u202f%).\n\n- The playbook \u201cPB\u2011COMP\u2011NEAR v2\u201d reports this figure from an internal causal analysis of 32 stores.  \n- The drop is sustained over at least six months, not a one\u2011off dip.  \n- The impact is measured in weekly sales, not just traffic.  \n- The confidence interval shows the estimate is statistically robust.\n\n**Next step:**\u202fRe\u2011baseline the store\u2019s forecast by the expected impact so anomaly alerts track performance against the new normal (see playbook action \u201cRe\u2011baseline the store's forecast\u201d).\n",
+   "error": null,
+   "correct": true,
+   "checks": [
+    {
+     "ok": true,
+     "what": "report value -0.1537 (m3_competitor_impact.json)"
+    }
+   ],
+   "tools_used": [
+    "get_playbook"
+   ],
+   "tool_ok": true,
+   "numeric_accuracy": 1.0,
+   "unsupported_numbers": [],
+   "steps": 1,
+   "latency_s": 30.13
+  }
+ ]
+}

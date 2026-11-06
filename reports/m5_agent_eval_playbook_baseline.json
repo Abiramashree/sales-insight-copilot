@@ -1,0 +1,85 @@
+{
+ "n": 3,
+ "correctness": 0.0,
+ "tool_selection_accuracy": 0.0,
+ "mean_numeric_accuracy": 0.9444444444444445,
+ "latency_p50_s": 1.49,
+ "latency_p95_s": 55.03099999999999,
+ "mean_tool_calls": 2.0,
+ "llm_calls": 9,
+ "prompt_tokens": 15265,
+ "completion_tokens": 1081,
+ "rate_limit_errors_logged": 0,
+ "model": "openai/gpt-oss-120b",
+ "provider": "groq",
+ "rows": [
+  {
+   "id": "pb_competitor_near_plan",
+   "q": "A competitor just opened 300 metres from one of our stores. What is our approved response plan?",
+   "answer": "**Answer:**\u202fThe approved response is to protect promo execution by prioritizing stock and staffing on promo weeks for the stores that are among the top 25% responders to promotions (those that typically see a median lift of about\u202f+50%).  \n\n**Evidence**  \n- The recommendation \u201cprotect_promo_execution\u201d is the top\u2011ranked action in the system, with an estimated weekly impact of **\u20ac15.8\u202fk**.  \n- It targets the stores that generate the highest promo lift (median\u202f+50%).  \n- Confidence is flagged **low**, indicating the effect is suggestive and should be validated locally.  \n\n**Next step**  \n- Identify the specific store(s) within the top\u201125% responder group that are within 300\u202fm of the new competitor and implement the stock\u2011and\u2011staffing plan for upcoming promo weeks, while monitoring sales lift.",
+   "error": null,
+   "correct": false,
+   "checks": [
+    {
+     "ok": false,
+     "what": "contains one of ['PB-COMP-NEAR']\u2026"
+    }
+   ],
+   "tools_used": [
+    "get_recommendations"
+   ],
+   "tool_ok": false,
+   "numeric_accuracy": 0.8333333333333334,
+   "unsupported_numbers": [
+    "300 m"
+   ],
+   "steps": 1,
+   "latency_s": 1.49
+  },
+  {
+   "id": "pb_store_competitor",
+   "q": "What should the manager of store 770 do about its recent sales drop?",
+   "answer": "**Answer:**\u202fThe manager should launch an immediate investigation into the traffic\u2011driven sales drop \u2013 the store has been 15\u202f% below forecast for the past five weeks, largely due to a new competitor opening 100\u202fm away.\n\n- Recent weeks (June\u202f22\u202f\u2013\u202fJuly\u202f26) show a sustained gap of \u2013\u20ac24.5\u202fk (\u201115\u202f% vs forecast).  \n- All five weeks are flagged as traffic\u2011driven anomalies, with the root cause identified as \u201ccompetitor_opened\u201d.  \n- The competitor opened 100\u202fm from the store, and the traffic\u2011share impact is 1.48\u202f\u00d7\u202fnormal, indicating a strong diversion of shoppers.  \n- Promo lift for this store is strong (+45\u202f% on promo weeks), but the drop persists even on non\u2011promo periods, confirming the issue is not promotional.\n\n**Next step:**\u202fStart a focused traffic\u2011impact investigation (e.g., foot\u2011traffic counts, competitor pricing/assortment review) and develop a local response plan (targeted promotions, in\u2011store events, or marketing to recapture lost customers). This action is ranked as high\u2011confidence with an estimated weekly upside of \u20ac4.9\u202fk.",
+   "error": null,
+   "correct": false,
+   "checks": [
+    {
+     "ok": false,
+     "what": "contains one of ['PB-COMP-NEAR']\u2026"
+    }
+   ],
+   "tools_used": [
+    "explain_store"
+   ],
+   "tool_ok": false,
+   "numeric_accuracy": 1.0,
+   "unsupported_numbers": [],
+   "steps": 1,
+   "latency_s": 1.33
+  },
+  {
+   "id": "pb_competitor_impact",
+   "q": "How much do weekly sales typically drop when a competitor opens within 1 km of a store?",
+   "answer": "Weekly sales fall by about **7\u202f% (\u2248\u202f\u20ac3.2\u202fk)** in the two weeks after a competitor opens within 1\u202fkm of a store.\n\n- Based on 1\u202fkm\u2011or\u2011closer competitor openings, the average sales gap is \u20ac3,183 per week.  \n- That gap represents a 7.0\u202f% drop versus the forecasted sales for those weeks.  \n- The calculation uses the first two weeks after each competitor\u2019s opening date.  \n- No other root\u2011cause tags were recorded for these episodes, so the effect is isolated to the competition opening.\n\n**Next step:** Monitor stores where a new competitor is announced and consider targeted promotions or pricing adjustments in the first month to mitigate the expected dip.",
+   "error": null,
+   "correct": false,
+   "checks": [
+    {
+     "ok": false,
+     "what": "report value -0.1537 (m3_competitor_impact.json)"
+    }
+   ],
+   "tools_used": [
+    "run_sql",
+    "run_sql",
+    "run_sql",
+    "run_sql"
+   ],
+   "tool_ok": false,
+   "numeric_accuracy": 1.0,
+   "unsupported_numbers": [],
+   "steps": 4,
+   "latency_s": 60.98
+  }
+ ]
+}

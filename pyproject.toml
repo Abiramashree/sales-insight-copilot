@@ -1,0 +1,37 @@
+[project]
+name = "sales-insight-copilot"
+version = "0.1.0"
+description = "Automated sales insight pipeline: forecasting, anomaly detection, root-cause analysis, causal promo lift, and (later) an LLM insight layer."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "duckdb>=1.1",
+    "pandas>=2.2",
+    "numpy>=1.26",
+    "pyarrow>=17",
+    "pyyaml>=6",
+    "scikit-learn>=1.5",
+    "statsmodels>=0.14",
+    "matplotlib>=3.9",
+    "openai>=3.46.0",
+    "streamlit>=1.67.0",
+    "plotly>=7.1.0",
+    "fastembed>=0.9.1",
+]
+
+[dependency-groups]
+dev = ["pytest>=8", "ruff>=0.6"]
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/sic"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+
+[tool.ruff]
+line-length = 100

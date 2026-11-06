@@ -1,0 +1,79 @@
+{
+ "cases": 53,
+ "clean_cards": 10,
+ "defective_cards": 43,
+ "by_defect": {
+  "clean": {
+   "n": 10,
+   "deterministic": 0.0,
+   "llm_critic": 0.0,
+   "full_gate": 0.0
+  },
+  "wrong_number": {
+   "n": 9,
+   "deterministic": 0.8888888888888888,
+   "llm_critic": 1.0,
+   "full_gate": 1.0
+  },
+  "sign_flip": {
+   "n": 8,
+   "deterministic": 1.0,
+   "llm_critic": 1.0,
+   "full_gate": 1.0
+  },
+  "wow_lead": {
+   "n": 1,
+   "deterministic": 1.0,
+   "llm_critic": 0.0,
+   "full_gate": 1.0
+  },
+  "at_risk": {
+   "n": 1,
+   "deterministic": 1.0,
+   "llm_critic": 0.0,
+   "full_gate": 1.0
+  },
+  "missing_hedge": {
+   "n": 1,
+   "deterministic": 1.0,
+   "llm_critic": 1.0,
+   "full_gate": 1.0
+  },
+  "store_id_typo": {
+   "n": 6,
+   "deterministic": 1.0,
+   "llm_critic": 1.0,
+   "full_gate": 1.0
+  },
+  "double_negative": {
+   "n": 4,
+   "deterministic": 1.0,
+   "llm_critic": 0.0,
+   "full_gate": 1.0
+  },
+  "causal_leap": {
+   "n": 4,
+   "deterministic": 0.0,
+   "llm_critic": 1.0,
+   "full_gate": 1.0
+  },
+  "invented_cause": {
+   "n": 6,
+   "deterministic": 0.0,
+   "llm_critic": 1.0,
+   "full_gate": 1.0
+  },
+  "overclaim": {
+   "n": 3,
+   "deterministic": 0.0,
+   "llm_critic": 1.0,
+   "full_gate": 1.0
+  }
+ },
+ "deterministic_recall": 0.6744186046511628,
+ "deterministic_false_positive_rate": 0.0,
+ "clean_false_positives": [],
+ "full_gate_recall": 1.0,
+ "critic_false_positive_rate": 0.0,
+ "critic_false_positives": []
+}

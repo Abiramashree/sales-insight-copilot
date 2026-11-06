@@ -1,0 +1,74 @@
+{
+ "n": 3,
+ "correctness": 0.0,
+ "tool_selection_accuracy": 0.0,
+ "mean_numeric_accuracy": 0.0,
+ "latency_p50_s": 0.87,
+ "latency_p95_s": 90.30299999999998,
+ "mean_tool_calls": 0.0,
+ "llm_calls": 5,
+ "prompt_tokens": 3389,
+ "completion_tokens": 106,
+ "rate_limit_errors_logged": 3,
+ "model": "openai/gpt-oss-120b",
+ "provider": "groq",
+ "rows": [
+  {
+   "id": "pb_competitor_near_plan",
+   "q": "A competitor just opened 300 metres from one of our stores. What is our approved response plan?",
+   "answer": "",
+   "error": "RateLimitError: Error code: 429 - Rate limit reached for model `openai/gpt-oss-120b` in organization `org_<redacted>` service tier `on_demand` on tokens per day (TPD): Limit 200000, Us",
+   "correct": false,
+   "checks": [
+    {
+     "ok": false,
+     "what": "contains one of ['PB-COMP-NEAR']\u2026"
+    }
+   ],
+   "tools_used": [],
+   "tool_ok": false,
+   "numeric_accuracy": 0.0,
+   "unsupported_numbers": [],
+   "steps": 0,
+   "latency_s": 0.87
+  },
+  {
+   "id": "pb_store_competitor",
+   "q": "What should the manager of store 770 do about its recent sales drop?",
+   "answer": "",
+   "error": "RateLimitError: Error code: 429 - Rate limit reached for model `openai/gpt-oss-120b` in organization `org_<redacted>` service tier `on_demand` on tokens per day (TPD): Limit 200000, Us",
+   "correct": false,
+   "checks": [
+    {
+     "ok": false,
+     "what": "contains one of ['PB-COMP-NEAR']\u2026"
+    }
+   ],
+   "tools_used": [],
+   "tool_ok": false,
+   "numeric_accuracy": 0.0,
+   "unsupported_numbers": [],
+   "steps": 0,
+   "latency_s": 100.24
+  },
+  {
+   "id": "pb_competitor_impact",
+   "q": "How much do weekly sales typically drop when a competitor opens within 1 km of a store?",
+   "answer": "",
+   "error": "RateLimitError: Error code: 429 - Rate limit reached for model `openai/gpt-oss-120b` in organization `org_<redacted>` service tier `on_demand` on tokens per day (TPD): Limit 200000, Us",
+   "correct": false,
+   "checks": [
+    {
+     "ok": false,
+     "what": "report value -0.1537 (m3_competitor_impact.json)"
+    }
+   ],
+   "tools_used": [],
+   "tool_ok": false,
+   "numeric_accuracy": 0.0,
+   "unsupported_numbers": [],
+   "steps": 0,
+   "latency_s": 0.08
+  }
+ ]
+}

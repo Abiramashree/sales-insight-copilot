@@ -1,0 +1,24 @@
+{
+ "n": 10,
+ "top1": 0.9,
+ "top3": 1.0,
+ "blocked_versions": [
+  "PB-COMP-NEAR v1 (superseded)",
+  "PB-HOLIDAY v0 (approved)",
+  "PB-PRICE-WAR v0 (draft)"
+ ],
+ "governance_leaks": [],
+ "misses": [
+  {
+   "q": "average ticket per shopper has fallen although visitor numbers held up",
+   "expect": "PB-BASKET-DROP",
+   "got": [
+    "PB-TRAFFIC-DROP",
+    "PB-BASKET-DROP",
+    "PB-COMP-NEAR"
+   ],
+   "top1": false,
+   "top3": true
+  }
+ ]
+}

@@ -1,0 +1,110 @@
+{
+  "headline": {
+    "stores": 1115.0,
+    "first_day": "2013-01-01 00:00:00",
+    "last_day": "2015-07-31 00:00:00",
+    "total_sales": 5873180623.0,
+    "share_closed": 0.16989330609540418,
+    "avg_open_day_sales": 6955.514290755952
+  },
+  "fig_weekly": "reports/figures/m1_chain_weekly_sales.png",
+  "fig_dow_promo": "reports/figures/m1_dow_promo.png",
+  "promo_raw_uplift_pct": 0.3879897887730155,
+  "store_types": [
+    {
+      "store_type": "a",
+      "stores": 602,
+      "avg_sales": 6925.17,
+      "avg_customers": 795.36,
+      "basket": 8.71
+    },
+    {
+      "store_type": "b",
+      "stores": 17,
+      "avg_sales": 10231.41,
+      "avg_customers": 2021.82,
+      "basket": 5.06
+    },
+    {
+      "store_type": "c",
+      "stores": 148,
+      "avg_sales": 6932.51,
+      "avg_customers": 815.47,
+      "basket": 8.5
+    },
+    {
+      "store_type": "d",
+      "stores": 348,
+      "avg_sales": 6822.14,
+      "avg_customers": 606.34,
+      "basket": 11.25
+    }
+  ],
+  "fig_store_type": "reports/figures/m1_store_type_traffic_basket.png",
+  "competition_deciles": [
+    {
+      "decile": 1,
+      "median_m": 140.0,
+      "avg_sales": 7906.0
+    },
+    {
+      "decile": 2,
+      "median_m": 350.0,
+      "avg_sales": 7186.0
+    },
+    {
+      "decile": 3,
+      "median_m": 720.0,
+      "avg_sales": 6593.0
+    },
+    {
+      "decile": 4,
+      "median_m": 1270.0,
+      "avg_sales": 7023.0
+    },
+    {
+      "decile": 5,
+      "median_m": 2025.0,
+      "avg_sales": 6766.0
+    },
+    {
+      "decile": 6,
+      "median_m": 2890.0,
+      "avg_sales": 6636.0
+    },
+    {
+      "decile": 7,
+      "median_m": 4300.0,
+      "avg_sales": 6812.0
+    },
+    {
+      "decile": 8,
+      "median_m": 6920.0,
+      "avg_sales": 6795.0
+    },
+    {
+      "decile": 9,
+      "median_m": 11810.0,
+      "avg_sales": 6820.0
+    },
+    {
+      "decile": 10,
+      "median_m": 20620.0,
+      "avg_sales": 6798.0
+    }
+  ],
+  "promo2_descriptive": [
+    {
+      "promo2_enrolled": false,
+      "stores": 544,
+      "avg_sales": 7337.0
+    },
+    {
+      "promo2_enrolled": true,
+      "stores": 571,
+      "avg_sales": 6550.0
+    }
+  ],
+  "yoy_same_store_jan_jul_2015": 0.03211243368217098,
+  "fig_seasonality": "reports/figures/m1_seasonality.png"
+}

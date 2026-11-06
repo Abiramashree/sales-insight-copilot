@@ -1,0 +1,54 @@
+{
+ "population": "111 lowest-lift stores, randomized 50/50",
+ "promo_weeks_available": 29,
+ "by_duration_promo_cycles": {
+  "2": {
+   "placebo_sd": {
+    "raw": 0.0872335489113157,
+    "vs_fc": 0.015134504908496103,
+    "cuped": 0.012061141600973194
+   },
+   "mde_pct": {
+    "raw": 0.2768450136283627,
+    "vs_fc": 0.043312347990005086,
+    "cuped": 0.034367690934375444
+   },
+   "welch_false_positive_rate_cuped": 0.04833333333333333,
+   "n_windows": 24,
+   "stores": 111
+  },
+  "4": {
+   "placebo_sd": {
+    "raw": 0.08827371323488166,
+    "vs_fc": 0.013555497562448091,
+    "cuped": 0.011205976197817455
+   },
+   "mde_pct": {
+    "raw": 0.28057130564909966,
+    "vs_fc": 0.038707216275801155,
+    "cuped": 0.03189249985469107
+   },
+   "welch_false_positive_rate_cuped": 0.04893939393939394,
+   "n_windows": 22,
+   "stores": 111
+  },
+  "6": {
+   "placebo_sd": {
+    "raw": 0.0878931324033967,
+    "vs_fc": 0.012950814474182547,
+    "cuped": 0.011168057182737818
+   },
+   "mde_pct": {
+    "raw": 0.2792066503308978,
+    "vs_fc": 0.0369490620702377,
+    "cuped": 0.03178288428644277
+   },
+   "welch_false_positive_rate_cuped": 0.057666666666666665,
+   "n_windows": 20,
+   "stores": 111
+  }
+ },
+ "variance_reduction_vs_raw_2cycles": 0.9808834397430747,
+ "recommendation": "Use log(actual/forecast) with CUPED as the primary metric: 2 promo cycles detect a 3.4% effect, where raw sales would need 27.7%. Running longer barely helps (6 cycles: 3.2%) because persistent store-to-store differences dominate; to detect smaller effects, add stores rather than weeks.",
+ "figure": "reports/figures/m5_ab_power_curve.png"
+}

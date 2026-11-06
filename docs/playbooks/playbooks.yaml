@@ -1,0 +1,241 @@
+# Store response playbooks: the ONLY action guidance the copilot may retrieve.
+#
+# Authored for this portfolio project (not real Rossmann policy). Governance fields make
+# retrieval trustworthy:
+#   status          approved | draft | superseded  (only "approved" is ever retrieved)
+#   effective_from / review_by   retrieval also requires as-of date within this window
+#   applies_when    structured triggers matched against root-cause evidence
+# {placeholders} are filled at retrieval time from reports/m3_competitor_impact.json, so
+# quoted impacts always equal the latest causal analysis (and are fact-checkable).
+
+- id: PB-COMP-NEAR
+  version: 2
+  status: approved
+  owner: Sales Operations
+  approved_by: Regional Sales Director (demo)
+  effective_from: 2014-06-01
+  review_by: 2016-06-30
+  title: New competitor within 1 km — defend the catchment
+  applies_when:
+    root_cause: [competitor_opened]
+    competitor_within_m: 1000
+  situation: >
+    A competitor opened within 1 km of the store in the last six months. Customer visits
+    usually fall first; the drop is a lasting shift, not a one-off dip.
+  expected_impact: >
+    Internal causal analysis of {near_n} stores: weekly sales change {near_effect}
+    (95% CI {near_lo} to {near_hi}) after a competitor opens within 1 km, with no
+    meaningful recovery over six months.
+  plays:
+    - {step: "Price-perception check on the 50 highest-traffic items versus the new competitor; correct outliers only", owner: Store manager + Pricing, when: Weeks 1-2}
+    - {step: "Retention offer to existing loyalty customers in the catchment", owner: CRM, when: Weeks 1-4}
+    - {step: "Protect promo-week execution: full stock and peak-hour staffing on promo weeks", owner: Store manager, when: Ongoing}
+    - {step: "Fix service gaps the competitor can exploit: checkout queues, opening-hours compliance", owner: Store manager, when: Weeks 1-4}
+    - {step: "Re-baseline the store's forecast by the expected impact so anomaly alerts track performance against the new normal", owner: Decision Intelligence, when: Week 2}
+  talking_points:
+    - Expect fewer visits for a while; our job is to keep our regular customers, not to win a price war.
+    - Every promo week counts double now: no empty shelves, no long queues.
+  measure: [Customer visits vs forecast (weekly), Same-store YoY, Basket size; review at week 8]
+  do_not:
+    - Do not match competitor prices across the whole range.
+    - Do not cut staffing hours in response to the initial dip.
+
+- id: PB-COMP-NEAR
+  version: 1
+  status: superseded            # replaced by v2; must never be retrieved
+  owner: Sales Operations
+  approved_by: Regional Sales Director (demo)
+  effective_from: 2013-01-01
+  review_by: 2014-05-31
+  title: New competitor nearby — match prices
+  applies_when:
+    root_cause: [competitor_opened]
+    competitor_within_m: 1000
+  situation: Competitor opened nearby.
+  expected_impact: Not measured.
+  plays:
+    - {step: "Match competitor prices on all overlapping items", owner: Pricing, when: Immediately}
+  talking_points: []
+  measure: []
+  do_not: []
+
+- id: PB-COMP-FAR
+  version: 1
+  status: approved
+  owner: Sales Operations
+  approved_by: Regional Sales Director (demo)
+  effective_from: 2014-06-01
+  review_by: 2016-06-30
+  title: New competitor 1-5 km away — monitor and nudge
+  applies_when:
+    root_cause: [competitor_opened]
+    competitor_beyond_m: 1000
+  situation: >
+    A competitor opened 1-5 km from the store. The effect is real but smaller; respond in
+    proportion.
+  expected_impact: >
+    Internal causal analysis of {far_n} stores: weekly sales change {far_effect}
+    (95% CI {far_lo} to {far_hi}) after a competitor opens beyond 1 km.
+  plays:
+    - {step: "Watch customer visits vs forecast weekly; escalate to PB-COMP-NEAR plays if visits stay 5%+ below forecast for 4 weeks", owner: Area manager, when: Weeks 1-8}
+    - {step: "Loyalty nudge to lapsed customers in the overlap area", owner: CRM, when: Weeks 2-6}
+    - {step: "Re-baseline the store's forecast by the expected impact", owner: Decision Intelligence, when: Week 2}
+  talking_points:
+    - Small, steady effect; keep standards high and watch the weekly numbers.
+  measure: [Customer visits vs forecast (weekly); review at week 8]
+  do_not:
+    - Do not change prices in response unless the visit drop persists.
+
+- id: PB-TRAFFIC-DROP
+  version: 1
+  status: approved
+  owner: Sales Operations
+  approved_by: Regional Sales Director (demo)
+  effective_from: 2014-06-01
+  review_by: 2016-06-30
+  title: Fewer customer visits with no known cause — investigate locally
+  applies_when:
+    root_cause: [unexplained, unexplained_level_shift]
+    driver: [traffic]
+    direction: -1
+  situation: >
+    Sales are below forecast mainly because fewer customers came in, and no competitor,
+    reopening, holiday or chain-wide cause explains it.
+  expected_impact: Not quantified; depends on the local cause.
+  plays:
+    - {step: "Check for local disruptions: roadworks, parking, nearby closures or anchor-store changes", owner: Area manager, when: Week 1}
+    - {step: "Verify opening-hours compliance and unplanned closures against the schedule", owner: Store manager, when: Week 1}
+    - {step: "Review peak-hour staffing and queue times", owner: Store manager, when: Week 1-2}
+    - {step: "Escalate to the area manager if visits stay below forecast for 3 consecutive weeks", owner: Store manager, when: Week 3}
+  talking_points:
+    - We don't know the cause yet; look for what changed around the store first.
+  measure: [Customer visits vs forecast (weekly)]
+  do_not:
+    - Do not launch store-level discounts before the cause is known.
+
+- id: PB-BASKET-DROP
+  version: 1
+  status: approved
+  owner: Sales Operations
+  approved_by: Regional Sales Director (demo)
+  effective_from: 2014-06-01
+  review_by: 2016-06-30
+  title: Smaller baskets — check availability and mix
+  applies_when:
+    driver: [basket]
+    direction: -1
+  situation: Customers still come in but spend less per visit than forecast.
+  expected_impact: Not quantified.
+  plays:
+    - {step: "Check stock-outs on the top 100 items by revenue", owner: Store manager, when: Week 1}
+    - {step: "Review recent price changes and promo mix against last month", owner: Pricing, when: Week 1-2}
+    - {step: "Refresh cross-sell placements at checkout and promo end-caps", owner: Store manager, when: Week 2}
+  talking_points:
+    - Visits are fine; make sure customers find what they came for and a bit more.
+  measure: [Basket size vs forecast, Items per basket]
+  do_not:
+    - Do not cut promo depth to protect margin while baskets are shrinking.
+
+- id: PB-REOPEN
+  version: 1
+  status: approved
+  owner: Store Operations
+  approved_by: Regional Sales Director (demo)
+  effective_from: 2014-06-01
+  review_by: 2016-06-30
+  title: Store reopened after refurbishment — re-baseline and capture new customers
+  applies_when:
+    root_cause: [reopened_after_closure]
+  situation: >
+    The store reopened after a closure of a week or more. Demand often settles at a new
+    level that differs from before the closure.
+  expected_impact: Varies; re-baseline after 8 weeks of trading.
+  plays:
+    - {step: "Run a loyalty sign-up drive during the first 4 weeks after reopening", owner: CRM + Store manager, when: Weeks 1-4}
+    - {step: "Re-baseline the forecast after 8 weeks so alerts reflect the new normal", owner: Decision Intelligence, when: Week 8}
+  talking_points:
+    - New layout, new customers; capture them while curiosity is high.
+  measure: [Customer visits vs forecast, Loyalty sign-ups]
+  do_not:
+    - Do not judge the refurbishment on the first 4 weeks.
+
+- id: PB-HOLIDAY
+  version: 1
+  status: approved
+  owner: Store Operations
+  approved_by: Regional Sales Director (demo)
+  effective_from: 2014-06-01
+  review_by: 2016-06-30
+  title: Holiday-timing swing — plan, don't panic
+  applies_when:
+    root_cause: [holiday_timing, post_holiday, retail_event]
+  situation: >
+    Sales swing around Easter, Christmas, New Year or retail events like Black Friday:
+    stock-up peaks before closures, dips after.
+  expected_impact: Timing shift; weekly totals usually rebalance across adjacent weeks.
+  plays:
+    - {step: "Stock and staff for the peak day before holiday closures", owner: Store manager, when: Week before}
+    - {step: "Do not treat a post-holiday dip as a performance issue; compare the two-week total", owner: Area manager, when: After the holiday}
+  talking_points:
+    - Holiday weeks move sales between days and weeks; judge the combined period.
+  measure: [Two-week sales vs forecast around the holiday]
+  do_not:
+    - Do not escalate a single holiday week as underperformance.
+
+- id: PB-HOLIDAY
+  version: 0
+  status: approved               # approved but past review_by: expired, never retrieved
+  owner: Store Operations
+  approved_by: Regional Sales Director (demo)
+  effective_from: 2013-01-01
+  review_by: 2014-05-31
+  title: Holiday weeks — extend opening hours
+  applies_when:
+    root_cause: [holiday_timing]
+  situation: Holiday weeks.
+  expected_impact: Not measured.
+  plays:
+    - {step: "Extend opening hours in all holiday weeks", owner: Store manager, when: Holiday weeks}
+  talking_points: []
+  measure: []
+  do_not: []
+
+- id: PB-OUTPERFORM
+  version: 1
+  status: approved
+  owner: Sales Operations
+  approved_by: Regional Sales Director (demo)
+  effective_from: 2014-06-01
+  review_by: 2016-06-30
+  title: Store beating forecast — find out why and copy it
+  applies_when:
+    direction: 1
+  situation: Sales are well above forecast for one or more weeks.
+  expected_impact: Not quantified.
+  plays:
+    - {step: "Split the gain into customer visits vs basket and document what changed locally", owner: Area manager, when: Week 1-2}
+    - {step: "If the driver is repeatable (display, staffing, local partnership), pilot it in 2-3 similar stores", owner: Sales Operations, when: Weeks 3-8}
+    - {step: "Raise the store's forecast if the gain persists for 4 weeks", owner: Decision Intelligence, when: Week 4}
+  talking_points:
+    - Great weeks are a lead to follow, not just a number to celebrate.
+  measure: [Sales vs forecast in pilot stores vs comparable stores]
+  do_not:
+    - Do not roll out chain-wide before a controlled pilot.
+
+- id: PB-PRICE-WAR
+  version: 0
+  status: draft                  # never retrieved
+  owner: Pricing
+  approved_by: null
+  effective_from: 2015-06-01
+  review_by: 2016-06-30
+  title: Aggressive price response to competitors (draft)
+  applies_when:
+    root_cause: [competitor_opened]
+  situation: Draft under discussion.
+  expected_impact: Not measured.
+  plays:
+    - {step: "Cut prices 10% on all overlapping items", owner: Pricing, when: Immediately}
+  talking_points: []
+  measure: []
+  do_not: []

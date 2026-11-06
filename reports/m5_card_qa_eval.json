@@ -1,0 +1,58 @@
+{
+ "cases": 64,
+ "clean_cards": 11,
+ "defective_cards": 53,
+ "by_defect": {
+  "clean": {
+   "n": 11,
+   "deterministic": 0.0
+  },
+  "wrong_number": {
+   "n": 10,
+   "deterministic": 0.9
+  },
+  "sign_flip": {
+   "n": 9,
+   "deterministic": 1.0
+  },
+  "wow_lead": {
+   "n": 1,
+   "deterministic": 1.0
+  },
+  "at_risk": {
+   "n": 1,
+   "deterministic": 1.0
+  },
+  "missing_hedge": {
+   "n": 1,
+   "deterministic": 1.0
+  },
+  "store_id_typo": {
+   "n": 7,
+   "deterministic": 1.0
+  },
+  "double_negative": {
+   "n": 4,
+   "deterministic": 1.0
+  },
+  "uncited_action": {
+   "n": 7,
+   "deterministic": 1.0
+  },
+  "causal_leap": {
+   "n": 4,
+   "deterministic": 0.0
+  },
+  "invented_cause": {
+   "n": 6,
+   "deterministic": 0.0
+  },
+  "overclaim": {
+   "n": 3,
+   "deterministic": 0.0
+  }
+ },
+ "deterministic_recall": 0.7358490566037735,
+ "deterministic_false_positive_rate": 0.0,
+ "clean_false_positives": []
+}

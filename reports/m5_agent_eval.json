@@ -1,0 +1,336 @@
+{
+ "n": 15,
+ "correctness": 0.8666666666666667,
+ "tool_selection_accuracy": 0.9333333333333333,
+ "mean_numeric_accuracy": 0.9,
+ "latency_p50_s": 14.34,
+ "latency_p95_s": 178.83399999999952,
+ "mean_tool_calls": 0.9333333333333333,
+ "llm_calls": 29,
+ "prompt_tokens": 52772,
+ "completion_tokens": 2937,
+ "rate_limit_errors_logged": 0,
+ "model": "openai/gpt-oss-120b",
+ "provider": "groq",
+ "rows": [
+  {
+   "id": "count_type_b",
+   "q": "How many stores are store type b?",
+   "answer": "**Answer:** There are **17** stores of type\u202fb.\n\n- This count comes directly from the `dim_store` table filtered on `store_type = 'b'`.",
+   "error": null,
+   "correct": true,
+   "checks": [
+    {
+     "ok": true,
+     "what": "value 17 (int)"
+    }
+   ],
+   "tools_used": [
+    "run_sql"
+   ],
+   "tool_ok": true,
+   "numeric_accuracy": 1.0,
+   "unsupported_numbers": [],
+   "steps": 1,
+   "latency_s": 1.14
+  },
+  {
+   "id": "why_921",
+   "q": "Why is store 921 below forecast?",
+   "answer": "Store\u202f921 is running about **21\u202f% below its sales forecast** this week, driven by a traffic shortfall.\n\n- Recent weeks show two traffic\u2011driven anomaly episodes (13\u202fJul\u202f\u2013\u202f19\u202fJul\u202f\u2013\u202f14\u202f% gap; 27\u202fJul\u202f\u2013\u202f2\u202fAug\u202f\u2013\u202f21\u202f% gap).  \n- The latest episode is flagged as **\u201cunexplained\u201d**, meaning no clear external cause (e.g., promotion, competition) has been identified.  \n- Traffic share during the episode is 1.07\u202f\u00d7 the norm, indicating fewer customers than expected.  \n- Promo lift for this store is modest (+27\u202f% on promo weeks), but the current dip is not promo\u2011related.\n\n**Next step:** Open a local investigation (e.g., foot\u2011traffic counts, staffing, local events) to uncover the cause of the traffic decline and address it.",
+   "error": null,
+   "correct": true,
+   "checks": [
+    {
+     "ok": true,
+     "what": "value -0.213 (pct)"
+    },
+    {
+     "ok": true,
+     "what": "contains one of ['traffic', 'visits', 'customers']\u2026"
+    }
+   ],
+   "tools_used": [
+    "explain_store"
+   ],
+   "tool_ok": true,
+   "numeric_accuracy": 1.0,
+   "unsupported_numbers": [],
+   "steps": 1,
+   "latency_s": 2.28
+  },
+  {
+   "id": "chain_vs_forecast",
+   "q": "What were chain sales versus forecast in the week starting 2015-07-27?",
+   "answer": "**Chain sales were about\u202f+1.4\u202f% above forecast in the week of\u202f27\u202fJuly\u202f2015.**  \n\n- Sales: \u20ac47.23\u202fM  \n- Forecast: \u20ac46.57\u202fM  \n- Sales\u2011vs\u2011forecast ratio: **0.0142** (\u2248\u202f+1.42\u202f%)  \n\n*Next step:* Review the week\u2019s promo activity and traffic drivers to confirm whether the uplift is driven by promotions, seasonal factors, or other influences.",
+   "error": null,
+   "correct": true,
+   "checks": [
+    {
+     "ok": true,
+     "what": "value 0.01417 (pct)"
+    }
+   ],
+   "tools_used": [
+    "run_sql"
+   ],
+   "tool_ok": true,
+   "numeric_accuracy": 1.0,
+   "unsupported_numbers": [],
+   "steps": 1,
+   "latency_s": 14.34
+  },
+  {
+   "id": "best_yoy_type",
+   "q": "Which store type had the highest same-store year-over-year growth in the week starting 2015-07-20?",
+   "answer": "Store type **b** posted the strongest same\u2011store YoY growth, up **8.1\u202f%** in the week of\u202f2015\u201107\u201120.\n\n- YoY growth by type that week: a\u202f=\u202f2.4\u202f%, b\u202f=\u202f8.1\u202f%, c\u202f=\u202f4.1\u202f%, d\u202f=\u202f3.2\u202f%.\n- Type\u202fb\u2019s growth is the clear leader, more than double the next highest (type\u202fc).\n- This metric reflects the change in sales compared with the same week last year, after adjusting for store openings/closures.\n\n**Next step:** Review the weekly KPI drivers (traffic vs. basket) for segment\u202fb to see whether the lift came from higher footfall or higher spend per visit, and consider targeted promotions if traffic is the main driver.",
+   "error": null,
+   "correct": true,
+   "checks": [
+    {
+     "ok": true,
+     "what": "text 'b'"
+    }
+   ],
+   "tools_used": [
+    "run_sql"
+   ],
+   "tool_ok": true,
+   "numeric_accuracy": 1.0,
+   "unsupported_numbers": [],
+   "steps": 1,
+   "latency_s": 30.58
+  },
+  {
+   "id": "define_traffic_driven",
+   "q": "What does traffic-driven mean in your root-cause analysis?",
+   "answer": "**Traffic\u2011driven** means the sales shortfall is explained primarily by a drop in the number of customer visits (traffic), accounting for at least\u202f60\u202f% of the gap according to our log\u2011decomposition root\u2011cause lens.  \n\n- The analysis splits the sales gap into a \u201ctraffic\u201d (visits) component and a \u201cbasket\u201d (spend\u2011per\u2011visit) component.  \n- If the traffic component \u2265\u202f60\u202f% of the total gap, the episode is labeled **traffic\u2011driven**.  \n- This classification is part of the \u201cTraffic vs basket\u201d lens used in root\u2011cause attribution.  \n\n*Next step:* Review the episode\u2019s traffic metrics (customer counts) and any related evidence (e.g., competitor opening, store closure) to confirm the driver and plan appropriate actions.",
+   "error": null,
+   "correct": true,
+   "checks": [
+    {
+     "ok": true,
+     "what": "contains one of ['60%', '60 %', '60 percent']\u2026"
+    }
+   ],
+   "tools_used": [
+    "lookup_definition"
+   ],
+   "tool_ok": true,
+   "numeric_accuracy": 1.0,
+   "unsupported_numbers": [],
+   "steps": 1,
+   "latency_s": 16.34
+  },
+  {
+   "id": "promo2_proven",
+   "q": "Is the Promo2 effect proven?",
+   "answer": "The Promo2 enrollment effect is **suggestive, not proven** \u2013 the causal estimate shows a modest lift but fails key validation tests.  \n\n- Defined as the causal % change in weekly sales after a store joins Promo2 (difference\u2011in\u2011differences).  \n- Estimates are around **+3\u202f%** across specifications.  \n- Pre\u2011trend tests fail (enrolled stores were already declining) and placebo tests show a non\u2011zero effect, indicating the result may be biased.  \n- Documentation recommends a **randomized rollout** to obtain a definitive measurement.  \n\n**Next step:** Consider piloting a randomized enrollment of Promo2 in a subset of stores to rigorously test its impact.",
+   "error": null,
+   "correct": true,
+   "checks": [
+    {
+     "ok": true,
+     "what": "contains one of ['not proven', 'suggestive', 'uncertain']\u2026"
+    }
+   ],
+   "tools_used": [
+    "lookup_definition"
+   ],
+   "tool_ok": true,
+   "numeric_accuracy": 1.0,
+   "unsupported_numbers": [],
+   "steps": 1,
+   "latency_s": 485.28
+  },
+  {
+   "id": "lift_261",
+   "q": "What is the causal promo lift for store 261?",
+   "answer": "Store\u202f261\u2019s causal promo lift is **+73.97\u202f%** (95\u202f%\u202fCI\u202f+70.09\u202f%\u202f\u2013\u202f+77.94\u202f%).  \n\n- Lift = 0.7397 \u2192 a 73.97\u202f% sales increase on promo weeks.  \n- Lower bound = 0.7009 (70.09\u202f%); upper bound = 0.7794 (77.94\u202f%).  \n- These figures come from the promo\u2011lift model that isolates the incremental effect of promotions for each store.  \n\n**Next step:** Compare this lift to the store\u2019s baseline sales and consider whether the promotion mix can be optimized further (e.g., test higher\u2011margin promos).",
+   "error": null,
+   "correct": true,
+   "checks": [
+    {
+     "ok": true,
+     "what": "value 0.7397 (pct)"
+    }
+   ],
+   "tools_used": [
+    "run_sql"
+   ],
+   "tool_ok": true,
+   "numeric_accuracy": 1.0,
+   "unsupported_numbers": [],
+   "steps": 1,
+   "latency_s": 1.49
+  },
+  {
+   "id": "top_recs",
+   "q": "What are the top 3 recommended actions right now?",
+   "answer": "**Answer:** The three highest\u2011impact actions right now are:\n\n- **Protect promo execution** \u2013 focus on stock and staffing for the top\u201125 promo\u2011responsive stores (median lift\u202f\u2248\u202f+50%). Expected weekly gain\u202f\u2248\u202f\u20ac15.8\u202fk (low confidence).  \n- **Investigate under\u2011performance at store\u202f722** \u2013 sales are\u202f\u201123% vs forecast for one week, driven by traffic decline. Expected weekly recovery\u202f\u2248\u202f\u20ac13.4\u202fk (medium confidence).  \n- **Investigate under\u2011performance at store\u202f921** \u2013 sales are\u202f\u201121% vs forecast for one week, also traffic\u2011driven. Expected weekly recovery\u202f\u2248\u202f\u20ac12.3\u202fk (medium confidence).  \n\n**Next step:** Prioritize the portfolio\u2011level promo\u2011execution safeguard while opening tickets for stores\u202f722 and\u202f921 to diagnose traffic issues and implement corrective actions.",
+   "error": null,
+   "correct": true,
+   "checks": [
+    {
+     "ok": true,
+     "what": "text 722"
+    }
+   ],
+   "tools_used": [
+    "get_recommendations"
+   ],
+   "tool_ok": true,
+   "numeric_accuracy": 1.0,
+   "unsupported_numbers": [],
+   "steps": 1,
+   "latency_s": 11.67
+  },
+  {
+   "id": "basket_last_week",
+   "q": "What was the chain's average basket in the week starting 2015-07-27?",
+   "answer": "**The chain\u2019s average basket for the week starting\u202f2015\u201107\u201127 was\u202f\u20ac10.49.**  \n\n- Retrieved from the weekly KPI table for the \u201cALL\u201d segment.  \n- Value is the basket size (average spend per transaction) for that week.  \n\n*Next step:* Compare this basket size to the same week in prior years to see if the trend is seasonal or indicates a shift.",
+   "error": null,
+   "correct": true,
+   "checks": [
+    {
+     "ok": true,
+     "what": "value 10.49 (num)"
+    }
+   ],
+   "tools_used": [
+    "run_sql"
+   ],
+   "tool_ok": true,
+   "numeric_accuracy": 1.0,
+   "unsupported_numbers": [],
+   "steps": 1,
+   "latency_s": 17.41
+  },
+  {
+   "id": "count_down_episodes",
+   "q": "How many anomaly episodes were below forecast in total?",
+   "answer": "**525 anomaly episodes have been recorded as below forecast.**\n\n- Counted directly from the `episodes` table where `direction = -1`.  \n- This reflects all stores and weeks up to the latest data (July\u202f31\u202f2015).  \n- No additional filtering was applied.  \n\n*Next step:* Review the root\u2011cause summaries for these episodes (via `explain_store`) to prioritize investigations.",
+   "error": null,
+   "correct": true,
+   "checks": [
+    {
+     "ok": true,
+     "what": "value 525 (int)"
+    }
+   ],
+   "tools_used": [
+    "run_sql"
+   ],
+   "tool_ok": true,
+   "numeric_accuracy": 1.0,
+   "unsupported_numbers": [],
+   "steps": 1,
+   "latency_s": 33.42
+  },
+  {
+   "id": "out_of_scope_2016",
+   "q": "What will total sales be in December 2016?",
+   "answer": "The dataset only covers daily sales up to\u202f31\u202fJuly\u202f2015, so we don\u2019t have any sales records or forecasts for December\u202f2016.  \n\n- The\u202f`fct_daily_store_sales`\u202fand related tables stop at 2015\u201107\u201131.  \n- No forecast tables extend beyond that date.  \n\n**Next step:** If you need a projection for December\u202f2016, you\u2019ll need to provide a newer data extract or a forecasting model that extends beyond the current data range.",
+   "error": null,
+   "correct": true,
+   "checks": [
+    {
+     "ok": true,
+     "what": "contains one of ['not available', \"don't have\", 'do not have']\u2026"
+    }
+   ],
+   "tools_used": [],
+   "tool_ok": true,
+   "numeric_accuracy": 1.0,
+   "unsupported_numbers": [],
+   "steps": 0,
+   "latency_s": 9.85
+  },
+  {
+   "id": "biggest_shortfall",
+   "q": "Which store had the largest shortfall versus forecast in euros in the week starting 2015-07-27?",
+   "answer": "**Store\u202f722 recorded the biggest weekly shortfall, losing about \u20ac13.4\u202fk versus its forecast for the week of\u202f2015\u201107\u201127.**\n\n- Gap (sales\u202f\u2013\u202fforecast) = **\u201113\u202f428.83\u202f\u20ac** (most negative among all stores that week).  \n- This figure comes directly from the `store_weeks` table for week_start\u202f=\u202f\u20182015\u201107\u201127\u2019.  \n- No other store showed a larger negative gap in that period.  \n\n*Next step:*\u202fAsk for the store\u2019s anomaly episode details (via `explain_store`) to understand the root\u2011cause and possible corrective actions.",
+   "error": null,
+   "correct": true,
+   "checks": [
+    {
+     "ok": true,
+     "what": "text 722"
+    }
+   ],
+   "tools_used": [
+    "run_sql"
+   ],
+   "tool_ok": true,
+   "numeric_accuracy": 0.5,
+   "unsupported_numbers": [
+    "\u201113",
+    "428.83"
+   ],
+   "steps": 1,
+   "latency_s": 8.98
+  },
+  {
+   "id": "pb_competitor_near_plan",
+   "q": "A competitor just opened 300 metres from one of our stores. What is our approved response plan?",
+   "answer": "",
+   "error": "BadRequestError: Error code: 400 - Tool call validation failed: tool call validation failed: parameters for tool get_playbook did not match schema: errors: [`/store_id`: expected integer, but got null",
+   "correct": false,
+   "checks": [
+    {
+     "ok": false,
+     "what": "contains one of ['PB-COMP-NEAR']\u2026"
+    }
+   ],
+   "tools_used": [],
+   "tool_ok": false,
+   "numeric_accuracy": 0.0,
+   "unsupported_numbers": [],
+   "steps": 0,
+   "latency_s": 4.75
+  },
+  {
+   "id": "pb_store_competitor",
+   "q": "What should the manager of store 770 do about its recent sales drop?",
+   "answer": "Store\u202f770 should launch the \u201cdefend the catch\u2011area\u201d playbook for a new competitor that opened 100\u202fm away, focusing on retaining traffic and protecting promo execution.\n\n- Sales are\u202f\u2248\u201115% below forecast for the past\u202f5\u202fweeks (gap\u202f\u2011\u20ac24.5\u202fk, traffic\u2011driven).  \n- Root\u2011cause analysis attributes the drop to a competitor opening 100\u202fm away; the impact is persistent, not a one\u2011off dip.  \n- Promo lift potential is strong (+45\u202f% lift) but traffic loss is outweighing it.  \n- The recommended action (investigate under\u2011performance) predicts a weekly gain of about **\u20ac4.9\u202fk** if addressed.\n\n**Next step:** Follow Playbook\u202fPB\u2011COMP\u2011NEAR\u202fv2 \u2013 run the price\u2011perception check, issue a loyalty retention offer, and ensure full stock & staffing on promo weeks while monitoring weekly visits vs forecast.",
+   "error": null,
+   "correct": false,
+   "checks": [
+    {
+     "ok": false,
+     "what": "contains one of ['PB-COMP-NEAR']\u2026"
+    }
+   ],
+   "tools_used": [
+    "explain_store",
+    "get_playbook"
+   ],
+   "tool_ok": true,
+   "numeric_accuracy": 1.0,
+   "unsupported_numbers": [],
+   "steps": 2,
+   "latency_s": 47.5
+  },
+  {
+   "id": "pb_competitor_impact",
+   "q": "How much do weekly sales typically drop when a competitor opens within 1 km of a store?",
+   "answer": "Weekly sales typically fall about **15.4\u202f%** when a competitor opens within 1\u202fkm of a store (95\u202f%\u202fCI\u202f\u201118.2\u202f% to\u202f\u201112.4\u202f%)\u3010PB\u2011COMP\u2011NEAR v2\u3011.  \n\n- The impact is measured from internal causal analysis of 32 stores.  \n- The drop is a lasting shift, not a one\u2011off dip, and shows little recovery over six months.  \n- The estimate is based on observed weekly sales changes after the competitor opening.  \n\n**Next step:** Apply the \u201cNew competitor within 1\u202fkm \u2013 defend the catchment\u201d playbook (PB\u2011COMP\u2011NEAR v2) to mitigate the impact, focusing on price\u2011perception checks, loyalty retention offers, and protecting promo\u2011week execution.",
+   "error": null,
+   "correct": true,
+   "checks": [
+    {
+     "ok": true,
+     "what": "report value -0.1537 (m3_competitor_impact.json)"
+    }
+   ],
+   "tools_used": [
+    "get_playbook"
+   ],
+   "tool_ok": true,
+   "numeric_accuracy": 1.0,
+   "unsupported_numbers": [],
+   "steps": 1,
+   "latency_s": 28.92
+  }
+ ]
+}

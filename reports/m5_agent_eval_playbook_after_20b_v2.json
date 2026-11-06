@@ -1,0 +1,69 @@
+{
+ "n": 2,
+ "infra_errors": 0,
+ "correctness": 1.0,
+ "tool_selection_accuracy": 0.5,
+ "mean_numeric_accuracy": 0.7142857142857143,
+ "latency_p50_s": 23.93,
+ "latency_p95_s": 38.735,
+ "mean_tool_calls": 1.0,
+ "llm_calls": 4,
+ "prompt_tokens": 9557,
+ "completion_tokens": 557,
+ "rate_limit_errors_logged": 0,
+ "model": "openai/gpt-oss-20b",
+ "provider": "groq",
+ "rows": [
+  {
+   "id": "why_921",
+   "q": "Why is store 921 below forecast?",
+   "answer": "Store\u202f921 is under\u2011forecast because it had a traffic\u2011driven drop in visits with no known external cause.  \n\n- Last week\u2019s sales were \u20ac45\u202f573 vs forecast \u20ac57\u202f907 (\u201121\u202f% gap).  \n- The anomaly episode shows a traffic driver with 107\u202f% traffic share of the gap.  \n- Root cause is listed as \u201cunexplained\u201d \u2013 no competitor, holiday or chain\u2011wide event explains it.  \n- The approved playbook (PB\u2011TRAFFIC\u2011DROP\u202fv1) recommends a local investigation of roadworks, parking, opening\u2011hour compliance, staffing and queue times.\n\n**Next step:** Initiate the PB\u2011TRAFFIC\u2011DROP playbook: check for local disruptions and verify opening hours, then review peak\u2011hour staffing if visits remain low.",
+   "error": null,
+   "correct": true,
+   "checks": [
+    {
+     "ok": true,
+     "what": "value -0.213 (pct)"
+    },
+    {
+     "ok": true,
+     "what": "contains one of ['traffic', 'visits', 'customers']\u2026"
+    }
+   ],
+   "tools_used": [
+    "explain_store"
+   ],
+   "tool_ok": true,
+   "numeric_accuracy": 0.42857142857142855,
+   "unsupported_numbers": [
+    "\u20ac45",
+    "573",
+    "\u20ac57",
+    "907"
+   ],
+   "steps": 1,
+   "latency_s": 7.48
+  },
+  {
+   "id": "pb_store_competitor",
+   "q": "What should the manager of store 770 do about its recent sales drop?",
+   "answer": "**Answer:**  \nStore\u202f770 should follow the \u201cNew competitor within 1\u202fkm \u2013 defend the catchment\u201d playbook (PB\u2011COMP\u2011NEAR\u202fv2).  \n- The drop is a 15\u202f% traffic\u2011driven anomaly that began when a competitor opened 100\u202fm away.  \n- The playbook recommends price\u2011perception checks, a loyalty retention offer, protecting promo\u2011week execution, fixing service gaps, and re\u2011baseline the forecast.  \n- Expected weekly impact is about\u202f\u20ac4.9\u202fk in lost sales, with no recovery over six months if left unaddressed.\n\n**Evidence**  \n- Anomaly episode (2015\u201106\u201122\u202fto\u202f2015\u201107\u201126) shows a 15\u202f% gap driven by traffic, root cause \u201ccompetitor_opened\u201d.  \n- Competitor distance is 100\u202fm, matching the playbook\u2019s trigger.  \n- Playbook cites a 15.4\u202f% weekly sales drop (95\u202f%\u202fCI \u201318.2\u202f% to \u201312.4\u202f%) after a competitor opens within 1\u202fkm.  \n- Recommendations list a weekly impact of \u20ac4,898 for investigating underperformance.\n\n**Next step**  \nImplement the PB\u2011COMP\u2011NEAR\u202fv2 actions: start the price\u2011perception check and loyalty retention offer immediately, and re\u2011baseline the store forecast by week\u202f2. Monitor weekly visits and basket size to confirm the expected shift.",
+   "error": null,
+   "correct": true,
+   "checks": [
+    {
+     "ok": true,
+     "what": "contains one of ['PB-COMP-NEAR']\u2026"
+    }
+   ],
+   "tools_used": [
+    "explain_store"
+   ],
+   "tool_ok": false,
+   "numeric_accuracy": 1.0,
+   "unsupported_numbers": [],
+   "steps": 1,
+   "latency_s": 40.38
+  }
+ ]
+}

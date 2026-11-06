@@ -1,0 +1,187 @@
+{
+  "as_of_week": "2015-08-02",
+  "n_recommendations": 93,
+  "by_type": {
+    "replicate_outperformance": 68,
+    "investigate_underperformance": 22,
+    "protect_promo_execution": 1,
+    "promo_targeting_pilot": 1,
+    "promo2_program": 1
+  },
+  "top10": [
+    {
+      "type": "protect_promo_execution",
+      "store_id": null,
+      "action": "Prioritize stock & staffing on promo weeks in the top 25 responders (median lift +50%).",
+      "weekly_eur_impact": 15786.6204751285,
+      "confidence": "low",
+      "rank": 1.0
+    },
+    {
+      "type": "investigate_underperformance",
+      "store_id": 722.0,
+      "action": "Investigate store 722: -23% vs forecast for 1 week(s), traffic-driven.",
+      "weekly_eur_impact": 13428.8284045544,
+      "confidence": "medium",
+      "rank": 2.0
+    },
+    {
+      "type": "investigate_underperformance",
+      "store_id": 921.0,
+      "action": "Investigate store 921: -21% vs forecast for 1 week(s), traffic-driven.",
+      "weekly_eur_impact": 12334.3459926641,
+      "confidence": "medium",
+      "rank": 3.0
+    },
+    {
+      "type": "investigate_underperformance",
+      "store_id": 1066.0,
+      "action": "Investigate store 1066: -17% vs forecast for 3 week(s), traffic-driven.",
+      "weekly_eur_impact": 10536.7699114268,
+      "confidence": "high",
+      "rank": 4.0
+    },
+    {
+      "type": "investigate_underperformance",
+      "store_id": 711.0,
+      "action": "Investigate store 711: -19% vs forecast for 1 week(s), traffic-driven.",
+      "weekly_eur_impact": 8710.5358216624,
+      "confidence": "medium",
+      "rank": 5.0
+    },
+    {
+      "type": "investigate_underperformance",
+      "store_id": 753.0,
+      "action": "Investigate store 753: -15% vs forecast for 1 week(s), traffic-driven.",
+      "weekly_eur_impact": 8439.1486797756,
+      "confidence": "medium",
+      "rank": 6.0
+    },
+    {
+      "type": "investigate_underperformance",
+      "store_id": 616.0,
+      "action": "Investigate store 616: -14% vs forecast for 1 week(s), traffic-driven.",
+      "weekly_eur_impact": 7517.1678806468,
+      "confidence": "medium",
+      "rank": 7.0
+    },
+    {
+      "type": "investigate_underperformance",
+      "store_id": 734.0,
+      "action": "Investigate store 734: -19% vs forecast for 1 week(s), traffic-driven.",
+      "weekly_eur_impact": 7204.7159230699,
+      "confidence": "medium",
+      "rank": 8.0
+    },
+    {
+      "type": "replicate_outperformance",
+      "store_id": 909.0,
+      "action": "Study store 909: +36% vs forecast for 1 week(s); identify what is working and replicate.",
+      "weekly_eur_impact": 6559.2224028079,
+      "confidence": "low",
+      "rank": 9.0
+    },
+    {
+      "type": "investigate_underperformance",
+      "store_id": 463.0,
+      "action": "Investigate store 463: -17% vs forecast for 1 week(s), traffic-driven.",
+      "weekly_eur_impact": 6454.819981629,
+      "confidence": "medium",
+      "rank": 10.0
+    }
+  ],
+  "portfolio": [
+    {
+      "type": "promo_targeting_pilot",
+      "store_id": null,
+      "action": "A/B-test promo mechanics in the 111 lowest-lift stores (median lift +22% vs chain +40%); randomize half to an alternative mechanic for 2 promo cycles.",
+      "weekly_eur_impact": null,
+      "confidence": "medium",
+      "evidence": {
+        "stores": [
+          789,
+          794,
+          948,
+          353,
+          274,
+          769,
+          733,
+          259,
+          760,
+          512,
+          676,
+          112,
+          1075,
+          1097,
+          299,
+          260,
+          530,
+          498,
+          554,
+          349
+        ],
+        "weekly_promo_revenue_at_stake": 404986.556785444,
+        "share_type_b_or_extra": 0.10810810810810811,
+        "caveat": "Lift is vs. non-promo weeks and may include pull-forward; no margin data, so \u20ac is revenue, not profit."
+      }
+    },
+    {
+      "type": "protect_promo_execution",
+      "store_id": null,
+      "action": "Prioritize stock & staffing on promo weeks in the top 25 responders (median lift +50%).",
+      "weekly_eur_impact": 15786.62047512853,
+      "confidence": "low",
+      "evidence": {
+        "stores": [
+          261,
+          335,
+          1027,
+          380,
+          368,
+          234,
+          909,
+          544,
+          831,
+          279,
+          336,
+          768,
+          756,
+          35,
+          545,
+          809,
+          963,
+          876,
+          251,
+          526,
+          528,
+          595,
+          1033,
+          552,
+          513
+        ],
+        "assumption": "5% of incremental promo revenue lost to stock-outs today."
+      }
+    },
+    {
+      "type": "promo2_program",
+      "store_id": null,
+      "action": "Do not scale Promo2 on observational evidence alone; run a randomized staggered rollout to settle the effect.",
+      "weekly_eur_impact": null,
+      "confidence": "low",
+      "evidence": {
+        "did_effect_pct": 0.028519417219002197,
+        "ci_pct": [
+          0.011187573231056236,
+          0.04614833053807388
+        ],
+        "pretrend_p": 0.000743407528936868,
+        "placebo_effect_pct": -0.027347268160977656,
+        "robustness": {
+          "trend_adjusted": 0.04728084194846538,
+          "donut_drop_12w_pre": 0.022362289475624575
+        },
+        "reason": "Positive in every spec, but enrolled stores were sliding before enrollment (pre-trend p<0.01), so part may be rebound."
+      }
+    }
+  ]
+}

@@ -1,0 +1,32 @@
+# Paraphrased questions -> the doc chunk(s) that answer them. A hit = any listed source
+# substring appears in the retrieved chunk's source. Queries avoid copying chunk titles.
+- q: how do you compute average spend per customer
+  expect: ["kpis.yaml#basket"]
+- q: what does it mean when a store gets flagged
+  expect: ["methodology.md#What counts as an anomaly"]
+- q: is the continuing promotion scheme actually working
+  expect: ["programs.md#Promo2", "kpis.yaml#promo2_effect"]
+- q: why could forecasts run low just before public holidays
+  expect: ["methodology.md#Known limitations"]
+- q: what does it mean that a drop is driven by footfall
+  expect: ["methodology.md#Root-cause lenses", "kpis.yaml#customers"]
+- q: how accurate is the sales forecasting model
+  expect: ["kpis.yaml#forecast_wape", "methodology.md#Forecast"]
+- q: how is growth versus last year calculated
+  expect: ["kpis.yaml#yoy_growth"]
+- q: what portion of revenue happens on discount days
+  expect: ["kpis.yaml#promo_sales_share"]
+- q: how often are shops shut on weekdays
+  expect: ["kpis.yaml#closure_rate"]
+- q: can I trust the uncertainty bands around the forecast
+  expect: ["methodology.md#Prediction interval"]
+- q: what experiment do you suggest for stores that barely respond to promotions
+  expect: ["programs.md#Promo mechanics pilot"]
+- q: does the promotion uplift include people just buying earlier
+  expect: ["programs.md#Promo (daily promotion)", "kpis.yaml#promo_lift"]
+- q: euro difference between what we sold and what we expected
+  expect: ["kpis.yaml#forecast_gap"]
+- q: is this week's miss caused by a handful of shops or everyone
+  expect: ["kpis.yaml#gap_concentration_top10"]
+- q: revenue productivity per trading day per store
+  expect: ["kpis.yaml#sales_per_store_day"]

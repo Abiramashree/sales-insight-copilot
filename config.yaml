@@ -1,0 +1,75 @@
+# Paths are relative to the project root unless absolute.
+paths:
+  raw_source: ../rossmann-store-sales   # Kaggle download (train.csv, store.csv), relative to project root
+  raw: data/raw
+  warehouse: data/warehouse/sic.duckdb
+  outputs: data/outputs
+  reports: reports
+  figures: reports/figures
+
+forecast:
+  # Rolling-origin backtest: each fold trains on all data before `start`
+  # and predicts through `end`. Out-of-sample predictions from all folds
+  # feed anomaly detection.
+  folds:
+    - {start: "2014-08-01", end: "2014-10-31"}
+    - {start: "2014-11-01", end: "2015-01-31"}
+    - {start: "2015-02-01", end: "2015-04-30"}
+    - {start: "2015-05-01", end: "2015-07-31"}
+  interval: [0.05, 0.95]      # prediction interval quantiles
+  gbm:                        # sklearn HistGradientBoostingRegressor params
+    max_iter: 700               # v1: 400 @ 0.08
+    learning_rate: 0.05
+    max_leaf_nodes: 63
+    min_samples_leaf: 50
+    l2_regularization: 1.0
+
+detect:
+  min_weekly_gap_pct: 0.10    # |actual/forecast - 1| for a store-week to count
+  min_share_days_outside: 0.5 # share of open days outside the PI, same direction
+  min_open_days: 3
+
+causal:
+  promo2_min_pre_weeks: 26    # cohorts need this much pre-period data
+  promo2_min_post_weeks: 13
+  event_window_weeks: [-26, 26]
+  event_bin_weeks: 4          # event-study bins
+  placebo_shift_weeks: 13     # fake start this many weeks before the real one
+
+llm:
+  provider: groq                      # groq (default) | gemini (free tier: 20 requests/day/model)
+  temperature: 0.2
+  max_tokens: 4000                    # includes hidden reasoning tokens
+  timeout_s: 60
+  max_retries: 2                      # SDK retries 5xx; 429s handled by client wait-and-retry
+  log_path: data/outputs/llm_calls.jsonl
+  providers:
+    gemini:                           # Google AI Studio, OpenAI-compatible endpoint
+      base_url: https://generativelanguage.googleapis.com/v1beta/openai/
+      model: gemini-3.5-flash         # pinned; 3.7/3.8-flash returned 503 "high demand" on free tier
+      api_key_env: GEMINI_API_KEY
+      reasoning_effort: low
+      price_per_mtok: {input: 0.0, output: 0.0}   # free tier; check aistudio for paid rates
+    groq:                             # https://console.groq.com (OpenAI-compatible)
+      base_url: https://api.groq.com/openai/v1
+      model: openai/gpt-oss-120b      # alternatives on Groq: openai/gpt-oss-20b, qwen/qwen3.8-27b
+      critic_model: openai/gpt-oss-20b  # own rate-limit bucket: ~2x card throughput
+      api_key_env: GROQ_API_KEY
+      reasoning_effort: low           # gpt-oss supports low | medium | high
+      price_per_mtok: {input: 0.15, output: 0.60}   # check console.groq.com; free tier = $0
+
+insights:
+  n_underperformance_cards: 4
+  n_outperformance_cards: 2
+  max_revisions: 1
+  critic_reasoning_effort: medium     # low-effort critic passed cards that broke its checklist
+  snapshot_min_publish_rate: 0.8      # only good runs replace demo/insight_cards_snapshot.json
+  health_check_timeout_s: 10          # demo: quick LLM check before trying live
+  live_time_budget_s: 240             # demo: fall back to saved cards after this
+  parallel_cards: 3                   # watch requests/min on free tiers
+
+agent:
+  max_steps: 8
+  sql_row_limit: 100
+  tool_result_max_chars: 8000
+  trace_path: data/outputs/agent_traces.jsonl

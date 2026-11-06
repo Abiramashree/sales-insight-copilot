@@ -1,0 +1,83 @@
+# Agent golden set. Expected values are computed by SQL at eval time (sandbox tables),
+# so the set stays valid when the pipeline is re-run. Check types:
+#   value: answer must contain the SQL scalar (kind: pct | int | eur | num)
+#   text:  answer must contain the SQL scalar as a word (pattern optional, {v} = value)
+#   contains_any: answer must contain one of the words (case-insensitive)
+- id: count_type_b
+  q: How many stores are store type b?
+  tools: [run_sql]
+  checks:
+    - {value: "select count(*) from dim_store where store_type = 'b'", kind: int}
+- id: why_921
+  q: Why is store 921 below forecast?
+  tools: [explain_store]
+  checks:
+    - {value: "select gap_pct from episodes where store_id = 921 order by start desc limit 1", kind: pct}
+    - {contains_any: [traffic, visits, customers, footfall]}
+- id: chain_vs_forecast
+  q: What were chain sales versus forecast in the week starting 2015-07-27?
+  tools: [run_sql]
+  checks:
+    - {value: "select sales_vs_forecast from weekly_kpis where segment = 'ALL' and week_start = '2015-07-27'", kind: pct}
+- id: best_yoy_type
+  q: Which store type had the highest same-store year-over-year growth in the week starting 2015-07-20?
+  tools: [run_sql]
+  checks:
+    - {text: "select segment from weekly_kpis where segment <> 'ALL' and week_start = '2015-07-20' order by yoy_growth desc limit 1", pattern: "type[\\s'\"*]*{v}\\b"}
+- id: define_traffic_driven
+  q: What does traffic-driven mean in your root-cause analysis?
+  tools: [lookup_definition]
+  checks:
+    - {contains_any: ["60%", "60 %", "60 percent"]}
+- id: promo2_proven
+  q: Is the Promo2 effect proven?
+  tools: []
+  checks:
+    - {contains_any: [not proven, suggestive, uncertain, not definitive, inconclusive, "not conclusive"]}
+- id: lift_261
+  q: What is the causal promo lift for store 261?
+  tools: [explain_store, run_sql]
+  checks:
+    - {value: "select lift from promo_lift where store_id = 261", kind: pct}
+- id: top_recs
+  q: What are the top 3 recommended actions right now?
+  tools: [get_recommendations]
+  checks:
+    - {text: "select cast(store_id as int) from recommendations where store_id is not null order by rank limit 1"}
+- id: basket_last_week
+  q: What was the chain's average basket in the week starting 2015-07-27?
+  tools: [run_sql]
+  checks:
+    - {value: "select basket from weekly_kpis where segment = 'ALL' and week_start = '2015-07-27'", kind: num}
+- id: count_down_episodes
+  q: How many anomaly episodes were below forecast in total?
+  tools: [run_sql]
+  checks:
+    - {value: "select count(*) from episodes where direction = -1", kind: int}
+- id: out_of_scope_2016
+  q: What will total sales be in December 2016?
+  tools: []
+  checks:
+    - {contains_any: [not available, "don't have", do not have, outside, no data, only covers, through 2015, "until 2015", cannot, "can't", not possible, unable]}
+- id: biggest_shortfall
+  q: Which store had the largest shortfall versus forecast in euros in the week starting 2015-07-27?
+  tools: [run_sql]
+  checks:
+    - {text: "select store_id from store_weeks where week_start = '2015-07-27' order by gap asc limit 1"}
+
+# ---------- competitive-response playbooks (added before building the playbook RAG) ----------
+- id: pb_competitor_near_plan
+  q: A competitor just opened 300 metres from one of our stores. What is our approved response plan?
+  tools: [get_playbook]
+  checks:
+    - {contains_any: ["PB-COMP-NEAR"]}
+- id: pb_store_competitor
+  q: What should the manager of store 770 do about its recent sales drop?
+  tools: [get_playbook]
+  checks:
+    - {contains_any: ["PB-COMP-NEAR"]}
+- id: pb_competitor_impact
+  q: How much do weekly sales typically drop when a competitor opens within 1 km of a store?
+  tools: [get_playbook]
+  checks:
+    - {report: m3_competitor_impact.json, path: by_distance.within_1000m.effect_pct, kind: pct}

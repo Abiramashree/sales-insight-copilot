@@ -1,0 +1,161 @@
+{
+  "calibration": {
+    "log_widening": {
+      "2": 0.015383391660853087,
+      "3": 0.057274037635694136,
+      "4": 0.02717585694900558
+    },
+    "coverage": {
+      "1": {
+        "raw": 0.8674243461591127,
+        "calibrated": 0.8674243461591127
+      },
+      "2": {
+        "raw": 0.7649779384402743,
+        "calibrated": 0.8118255276168199
+      },
+      "3": {
+        "raw": 0.839180438774524,
+        "calibrated": 0.9403812699333141
+      },
+      "4": {
+        "raw": 0.8389868623505741,
+        "calibrated": 0.9021659367972541
+      }
+    }
+  },
+  "store_weeks": 55097,
+  "anomalous_store_weeks": 2569,
+  "anomaly_rate": 0.04662685808664718,
+  "episodes": 2001,
+  "episodes_up": 1476,
+  "episodes_down": 525,
+  "segment_anomalies": [
+    {
+      "store_type": "a",
+      "week_start": "2015-01-05",
+      "gap_pct": -0.107,
+      "robust_z": -3.656
+    },
+    {
+      "store_type": "c",
+      "week_start": "2014-11-24",
+      "gap_pct": 0.143,
+      "robust_z": 3.503
+    },
+    {
+      "store_type": "c",
+      "week_start": "2014-12-22",
+      "gap_pct": 0.16,
+      "robust_z": 3.937
+    },
+    {
+      "store_type": "d",
+      "week_start": "2014-12-22",
+      "gap_pct": 0.146,
+      "robust_z": 3.664
+    }
+  ],
+  "top_episodes": [
+    {
+      "store_id": 192,
+      "store_type": "d",
+      "direction": 1,
+      "start": "2015-01-12",
+      "end": "2015-05-03",
+      "weeks": 16,
+      "gap": 369106.792,
+      "gap_pct": 0.457
+    },
+    {
+      "store_id": 470,
+      "store_type": "a",
+      "direction": 1,
+      "start": "2014-08-18",
+      "end": "2014-11-02",
+      "weeks": 11,
+      "gap": 234268.255,
+      "gap_pct": 0.297
+    },
+    {
+      "store_id": 1073,
+      "store_type": "a",
+      "direction": 1,
+      "start": "2015-04-20",
+      "end": "2015-07-26",
+      "weeks": 14,
+      "gap": 178610.609,
+      "gap_pct": 0.301
+    },
+    {
+      "store_id": 576,
+      "store_type": "c",
+      "direction": 1,
+      "start": "2015-01-26",
+      "end": "2015-03-22",
+      "weeks": 8,
+      "gap": 146225.435,
+      "gap_pct": 0.452
+    },
+    {
+      "store_id": 1081,
+      "store_type": "b",
+      "direction": 1,
+      "start": "2015-05-25",
+      "end": "2015-07-26",
+      "weeks": 9,
+      "gap": 118911.785,
+      "gap_pct": 0.408
+    },
+    {
+      "store_id": 578,
+      "store_type": "d",
+      "direction": 1,
+      "start": "2015-06-22",
+      "end": "2015-08-02",
+      "weeks": 6,
+      "gap": 113565.406,
+      "gap_pct": 0.373
+    },
+    {
+      "store_id": 815,
+      "store_type": "a",
+      "direction": -1,
+      "start": "2015-01-05",
+      "end": "2015-02-08",
+      "weeks": 5,
+      "gap": -103305.298,
+      "gap_pct": -0.357
+    },
+    {
+      "store_id": 169,
+      "store_type": "d",
+      "direction": -1,
+      "start": "2014-08-18",
+      "end": "2014-11-02",
+      "weeks": 11,
+      "gap": -102761.681,
+      "gap_pct": -0.22
+    },
+    {
+      "store_id": 267,
+      "store_type": "c",
+      "direction": 1,
+      "start": "2014-11-24",
+      "end": "2015-01-04",
+      "weeks": 6,
+      "gap": 99769.33,
+      "gap_pct": 0.284
+    },
+    {
+      "store_id": 973,
+      "store_type": "d",
+      "direction": 1,
+      "start": "2014-08-04",
+      "end": "2014-10-12",
+      "weeks": 10,
+      "gap": 93658.262,
+      "gap_pct": 0.25
+    }
+  ]
+}

@@ -1,0 +1,527 @@
+{
+  "root_cause_mix": [
+    {
+      "root_cause": "competitor_opened",
+      "direction": -1,
+      "episodes": 22,
+      "total_gap": -317254.0
+    },
+    {
+      "root_cause": "competitor_opened",
+      "direction": 1,
+      "episodes": 13,
+      "total_gap": 204453.0
+    },
+    {
+      "root_cause": "holiday_timing",
+      "direction": -1,
+      "episodes": 122,
+      "total_gap": -1321311.0
+    },
+    {
+      "root_cause": "holiday_timing",
+      "direction": 1,
+      "episodes": 146,
+      "total_gap": 1602722.0
+    },
+    {
+      "root_cause": "promo2_started",
+      "direction": -1,
+      "episodes": 1,
+      "total_gap": -15145.0
+    },
+    {
+      "root_cause": "promo2_started",
+      "direction": 1,
+      "episodes": 11,
+      "total_gap": 151694.0
+    },
+    {
+      "root_cause": "reopened_after_closure",
+      "direction": -1,
+      "episodes": 21,
+      "total_gap": -488685.0
+    },
+    {
+      "root_cause": "reopened_after_closure",
+      "direction": 1,
+      "episodes": 75,
+      "total_gap": 1184626.0
+    },
+    {
+      "root_cause": "segment_wide",
+      "direction": 1,
+      "episodes": 478,
+      "total_gap": 4589759.0
+    },
+    {
+      "root_cause": "unexplained",
+      "direction": -1,
+      "episodes": 190,
+      "total_gap": -1394548.0
+    },
+    {
+      "root_cause": "unexplained",
+      "direction": 1,
+      "episodes": 416,
+      "total_gap": 5401998.0
+    },
+    {
+      "root_cause": "unexplained_level_shift",
+      "direction": -1,
+      "episodes": 169,
+      "total_gap": -1570719.0
+    },
+    {
+      "root_cause": "unexplained_level_shift",
+      "direction": 1,
+      "episodes": 337,
+      "total_gap": 3223338.0
+    }
+  ],
+  "traffic_vs_basket_mix": {
+    "traffic": 1255,
+    "mixed": 504,
+    "basket": 242
+  },
+  "top_episodes": [
+    {
+      "store_id": 192,
+      "store_type": "d",
+      "direction": 1,
+      "start": "2015-01-12 00:00:00",
+      "end": "2015-05-03 00:00:00",
+      "weeks": 16,
+      "gap": 369106.79240159935,
+      "gap_pct": 0.45659539851868947,
+      "tb_traffic_share": 0.9948463321045814,
+      "tb_driver": "traffic",
+      "root_cause": "reopened_after_closure",
+      "evidence": [
+        {
+          "type": "reopened_after_closure",
+          "date": "2015-01-02",
+          "detail": "Store reopened after >=7 days closed (e.g. refurbishment); demand after reopening often differs from the pre-closure level the model learned."
+        },
+        {
+          "type": "holiday_easter",
+          "detail": "Episode overlaps Easter week."
+        },
+        {
+          "type": "persistent_shift",
+          "post_gap_pct": 0.10781507493381648,
+          "detail": "Gap persists after the episode (+11%): possible structural level shift rather than a one-off."
+        }
+      ]
+    },
+    {
+      "store_id": 470,
+      "store_type": "a",
+      "direction": 1,
+      "start": "2014-08-18 00:00:00",
+      "end": "2014-11-02 00:00:00",
+      "weeks": 11,
+      "gap": 234268.25504811574,
+      "gap_pct": 0.29737446307693083,
+      "tb_traffic_share": 0.9096621706451662,
+      "tb_driver": "traffic",
+      "root_cause": "unexplained",
+      "evidence": []
+    },
+    {
+      "store_id": 1073,
+      "store_type": "a",
+      "direction": 1,
+      "start": "2015-04-20 00:00:00",
+      "end": "2015-07-26 00:00:00",
+      "weeks": 14,
+      "gap": 178610.60877821827,
+      "gap_pct": 0.3014380600563742,
+      "tb_traffic_share": 0.5883081664372537,
+      "tb_driver": "mixed",
+      "root_cause": "unexplained",
+      "evidence": []
+    },
+    {
+      "store_id": 576,
+      "store_type": "c",
+      "direction": 1,
+      "start": "2015-01-26 00:00:00",
+      "end": "2015-03-22 00:00:00",
+      "weeks": 8,
+      "gap": 146225.43492359854,
+      "gap_pct": 0.45186176890161556,
+      "tb_traffic_share": 0.8410796663508957,
+      "tb_driver": "traffic",
+      "root_cause": "unexplained",
+      "evidence": []
+    },
+    {
+      "store_id": 1081,
+      "store_type": "b",
+      "direction": 1,
+      "start": "2015-05-25 00:00:00",
+      "end": "2015-07-26 00:00:00",
+      "weeks": 9,
+      "gap": 118911.78520336049,
+      "gap_pct": 0.4084010986254376,
+      "tb_traffic_share": 1.0717042392501992,
+      "tb_driver": "traffic",
+      "root_cause": "unexplained",
+      "evidence": []
+    },
+    {
+      "store_id": 578,
+      "store_type": "d",
+      "direction": 1,
+      "start": "2015-06-22 00:00:00",
+      "end": "2015-08-02 00:00:00",
+      "weeks": 6,
+      "gap": 113565.4055533642,
+      "gap_pct": 0.3725280764484251,
+      "tb_traffic_share": 0.9671660138130123,
+      "tb_driver": "traffic",
+      "root_cause": "unexplained",
+      "evidence": []
+    },
+    {
+      "store_id": 815,
+      "store_type": "a",
+      "direction": -1,
+      "start": "2015-01-05 00:00:00",
+      "end": "2015-02-08 00:00:00",
+      "weeks": 5,
+      "gap": -103305.29786905623,
+      "gap_pct": -0.35731275378702565,
+      "tb_traffic_share": 0.9173833879996344,
+      "tb_driver": "traffic",
+      "root_cause": "reopened_after_closure",
+      "evidence": [
+        {
+          "type": "reopened_after_closure",
+          "date": "2015-01-02",
+          "detail": "Store reopened after >=7 days closed (e.g. refurbishment); demand after reopening often differs from the pre-closure level the model learned."
+        },
+        {
+          "type": "persistent_shift",
+          "post_gap_pct": -0.15633730374714272,
+          "detail": "Gap persists after the episode (-16%): possible structural level shift rather than a one-off."
+        }
+      ]
+    },
+    {
+      "store_id": 169,
+      "store_type": "d",
+      "direction": -1,
+      "start": "2014-08-18 00:00:00",
+      "end": "2014-11-02 00:00:00",
+      "weeks": 11,
+      "gap": -102761.6811586073,
+      "gap_pct": -0.21965289447615743,
+      "tb_traffic_share": 0.9821812211502433,
+      "tb_driver": "traffic",
+      "root_cause": "reopened_after_closure",
+      "evidence": [
+        {
+          "type": "reopened_after_closure",
+          "date": "2014-08-15",
+          "detail": "Store reopened after >=7 days closed (e.g. refurbishment); demand after reopening often differs from the pre-closure level the model learned."
+        },
+        {
+          "type": "competitor_opened",
+          "date": "2014-07-01",
+          "detail": "Competitor opened 980 m away."
+        },
+        {
+          "type": "persistent_shift",
+          "post_gap_pct": -0.08586759436931324,
+          "detail": "Gap persists after the episode (-9%): possible structural level shift rather than a one-off."
+        }
+      ]
+    }
+  ],
+  "segment_anomalies": [
+    {
+      "root_cause": {
+        "label": "post_holiday",
+        "event": "New Year / Epiphany (6 Jan, some states)",
+        "detail": "Broad-based (84% of stores) and is weakest on Thu 08 Jan (-20%), around New Year / Epiphany (6 Jan, some states) (06 Jan 2015). Typical post-holiday slump; regional holiday closures also reduce trading days."
+      },
+      "store_type": "a",
+      "week_start": "2015-01-05 00:00:00",
+      "gap_pct": -0.10659449307463331,
+      "robust_z": -3.656101812820839,
+      "breadth_same_direction": 0.8388704318936877,
+      "tb_total_log_gap": -0.11271470607442277,
+      "tb_traffic_log_gap": -0.10316792259953508,
+      "tb_basket_log_gap": -0.009546783474887688,
+      "tb_traffic_share": 0.9153013496873764,
+      "tb_driver": "traffic",
+      "drill_down_top": [
+        {
+          "dimension": "has_data_gap",
+          "explanatory_power": 0.9999999999999993,
+          "total_surprise": 0.0026790687672539684,
+          "elements": [
+            {
+              "value": "True",
+              "gap": -1914217.741541369,
+              "gap_pct": -0.3672303996207704,
+              "contribution": 0.6238089791923513
+            },
+            {
+              "value": "False",
+              "gap": -1154378.2636327073,
+              "gap_pct": -0.04896623271477685,
+              "contribution": 0.37619102080764805
+            }
+          ]
+        },
+        {
+          "dimension": "promo2_enrolled",
+          "explanatory_power": 1.0,
+          "total_surprise": 0.0002977250638085457,
+          "elements": [
+            {
+              "value": "True",
+              "gap": -2123749.1740577854,
+              "gap_pct": -0.15122892987519454,
+              "contribution": 0.6920914875978623
+            },
+            {
+              "value": "False",
+              "gap": -944846.8311162926,
+              "gap_pct": -0.06408220739636239,
+              "contribution": 0.3079085124021376
+            }
+          ]
+        }
+      ],
+      "by_day": {
+        "2015-01-05": 0.024,
+        "2015-01-06": -0.028,
+        "2015-01-07": -0.163,
+        "2015-01-08": -0.198,
+        "2015-01-09": -0.166,
+        "2015-01-10": -0.116,
+        "2015-01-11": null
+      }
+    },
+    {
+      "root_cause": {
+        "label": "retail_event",
+        "event": "Black Friday",
+        "detail": "Broad-based (98% of stores) and peaks on Fri 28 Nov (+32%), around Black Friday (28 Nov 2014). The forecaster has no feature for this retail event; treat it as a likely, not confirmed, driver."
+      },
+      "store_type": "c",
+      "week_start": "2014-11-24 00:00:00",
+      "gap_pct": 0.14308204178861872,
+      "robust_z": 3.502690461142857,
+      "breadth_same_direction": 0.9776119402985075,
+      "tb_total_log_gap": 0.1337281598296277,
+      "tb_traffic_log_gap": 0.05850801227329903,
+      "tb_basket_log_gap": 0.07522014755632869,
+      "tb_traffic_share": 0.4375145245985541,
+      "tb_driver": "mixed",
+      "drill_down_top": [
+        {
+          "dimension": "competition_band",
+          "explanatory_power": 0.6369388118668096,
+          "total_surprise": 3.363015389827725e-05,
+          "elements": [
+            {
+              "value": "500m-2km",
+              "gap": 204219.46772165317,
+              "gap_pct": 0.12022106549222866,
+              "contribution": 0.23029314202974524
+            },
+            {
+              "value": ">8km",
+              "gap": 65052.045204447,
+              "gap_pct": 0.1085210080542891,
+              "contribution": 0.0733575503487844
+            },
+            {
+              "value": "<500m",
+              "gap": 295553.4053682587,
+              "gap_pct": 0.16050816240442423,
+              "contribution": 0.33328811948827997
+            }
+          ]
+        },
+        {
+          "dimension": "promo2_enrolled",
+          "explanatory_power": 1.0,
+          "total_surprise": 2.6748301276204554e-05,
+          "elements": [
+            {
+              "value": "True",
+              "gap": 414260.5792191434,
+              "gap_pct": 0.16318354070528684,
+              "contribution": 0.4671512048864449
+            },
+            {
+              "value": "False",
+              "gap": 472519.9211540534,
+              "gap_pct": 0.12913594366581616,
+              "contribution": 0.5328487951135551
+            }
+          ]
+        }
+      ],
+      "by_day": {
+        "2014-11-24": 0.039,
+        "2014-11-25": 0.087,
+        "2014-11-26": 0.128,
+        "2014-11-27": 0.182,
+        "2014-11-28": 0.32,
+        "2014-11-29": 0.122,
+        "2014-11-30": null
+      }
+    },
+    {
+      "root_cause": {
+        "label": "holiday_timing",
+        "event": "Christmas",
+        "detail": "Broad-based (91% of stores) and peaks on Tue 23 Dec (+39%), around Christmas (25 Dec 2014). Holiday-timing effects (stock-up before, dip around closures) are only partly captured by the forecaster's holiday features."
+      },
+      "store_type": "c",
+      "week_start": "2014-12-22 00:00:00",
+      "gap_pct": 0.15969527236462744,
+      "robust_z": 3.937365246357761,
+      "breadth_same_direction": 0.9104477611940298,
+      "tb_total_log_gap": 0.14815727437018295,
+      "tb_traffic_log_gap": 0.08273145409719063,
+      "tb_basket_log_gap": 0.06542582027299232,
+      "tb_traffic_share": 0.5584029164202858,
+      "tb_driver": "mixed",
+      "drill_down_top": [
+        {
+          "dimension": "competition_band",
+          "explanatory_power": 0.7581708077985944,
+          "total_surprise": 5.3785363310110824e-05,
+          "elements": [
+            {
+              "value": "2-8km",
+              "gap": 269046.2937810824,
+              "gap_pct": 0.18680946124973308,
+              "contribution": 0.3953422231120823
+            },
+            {
+              "value": "<500m",
+              "gap": 167052.51249436964,
+              "gap_pct": 0.13287912568729254,
+              "contribution": 0.24547043833177945
+            },
+            {
+              "value": ">8km",
+              "gap": 79866.94179338135,
+              "gap_pct": 0.19507573107649367,
+              "contribution": 0.11735814635473264
+            }
+          ]
+        },
+        {
+          "dimension": "assortment",
+          "explanatory_power": 0.9999999999999989,
+          "total_surprise": 8.16106901598522e-07,
+          "elements": [
+            {
+              "value": "basic",
+              "gap": 323415.3985772899,
+              "gap_pct": 0.1566388958357532,
+              "contribution": 0.4752333171564255
+            },
+            {
+              "value": "extended",
+              "gap": 357124.8474485073,
+              "gap_pct": 0.1625679224246328,
+              "contribution": 0.5247666828435734
+            }
+          ]
+        }
+      ],
+      "by_day": {
+        "2014-12-22": 0.139,
+        "2014-12-23": 0.391,
+        "2014-12-24": -0.007,
+        "2014-12-25": null,
+        "2014-12-26": null,
+        "2014-12-27": 0.035,
+        "2014-12-28": null
+      }
+    },
+    {
+      "root_cause": {
+        "label": "holiday_timing",
+        "event": "Christmas",
+        "detail": "Broad-based (95% of stores) and peaks on Tue 23 Dec (+47%), around Christmas (25 Dec 2014). Holiday-timing effects (stock-up before, dip around closures) are only partly captured by the forecaster's holiday features."
+      },
+      "store_type": "d",
+      "week_start": "2014-12-22 00:00:00",
+      "gap_pct": 0.14609050993699113,
+      "robust_z": 3.6640083499301865,
+      "breadth_same_direction": 0.951310861423221,
+      "tb_total_log_gap": 0.13635659417648086,
+      "tb_traffic_log_gap": 0.08223525885386812,
+      "tb_basket_log_gap": 0.054121335322612735,
+      "tb_traffic_share": 0.6030897101128408,
+      "tb_driver": "traffic",
+      "drill_down_top": [
+        {
+          "dimension": "competition_band",
+          "explanatory_power": 0.6067235393442041,
+          "total_surprise": 1.9750333260680247e-05,
+          "elements": [
+            {
+              "value": "500m-2km",
+              "gap": 192171.55056856177,
+              "gap_pct": 0.12300180132050387,
+              "contribution": 0.15965455185625596
+            },
+            {
+              "value": ">8km",
+              "gap": 495333.01191729587,
+              "gap_pct": 0.16209707958329944,
+              "contribution": 0.41151861346433233
+            },
+            {
+              "value": "<500m",
+              "gap": 42790.95346784429,
+              "gap_pct": 0.1295427428303242,
+              "contribution": 0.03555037402361587
+            }
+          ]
+        },
+        {
+          "dimension": "promo2_enrolled",
+          "explanatory_power": 0.9999999999999992,
+          "total_surprise": 1.6595020253706372e-05,
+          "elements": [
+            {
+              "value": "True",
+              "gap": 548477.4478042149,
+              "gap_pct": 0.13290805228553082,
+              "contribution": 0.45567057596906557
+            },
+            {
+              "value": "False",
+              "gap": 655193.5301556378,
+              "gap_pct": 0.1593187197233379,
+              "contribution": 0.5443294240309337
+            }
+          ]
+        }
+      ],
+      "by_day": {
+        "2014-12-22": 0.106,
+        "2014-12-23": 0.472,
+        "2014-12-24": 0.05,
+        "2014-12-25": null,
+        "2014-12-26": -0.708,
+        "2014-12-27": -0.098,
+        "2014-12-28": -0.217
+      }
+    }
+  ]
+}

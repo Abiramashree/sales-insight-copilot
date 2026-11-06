@@ -1,0 +1,350 @@
+{
+ "reference_window": "2014-05-01 to 2015-04-30 (final model's training year)",
+ "current_window": "8 weeks to 2015-07-31",
+ "features": [
+  {
+   "feature": "sales",
+   "psi_vs_training_year": 0.0026,
+   "status": "stable",
+   "psi_vs_same_weeks_last_year": 0.0021,
+   "status_seasonal_adjusted": "stable"
+  },
+  {
+   "feature": "customers",
+   "psi_vs_training_year": 0.0156,
+   "status": "stable",
+   "psi_vs_same_weeks_last_year": 0.009,
+   "status_seasonal_adjusted": "stable"
+  },
+  {
+   "feature": "basket",
+   "psi_vs_training_year": 0.0214,
+   "status": "stable",
+   "psi_vs_same_weeks_last_year": 0.0427,
+   "status_seasonal_adjusted": "stable"
+  },
+  {
+   "feature": "promo",
+   "psi_vs_training_year": 0.0113,
+   "status": "stable",
+   "psi_vs_same_weeks_last_year": 0.0003,
+   "status_seasonal_adjusted": "stable"
+  },
+  {
+   "feature": "school_holiday",
+   "psi_vs_training_year": 0.0125,
+   "status": "stable",
+   "psi_vs_same_weeks_last_year": 0.0174,
+   "status_seasonal_adjusted": "stable"
+  },
+  {
+   "feature": "competition_active",
+   "psi_vs_training_year": 0.0726,
+   "status": "stable",
+   "psi_vs_same_weeks_last_year": 0.1274,
+   "status_seasonal_adjusted": "watch"
+  },
+  {
+   "feature": "promo2_active",
+   "psi_vs_training_year": 0.01,
+   "status": "stable",
+   "psi_vs_same_weeks_last_year": 0.0202,
+   "status_seasonal_adjusted": "stable"
+  },
+  {
+   "feature": "days_since_reopen",
+   "psi_vs_training_year": 0.0,
+   "status": "stable",
+   "psi_vs_same_weeks_last_year": 0.0,
+   "status_seasonal_adjusted": "stable"
+  },
+  {
+   "feature": "lvl_recent",
+   "psi_vs_training_year": 0.0129,
+   "status": "stable",
+   "psi_vs_same_weeks_last_year": 0.019,
+   "status_seasonal_adjusted": "stable"
+  }
+ ],
+ "performance": {
+  "recent_8wk_wape": 0.05750706779745248,
+  "recent_8wk_bias": -0.033611170106671806,
+  "baseline_wape": 0.0649739383323237,
+  "control_limit_alerts": [
+   {
+    "metric": "bias",
+    "rule": ">=6 consecutive weeks, same sign, |bias|>=2%",
+    "direction": "under-forecast",
+    "weeks": 6,
+    "through": "2015-07-20"
+   }
+  ]
+ },
+ "weekly": [
+  {
+   "week_start": "2014-07-28",
+   "wape": 0.0565,
+   "bias": -0.0056
+  },
+  {
+   "week_start": "2014-08-04",
+   "wape": 0.0445,
+   "bias": 0.0091
+  },
+  {
+   "week_start": "2014-08-11",
+   "wape": 0.0495,
+   "bias": -0.0213
+  },
+  {
+   "week_start": "2014-08-18",
+   "wape": 0.064,
+   "bias": -0.0413
+  },
+  {
+   "week_start": "2014-08-25",
+   "wape": 0.0742,
+   "bias": -0.026
+  },
+  {
+   "week_start": "2014-09-01",
+   "wape": 0.0444,
+   "bias": -0.0001
+  },
+  {
+   "week_start": "2014-09-08",
+   "wape": 0.0454,
+   "bias": -0.0035
+  },
+  {
+   "week_start": "2014-09-15",
+   "wape": 0.0424,
+   "bias": 0.012
+  },
+  {
+   "week_start": "2014-09-22",
+   "wape": 0.0481,
+   "bias": -0.0038
+  },
+  {
+   "week_start": "2014-09-29",
+   "wape": 0.0512,
+   "bias": 0.0071
+  },
+  {
+   "week_start": "2014-10-06",
+   "wape": 0.0516,
+   "bias": 0.0234
+  },
+  {
+   "week_start": "2014-10-13",
+   "wape": 0.0533,
+   "bias": -0.0151
+  },
+  {
+   "week_start": "2014-10-20",
+   "wape": 0.05,
+   "bias": 0.0115
+  },
+  {
+   "week_start": "2014-10-27",
+   "wape": 0.0705,
+   "bias": -0.0446
+  },
+  {
+   "week_start": "2014-11-03",
+   "wape": 0.0577,
+   "bias": -0.0481
+  },
+  {
+   "week_start": "2014-11-10",
+   "wape": 0.0357,
+   "bias": -0.0027
+  },
+  {
+   "week_start": "2014-11-17",
+   "wape": 0.0461,
+   "bias": 0.0067
+  },
+  {
+   "week_start": "2014-11-24",
+   "wape": 0.1177,
+   "bias": -0.115
+  },
+  {
+   "week_start": "2014-12-01",
+   "wape": 0.0767,
+   "bias": -0.0603
+  },
+  {
+   "week_start": "2014-12-08",
+   "wape": 0.0538,
+   "bias": -0.0071
+  },
+  {
+   "week_start": "2014-12-15",
+   "wape": 0.0689,
+   "bias": 0.0115
+  },
+  {
+   "week_start": "2014-12-22",
+   "wape": 0.1181,
+   "bias": -0.1046
+  },
+  {
+   "week_start": "2014-12-29",
+   "wape": 0.0986,
+   "bias": -0.0024
+  },
+  {
+   "week_start": "2015-01-05",
+   "wape": 0.1339,
+   "bias": 0.1012
+  },
+  {
+   "week_start": "2015-01-12",
+   "wape": 0.0744,
+   "bias": 0.0149
+  },
+  {
+   "week_start": "2015-01-19",
+   "wape": 0.0623,
+   "bias": -0.0123
+  },
+  {
+   "week_start": "2015-01-26",
+   "wape": 0.0742,
+   "bias": -0.0566
+  },
+  {
+   "week_start": "2015-02-02",
+   "wape": 0.0641,
+   "bias": 0.0515
+  },
+  {
+   "week_start": "2015-02-09",
+   "wape": 0.0514,
+   "bias": -0.0066
+  },
+  {
+   "week_start": "2015-02-16",
+   "wape": 0.058,
+   "bias": 0.0367
+  },
+  {
+   "week_start": "2015-02-23",
+   "wape": 0.0684,
+   "bias": -0.052
+  },
+  {
+   "week_start": "2015-03-02",
+   "wape": 0.045,
+   "bias": 0.0012
+  },
+  {
+   "week_start": "2015-03-09",
+   "wape": 0.0671,
+   "bias": -0.0506
+  },
+  {
+   "week_start": "2015-03-16",
+   "wape": 0.0469,
+   "bias": 0.0036
+  },
+  {
+   "week_start": "2015-03-23",
+   "wape": 0.0538,
+   "bias": -0.0008
+  },
+  {
+   "week_start": "2015-03-30",
+   "wape": 0.0848,
+   "bias": -0.073
+  },
+  {
+   "week_start": "2015-04-06",
+   "wape": 0.058,
+   "bias": 0.0034
+  },
+  {
+   "week_start": "2015-04-13",
+   "wape": 0.0483,
+   "bias": 0.0012
+  },
+  {
+   "week_start": "2015-04-20",
+   "wape": 0.0571,
+   "bias": 0.0029
+  },
+  {
+   "week_start": "2015-04-27",
+   "wape": 0.0523,
+   "bias": -0.0186
+  },
+  {
+   "week_start": "2015-05-04",
+   "wape": 0.0355,
+   "bias": -0.0092
+  },
+  {
+   "week_start": "2015-05-11",
+   "wape": 0.0477,
+   "bias": -0.0363
+  },
+  {
+   "week_start": "2015-05-18",
+   "wape": 0.038,
+   "bias": -0.0152
+  },
+  {
+   "week_start": "2015-05-25",
+   "wape": 0.0532,
+   "bias": -0.0367
+  },
+  {
+   "week_start": "2015-06-01",
+   "wape": 0.0454,
+   "bias": -0.0189
+  },
+  {
+   "week_start": "2015-06-08",
+   "wape": 0.0429,
+   "bias": -0.0176
+  },
+  {
+   "week_start": "2015-06-15",
+   "wape": 0.0641,
+   "bias": -0.0555
+  },
+  {
+   "week_start": "2015-06-22",
+   "wape": 0.0512,
+   "bias": -0.0271
+  },
+  {
+   "week_start": "2015-06-29",
+   "wape": 0.0562,
+   "bias": -0.0349
+  },
+  {
+   "week_start": "2015-07-06",
+   "wape": 0.0689,
+   "bias": -0.0528
+  },
+  {
+   "week_start": "2015-07-13",
+   "wape": 0.0518,
+   "bias": -0.0235
+  },
+  {
+   "week_start": "2015-07-20",
+   "wape": 0.0627,
+   "bias": -0.0434
+  },
+  {
+   "week_start": "2015-07-27",
+   "wape": 0.0624,
+   "bias": -0.014
+  }
+ ]
+}

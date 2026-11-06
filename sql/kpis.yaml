@@ -1,0 +1,134 @@
+# KPI dictionary — single source of truth for metric definitions.
+# Consumed by: dashboards, the RCA engine, and (M4) the RAG layer so the
+# chat agent quotes definitions instead of inventing them.
+
+- name: sales
+  label: Net Sales (EUR)
+  definition: Sum of daily turnover across open store-days.
+  grain: store x day
+  sql: sum(sales) filter (where is_open)
+  owner: Sales Ops
+  caveats: Closed days carry 0 sales and are excluded from averages.
+
+- name: customers
+  label: Customer Count (traffic)
+  definition: Number of transactions/visitors recorded on open days.
+  grain: store x day
+  sql: sum(customers) filter (where is_open)
+  owner: Sales Ops
+
+- name: basket
+  label: Average Basket (EUR per customer)
+  definition: Sales divided by customers; isolates spend-per-visit from traffic.
+  grain: any aggregate
+  sql: sum(sales) / nullif(sum(customers), 0)
+  owner: Sales Ops
+  caveats: Always compute as ratio of sums, never average of daily ratios.
+
+- name: forecast_attainment
+  label: Forecast Attainment (%)
+  definition: Actual sales divided by out-of-sample forecast for the same period.
+  grain: store x week, or any aggregate
+  sql: sum(sales) / nullif(sum(forecast_p50), 0)
+  owner: Decision Intelligence
+  caveats: Uses rolling-origin forecasts (never in-sample) — see src/sic/forecast.
+
+- name: forecast_gap
+  label: Forecast Gap (EUR)
+  definition: Actual minus forecast sales. Negative = underperformance.
+  sql: sum(sales) - sum(forecast_p50)
+  owner: Decision Intelligence
+
+- name: promo_lift
+  label: Promo Lift (%)
+  definition: >
+    Causal % change in daily sales on Promo days vs. comparable non-promo days,
+    estimated within store with day-of-week, seasonality and holiday controls.
+  sql: see src/sic/causal/promo_lift.py
+  owner: Decision Intelligence
+  caveats: Promo is scheduled chain-wide (same dates for all stores), so lift is
+    identified from within-store variation over time, not from cross-store comparison.
+
+- name: promo2_effect
+  label: Promo2 Enrollment Effect (%)
+  definition: >
+    Causal % change in weekly sales after a store enrolls in the continuing
+    Promo2 program, vs. never-enrolled stores (staggered difference-in-differences).
+  sql: see src/sic/causal/promo2_did.py
+  owner: Decision Intelligence
+
+- name: yoy_growth
+  label: Year-over-Year Growth (%)
+  definition: Sales vs the same weekdays 52 weeks (364 days) earlier, same-store, day-matched.
+  sql: sum(sales) / nullif(sum(sales_364d_ago), 0) - 1
+  owner: Finance
+  caveats: Same-store only — exclude stores with a data gap in either period.
+
+# ---------- Weekly report KPIs (computed in src/sic/kpi/weekly.py) ----------
+# Comparisons (WoW, YoY) are day-matched: each day vs the same weekday 7 / 364 days
+# earlier, same store, both open. Partial weeks therefore compare like with like.
+
+- name: wow_growth
+  label: Week-over-Week Growth (%)
+  definition: Sales vs the same weekdays one week earlier, same stores, both days open.
+  sql: sum(sales) / nullif(sum(sales_7d_ago), 0) - 1   # day-matched
+  owner: Sales Ops
+  caveats: Alternating promo weeks make WoW swing ±20%; read with promo_week flag.
+
+- name: yoy_customers_growth
+  label: YoY Customer Growth (%)
+  definition: Customer visits vs the same weekdays 52 weeks earlier, same-store, day-matched.
+  sql: sum(customers) / nullif(sum(customers_364d_ago), 0) - 1
+  owner: Sales Ops
+
+- name: yoy_basket_growth
+  label: YoY Basket Growth (%)
+  definition: Average basket vs the same weekdays 52 weeks earlier, same-store.
+  sql: (sum(sales)/sum(customers)) / (sum(sales_364d_ago)/sum(customers_364d_ago)) - 1
+  owner: Sales Ops
+  caveats: (1+YoY sales) = (1+YoY customers) x (1+YoY basket) exactly.
+
+- name: sales_per_store_day
+  label: Sales per Open Store-Day (EUR)
+  definition: Sales divided by the number of open store-days; productivity independent of closures.
+  sql: sum(sales) / count(*) filter (where is_open)
+  owner: Sales Ops
+
+- name: promo_sales_share
+  label: Promo Sales Share (%)
+  definition: Share of the week's sales made on Promo days.
+  sql: sum(sales) filter (where promo) / sum(sales)
+  owner: Marketing
+
+- name: forecast_wape
+  label: Forecast Error (store-week WAPE)
+  definition: Sum of |actual - forecast| over stores / sum of actual, for the week. Model health.
+  sql: sum(abs(sales - forecast)) / sum(sales)   # store-week grain
+  owner: Decision Intelligence
+  caveats: Rising WAPE = forecasts (and anomaly flags) less reliable; check before acting.
+
+- name: anomaly_rate
+  label: Anomaly Rate (%)
+  definition: Share of reporting stores flagged anomalous this week (see detection rule).
+  sql: avg(is_anomaly::int)
+  owner: Decision Intelligence
+
+- name: gap_concentration_top10
+  label: Gap Concentration, Top-10 Stores (%)
+  definition: Share of the total absolute forecast gap coming from the 10 largest-gap stores.
+  sql: sum(abs(gap)) of top 10 / sum(abs(gap))
+  owner: Decision Intelligence
+  caveats: High = a few stores drive the week (act locally); low = broad movement (chain driver).
+
+- name: closure_rate
+  label: Mon-Sat Closure Rate (%)
+  definition: Share of Monday-Saturday store-days closed, excluding Sundays.
+  sql: avg((not is_open)::int) filter (where dow < 7)
+  owner: Store Ops
+  caveats: Includes public holidays; compare against the same week last year.
+
+- name: sales_vs_forecast_4wk
+  label: Sales vs Forecast, Rolling 4 Weeks (%)
+  definition: Sum of sales / sum of forecast over the last 4 weeks; smooths one-week noise.
+  sql: sum(sales) over 4 weeks / sum(forecast) over 4 weeks - 1
+  owner: Decision Intelligence

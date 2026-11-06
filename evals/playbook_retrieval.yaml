@@ -1,0 +1,12 @@
+# Written BEFORE tuning playbook text/search. Hit = expected id ranked first.
+# Also asserts that drafts, superseded and expired versions are never returned.
+- {q: "a discount chain moved into the unit across the road from our store", expect: PB-COMP-NEAR}
+- {q: "new competitor opened about 3 km from the store, should we react?", expect: PB-COMP-FAR}
+- {q: "footfall is down this month and nobody knows why", expect: PB-TRAFFIC-DROP}
+- {q: "average ticket per shopper has fallen although visitor numbers held up", expect: PB-BASKET-DROP}
+- {q: "the store was closed for renovation and has just opened again", expect: PB-REOPEN}
+- {q: "sales spiked before Christmas and then crashed after, is that a problem?", expect: PB-HOLIDAY}
+- {q: "one store is beating its forecast by 30%, what do we do with that?", expect: PB-OUTPERFORM}
+- {q: "how should we respond to a rival opening 200 m away", expect: PB-COMP-NEAR}
+- {q: "Black Friday week looked weird for many stores", expect: PB-HOLIDAY}
+- {q: "fewer people walking in since the street was dug up for roadworks", expect: PB-TRAFFIC-DROP}
