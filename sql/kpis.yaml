@@ -31,7 +31,7 @@
   grain: store x week, or any aggregate
   sql: sum(sales) / nullif(sum(forecast_p50), 0)
   owner: Decision Intelligence
-  caveats: Uses rolling-origin forecasts (never in-sample) — see src/sic/forecast.
+  caveats: Uses rolling-origin forecasts (never in-sample) — see src/sic/forecast. Only days that have a forecast are compared.
 
 - name: forecast_gap
   label: Forecast Gap (EUR)

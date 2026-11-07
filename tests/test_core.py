@@ -85,3 +85,17 @@ def test_feature_groups_cover_features_and_drop_list_validated(monkeypatch):
     monkeypatch.setattr(F.config, "load", lambda: cfg)
     with pytest.raises(ValueError):
         F.active_features()
+
+
+def test_weekly_kpis_compare_only_forecast_days_and_flag_partial_weeks():
+    from sic import config
+
+    p = config.path("outputs") / "weekly_kpis.parquet"
+    if not p.exists():
+        pytest.skip("run make kpis first")
+    k = pd.read_parquet(p)
+    chain = k[k.segment == "ALL"].sort_values("week_start")
+    # first week starts before the first forecast day; it must not show a huge fake gap
+    assert chain.sales_vs_forecast.abs().max() < 0.5
+    assert bool(chain.partial_week.iloc[-1]) and (chain.days_in_data.iloc[-1] < 7)
+    assert not chain.partial_week.iloc[:-1].any()

@@ -73,7 +73,7 @@ demo-cached: ## show saved demo cards (no network)
 	$(RUN) sic.insights.demo --cached
 
 app:        ## Streamlit UI -> http://localhost:8501
-	uv run streamlit run app/streamlit_app.py
+	uv run streamlit run app/main.py
 
 # ---------- M5: evals & monitoring ----------
 .PHONY: eval eval-live eval-report

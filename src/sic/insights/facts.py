@@ -85,7 +85,13 @@ def chain_week(s: Store) -> FactPack:
     fp.add("Chain sales this week", float(cur.sales.sum()), eur(cur.sales.sum()))
     g = cur.sales.sum() / cur.forecast.sum() - 1
     fp.add("Chain sales vs forecast", float(g), pct(g, 1))
-    wow = cur.sales.sum() / prev.sales.sum() - 1 if len(prev) else 0.0
+    # day-matched (same stores, same weekdays): the last week is partial (Mon-Fri), so raw
+    # week totals are not comparable. Falls back to raw totals if KPIs are missing.
+    kw = s.kpis[(s.kpis.segment == "ALL") & (s.kpis.week_start == last)]
+    if len(kw) and pd.notna(kw.iloc[0].get("wow_growth")):
+        wow = float(kw.iloc[0].wow_growth)
+    else:
+        wow = cur.sales.sum() / prev.sales.sum() - 1 if len(prev) else 0.0
     fp.add("Chain sales vs prior week", float(wow), pct(wow, 1))
     fp.add("Stores flagged anomalous this week", int(cur.is_anomaly.sum()))
     fp.add("…of which below forecast", int((cur.is_anomaly & (cur.direction < 0)).sum()))

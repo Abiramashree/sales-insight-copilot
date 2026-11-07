@@ -1,9 +1,28 @@
-[theme]
-primaryColor = "#2a78d6"
-font = "sans serif"
+[client]
+toolbarMode = "minimal"
 
 [server]
 headless = true
 
 [browser]
 gatherUsageStats = false
+
+[theme]
+font = "Inter:https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap, sans-serif"
+headingFontWeights = 600
+baseRadius = "medium"
+showWidgetBorder = false
+
+[theme.light]
+primaryColor = "#2a78d6"
+backgroundColor = "#ffffff"
+secondaryBackgroundColor = "#f5f5f4"
+textColor = "#1c1c1e"
+borderColor = "#e7e5e4"
+
+[theme.dark]
+primaryColor = "#5b9cf0"
+backgroundColor = "#121214"
+secondaryBackgroundColor = "#1e1e21"
+textColor = "#ededef"
+borderColor = "#2c2c30"

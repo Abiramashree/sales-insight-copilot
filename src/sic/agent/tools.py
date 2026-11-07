@@ -54,7 +54,8 @@ def sandbox() -> duckdb.DuckDBPyConnection:
 TABLE_NOTES = {
     "weekly_kpis": "one row per (week_start, segment). segment = 'ALL' is the CHAIN TOTAL; "
                    "'a'-'d' are store types. Never sum ALL together with store types. "
-                   "Growth/ratio columns are fractions (0.014 = +1.4%).",
+                   "Growth/ratio columns are fractions (0.014 = +1.4%). partial_week = true "
+                   "when the week has < 7 days of data (the last week ends Friday 2015-07-31).",
     "store_weeks": "one row per (store_id, week_start); forecast = out-of-sample forecast; "
                    "gap = sales - forecast; gap_pct is a fraction; direction -1 = below forecast.",
     "episodes": "one row per anomaly episode (consecutive anomalous weeks of one store); "

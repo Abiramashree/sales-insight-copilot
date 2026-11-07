@@ -1,4 +1,4 @@
-# Weekly KPI report — week of 2015-07-27
+# Weekly KPI report — week of 2015-07-27 (partial week: data ends Fri 2015-07-31; comparisons are day-matched)
 
 Definitions: [sql/kpis.yaml](../sql/kpis.yaml). WoW and YoY compare each day with the same
 weekday 7 / 364 days earlier (same store, both open); YoY excludes the 180 stores offline
@@ -9,25 +9,25 @@ no). Promo weeks alternate, so WoW swings are expected.
 
 | KPI | This week | Prior week | 4-week avg (full weeks) |
 |---|---|---|---|
-| Sales | **€47.2M** | €39.4M | €45.0M |
-| Sales vs forecast | **+1.4%** | +4.5% | +3.5% |
-| Sales vs forecast, 4-wk | **+3.3%** | +3.9% | +3.8% |
-| Week-over-week (day-matched) | **+42.7%** | -24.4% | +4.6% |
+| Sales | **€47.2M** | €39.4M | €47.1M |
+| Sales vs forecast | **+1.4%** | +4.5% | +4.0% |
+| Sales vs forecast, 4-wk | **+3.3%** | +3.9% | +3.9% |
+| Week-over-week (day-matched) | **+42.7%** | -24.4% | +4.9% |
 | YoY same-store (day-matched) | **+1.1%** | +3.0% | +3.5% |
-|   …customers YoY | **-3.2%** | +0.1% | -0.2% |
-|   …basket YoY | **+4.4%** | +2.9% | +3.6% |
-| Customer visits | **4,502,245** | 4,476,535 | 4,726,199 |
-| Avg basket | **€10.49** | €8.80 | €9.51 |
+|   …customers YoY | **-3.2%** | +0.1% | -0.4% |
+|   …basket YoY | **+4.4%** | +2.9% | +3.9% |
+| Customer visits | **4,502,245** | 4,476,535 | 4,957,398 |
+| Avg basket | **€10.49** | €8.80 | €9.46 |
 | Sales per open store-day | **€8k** | €6k | €7k |
-| Promo sales share | **100%** | — | 94% |
-| Mon–Sat closure rate | **0.2%** | 0.2% | 0.2% |
+| Promo sales share | **100%** | — | 88% |
+| Mon–Sat closure rate | **0.2%** | 0.2% | 0.1% |
 | Stores reporting | **1,113** | 1,113 | 1,114 |
-| Anomaly rate | **4.2%** | 5.2% | 5.0% |
-|   …stores below forecast | **19** | 6 | 13 |
-|   …stores above forecast | **28** | 52 | 43 |
+| Anomaly rate | **4.2%** | 5.2% | 4.7% |
+|   …stores below forecast | **19** | 6 | 11 |
+|   …stores above forecast | **28** | 52 | 42 |
 | Gap from top-10 stores | **6%** | 8% | 7% |
-| Forecast error (WAPE) | **6.2%** | 6.3% | 6.1% |
-| Forecast bias (+ = over-forecast) | **-1.4%** | -4.3% | -3.3% |
+| Forecast error (WAPE) | **6.2%** | 6.3% | 6.0% |
+| Forecast bias (+ = over-forecast) | **-1.4%** | -4.3% | -3.9% |
 
 ## By store type (this week)
 

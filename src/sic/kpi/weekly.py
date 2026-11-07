@@ -43,8 +43,12 @@ select week_start, coalesce(store_type, 'ALL') segment,
                                                                        promo_sales_share,
     bool_or(promo)                                                     promo_week,
     avg(case when is_open then 0 else 1 end) filter (where dow < 7)    closure_rate,
-    sum(sales) filter (where is_open) / sum(p50) filter (where is_open) - 1 sales_vs_forecast,
-    sum(p50) filter (where is_open)                                    forecast,
+    count(distinct date)                                               days_in_data,
+    -- vs forecast: only days that have a forecast (the first week starts mid-week)
+    sum(sales) filter (where is_open and p50 is not null)              sales_forecasted,
+    sum(sales) filter (where is_open and p50 is not null)
+      / sum(p50) filter (where is_open and p50 is not null) - 1        sales_vs_forecast,
+    sum(p50) filter (where is_open and p50 is not null)                forecast,
     sum(sales) filter (where is_open and o7) / sum(s7) filter (where is_open and o7) - 1
                                                                        wow_growth,
     sum(sales) filter (where is_open and o364 and not has_data_gap)
@@ -93,11 +97,10 @@ def compute() -> pd.DataFrame:
     k = k.merge(sk, on=["week_start", "segment"], how="left")
 
     k = k.sort_values(["segment", "week_start"])
-    roll = k.groupby("segment")[["sales", "forecast"]].transform(
+    roll = k.groupby("segment")[["sales_forecasted", "forecast"]].transform(
         lambda s: s.rolling(4, min_periods=4).sum())
-    k["sales_vs_forecast_4wk"] = roll.sales / roll.forecast - 1
-    k["partial_week"] = k.open_store_days < k.groupby("segment").open_store_days.transform(
-        "median") * 0.85
+    k["sales_vs_forecast_4wk"] = roll.sales_forecasted / roll.forecast - 1
+    k["partial_week"] = k.days_in_data < 7      # e.g. data ends on Friday 2015-07-31
     return k.sort_values(["week_start", "segment"]).reset_index(drop=True)
 
 
