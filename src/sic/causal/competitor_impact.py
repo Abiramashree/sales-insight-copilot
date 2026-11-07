@@ -10,7 +10,10 @@ bins, placebo with a fake opening 13 weeks earlier.
 Caveat: opening dates are month-level (always the 1st), so event timing is fuzzy by up
 to ~4 weeks; the 4-week bins absorb most of that.
 
-Writes reports/m3_competitor_impact.json (consumed by the competitive-response playbook).
+Also estimates each treated store's own before/after (store_effects), for the store view.
+
+Writes reports/m3_competitor_impact.json (consumed by the competitive-response playbook) and
+data/outputs/competitor_store_effects.parquet.
 """
 
 from __future__ import annotations
@@ -41,6 +44,35 @@ def stores() -> pd.DataFrame:
     s = s[s.treated | clean_control].copy()
     s["near"] = s.competition_distance_m < NEAR_M
     return s
+
+
+def store_effects(window: int = 13, min_weeks: int = 8) -> pd.DataFrame:
+    """One store's change after its competitor opened: weekly log sales per open day minus the
+    clean-control average for the same week, mean of the `window` weeks after the opening
+    week minus mean of the `window` weeks before it (a single-store difference-in-differences).
+    One store is noisy, so each estimate carries a 95% CI (Welch, pre vs post weeks)."""
+    w, _ = load_panel()
+    s = stores()
+    ctrl = w[w.store_id.isin(s[~s.treated].store_id)].groupby("week_start").y.mean()
+    rows = []
+    for r in s[s.treated].itertuples():
+        g = w[w.store_id == r.store_id].set_index("week_start").y
+        d = (g - ctrl.reindex(g.index)).dropna()
+        rel = (d.index - r.start_week).days // 7
+        pre, post = d[(rel >= -window) & (rel < 0)], d[(rel >= 1) & (rel <= window)]
+        if len(pre) < min_weeks or len(post) < min_weeks:
+            continue
+        eff = post.mean() - pre.mean()
+        se = float(np.sqrt(pre.var(ddof=1) / len(pre) + post.var(ddof=1) / len(post)))
+        rows.append({"store_id": int(r.store_id), "competitor_open_date": r.competition_open_date,
+                     "competition_distance_m": r.competition_distance_m,
+                     "effect_pct": float(np.expm1(eff)),
+                     "ci_lo_pct": float(np.expm1(eff - 1.96 * se)),
+                     "ci_hi_pct": float(np.expm1(eff + 1.96 * se)),
+                     "weeks_pre": len(pre), "weeks_post": len(post)})
+    out = pd.DataFrame(rows)
+    out.to_parquet(config.path("outputs") / "competitor_store_effects.parquet", index=False)
+    return out
 
 
 def run() -> dict:
@@ -87,10 +119,17 @@ def run() -> dict:
         "caveat": "Opening dates are month-level; timing is fuzzy by up to ~4 weeks.",
     }
     (config.path("reports") / "m3_competitor_impact.json").write_text(json.dumps(result, indent=1))
+    store_effects()
     return result
 
 
 if __name__ == "__main__":
+    import sys
+
+    if "--stores" in sys.argv:          # per-store estimates only (seconds)
+        e = store_effects()
+        print(e.describe().round(3).to_string())
+        sys.exit()
     r = run()
     print(json.dumps({k: v for k, v in r.items() if k != "event_study"}, indent=1))
     print([(e["bin"], e["coef"]) for e in r["event_study"]])

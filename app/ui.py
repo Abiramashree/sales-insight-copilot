@@ -55,6 +55,21 @@ def complete_weeks() -> frozenset:
     return _complete_weeks(str(p), p.stat().st_mtime)
 
 
+@st.cache_data(show_spinner=False)
+def _stores(path: str, mtime: float) -> pd.DataFrame:
+    con = config.connect(read_only=True)
+    try:
+        return con.execute("select * from marts.dim_store").df().set_index("store_id")
+    finally:
+        con.close()
+
+
+def stores() -> pd.DataFrame:
+    """Store attributes (type, assortment, nearest competitor distance and opening date)."""
+    p = config.path("warehouse")
+    return _stores(str(p), p.stat().st_mtime)
+
+
 def require(*items) -> None:
     """Stop the page with one line if a pipeline output is missing."""
     if any(i is None for i in items):

@@ -25,6 +25,7 @@ OUTPUT_TABLES = {
     "recommendations": "recommendations.parquet",
     "promo_lift": "promo_lift_by_store.parquet",
     "weekly_kpis": "weekly_kpis.parquet",   # segment = 'ALL' or store type
+    "competitor_store_effects": "competitor_store_effects.parquet",
 }
 _FORBIDDEN = re.compile(
     r"\b(insert|update|delete|drop|create|alter|attach|detach|copy|pragma|install|load|export|"
@@ -52,6 +53,11 @@ def sandbox() -> duckdb.DuckDBPyConnection:
 
 
 TABLE_NOTES = {
+    "competitor_store_effects": "one row per store whose nearest competitor opened 2013-2015: "
+                                "that store's sales change 13 weeks after vs before the opening, "
+                                "relative to stores with unchanged competition. effect_pct and "
+                                "ci_lo_pct/ci_hi_pct are fractions; single-store estimates are "
+                                "noisy, always quote the CI.",
     "weekly_kpis": "one row per (week_start, segment). segment = 'ALL' is the CHAIN TOTAL; "
                    "'a'-'d' are store types. Never sum ALL together with store types. "
                    "Growth/ratio columns are fractions (0.014 = +1.4%). partial_week = true "

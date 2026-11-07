@@ -99,3 +99,20 @@ def test_weekly_kpis_compare_only_forecast_days_and_flag_partial_weeks():
     assert chain.sales_vs_forecast.abs().max() < 0.5
     assert bool(chain.partial_week.iloc[-1]) and (chain.days_in_data.iloc[-1] < 7)
     assert not chain.partial_week.iloc[:-1].any()
+
+
+def test_store_competitor_effects_agree_with_pooled_study():
+    import json
+
+    from sic import config
+
+    p = config.path("outputs") / "competitor_store_effects.parquet"
+    if not p.exists():
+        pytest.skip("run make causal first")
+    e = pd.read_parquet(p)
+    pooled = json.loads((config.path("reports") / "m3_competitor_impact.json").read_text())
+    for band, mask in (("within_1000m", e.competition_distance_m < 1000),
+                       ("beyond_1000m", e.competition_distance_m >= 1000)):
+        avg = np.expm1(np.log1p(e[mask].effect_pct).mean())
+        assert abs(avg - pooled["by_distance"][band]["effect_pct"]) < 0.03
+    assert (e.ci_lo_pct <= e.effect_pct).all() and (e.effect_pct <= e.ci_hi_pct).all()
