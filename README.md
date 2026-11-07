@@ -137,4 +137,4 @@ The app is a Streamlit server: it keeps each visitor's session open over a WebSo
 
 ## Contact
 
-Developed and maintained by Ari Adaikalam. [Portfolio](https://ariadaikalam.com) | [Email](mailto:ariadaikalam1234@gmail.com)
+Developed and maintained by Abi Adaikalam [Email](mailto:abiadaikalam@gmail.com)
