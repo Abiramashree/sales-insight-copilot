@@ -37,8 +37,14 @@ class SQLError(ValueError):
     pass
 
 
-@lru_cache
 def sandbox() -> duckdb.DuckDBPyConnection:
+    """Read-only SQL sandbox over the warehouse and pipeline outputs, rebuilt when the live
+    feed loads new data."""
+    return _sandbox(str(config.as_of()))
+
+
+@lru_cache(maxsize=2)
+def _sandbox(data_key: str) -> duckdb.DuckDBPyConnection:
     con = duckdb.connect()
     con.execute(f"attach '{config.path('warehouse')}' as wh (read_only)")
     out = config.path("outputs")

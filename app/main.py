@@ -1,4 +1,4 @@
-"""Sales Insight Copilot: what changed this week, why, and what to do.
+"""Sales Insight Copilot: data in, KPIs and anomalies, causes, actions, tests, questions.
 
     make app   ->  http://localhost:8501
 
@@ -11,7 +11,8 @@ st.set_page_config(page_title="Sales Insight Copilot", page_icon=":material/insi
                    layout="wide")
 
 st.navigation([
-    st.Page("views/week.py", title="Week", default=True),
-    st.Page("views/stores.py", title="Stores"),
+    st.Page("views/pipeline.py", title="Pipeline", default=True),
+    st.Page("views/actions.py", title="Actions"),
+    st.Page("views/test.py", title="Test"),
     st.Page("views/ask.py", title="Ask"),
 ], position="top").run()

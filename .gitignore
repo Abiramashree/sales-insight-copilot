@@ -6,5 +6,6 @@ __pycache__/
 data/raw/
 data/warehouse/
 data/outputs/
+data/live/
 .DS_Store
 .env

@@ -29,7 +29,11 @@ def _cfg() -> dict:
 
 
 def save_snapshot(cards: list[dict], provider: str, model: str) -> bool:
-    """Persist a good run as the demo snapshot. Returns True if saved."""
+    """Persist a good run as the demo snapshot. Returns True if saved. Never during a live
+    replay: the snapshot is the full-history briefing."""
+    if config.feed_state():
+        print("Snapshot not updated: live feed active (cards are for a replayed week).")
+        return False
     from sic.insights.cards import render_md
 
     rate = sum(c["qa"]["published"] for c in cards) / max(len(cards), 1)

@@ -46,6 +46,10 @@ forecast:
   # +0.11), store-week WAPE unchanged. See reports/m2_feature_selection_holdout.json.
   drop_features: []
 
+feed:                          # live replay (src/sic/feed.py): one week per `next`
+  start: "2015-05-03"          # Sunday after the last quarterly retrain (fold 4 starts 2015-05-01)
+  end: "2015-07-31"            # last day of the data
+
 detect:
   min_weekly_gap_pct: 0.10    # |actual/forecast - 1| for a store-week to count
   min_share_days_outside: 0.5 # share of open days outside the PI, same direction

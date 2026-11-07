@@ -2,7 +2,7 @@
 
 Pages import from here and nothing else in app/; all data comes from the pipeline outputs
 (data/outputs, reports/). Loads are cached and busted by file mtime, so re-running the
-pipeline shows up on the next rerun without restarting the app.
+pipeline (or the live feed loading a week) shows up on the next rerun.
 """
 
 from __future__ import annotations
@@ -17,7 +17,6 @@ import streamlit as st
 from sic import config
 
 ACCENT, SECOND, MUTED = "#2a78d6", "#eb6834", "#a3a29c"
-OUT, REP = config.path("outputs"), config.path("reports")
 
 
 # ---------------------------------------------------------------- data
@@ -32,12 +31,12 @@ def _json(path: str, mtime: float) -> dict:
 
 
 def load(name: str) -> pd.DataFrame | None:
-    p = OUT / name
+    p = config.path("outputs") / name     # resolved per call: follows the live feed
     return _parquet(str(p), p.stat().st_mtime) if p.exists() else None
 
 
 def load_json(name: str) -> dict | None:
-    p = REP / name
+    p = config.path("reports") / name
     return _json(str(p), p.stat().st_mtime) if p.exists() else None
 
 
@@ -51,7 +50,7 @@ def _complete_weeks(path: str, mtime: float) -> frozenset:
 def complete_weeks() -> frozenset:
     """Weeks with all 7 calendar days forecast. The first (starts Friday 2014-08-01) and the
     last (ends Friday 2015-07-31) are partial, so their € totals are not comparable."""
-    p = OUT / "forecasts.parquet"
+    p = config.path("outputs") / "forecasts_calibrated.parquet"   # only weeks loaded so far
     return _complete_weeks(str(p), p.stat().st_mtime)
 
 

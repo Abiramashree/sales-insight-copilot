@@ -107,6 +107,8 @@ def run() -> dict:
     lo_q, hi_q = cfg_f["interval"]
     out = config.path("outputs")
     fc = pd.read_parquet(out / "forecasts.parquet")
+    if config.as_of():                     # live feed: only days loaded so far
+        fc = fc[fc.date <= pd.Timestamp(config.as_of())]
     fc, cal = calibrate(fc, level=hi_q - lo_q)
     w = store_weeks(fc, cfg_d)
     e = episodes(w)

@@ -52,6 +52,9 @@ def metrics(df: pd.DataFrame, col: str) -> dict:
 def run(feats: list[str] | None = None, tag: str = "") -> dict:
     """tag="" is the production run (writes forecasts.parquet); a non-empty tag writes
     only reports/m2_backtest_metrics_<tag>.json, for comparing feature sets."""
+    if config.feed_state():
+        raise RuntimeError("The live feed is active and the warehouse holds partial data. "
+                           "Run `make feed-stop` first; the backtest needs the full data.")
     cfg = config.load()["forecast"]
     feats = feats or F.active_features()
     lo_q, hi_q = cfg["interval"]

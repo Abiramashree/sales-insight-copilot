@@ -46,7 +46,7 @@ def add_calendar(df: pd.DataFrame) -> pd.DataFrame:
     d = df["date"].dt
     df["day"], df["month"], df["year"] = d.day, d.month, d.year
     df["weekofyear"] = d.isocalendar().week.astype(int).values
-    df["dayofyear"] = d.dayofyear
+    df["dayofyear"] = d.day_of_year
     df["state_holiday"] = df["state_holiday"].fillna("none")
     for c in ["promo", "school_holiday", "promo2_active", "promo2_renewal_month",
               "competition_active", "is_open"]:

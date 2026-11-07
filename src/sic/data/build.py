@@ -19,8 +19,10 @@ def copy_raw() -> None:
 def build() -> None:
     copy_raw()
     con = config.connect()
+    until = str(config.as_of() or "9999-12-31")    # the live feed loads data up to its as-of
     for name in SQL_FILES:
         sql = (config.ROOT / "sql" / name).read_text().replace("{raw}", str(config.path("raw")))
+        sql = sql.replace("{until}", until)
         con.execute(sql)
     checks(con)
     con.close()

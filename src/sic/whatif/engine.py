@@ -55,8 +55,12 @@ class Scenario:
 
 
 # ------------------------------------------------------------------ inputs
-@lru_cache
 def _inputs() -> dict:
+    return _load_inputs(str(config.as_of()))   # reloaded when the live feed loads new data
+
+
+@lru_cache(maxsize=2)
+def _load_inputs(data_key: str) -> dict:
     out, rep = config.path("outputs"), config.path("reports")
     lift = pd.read_parquet(out / "promo_lift_by_store.parquet").set_index("store_id")
     w = pd.read_parquet(out / "store_weeks.parquet")

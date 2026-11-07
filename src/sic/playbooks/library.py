@@ -25,17 +25,23 @@ import yaml
 from sic import config
 
 PATH = config.ROOT / "docs" / "playbooks" / "playbooks.yaml"
-AS_OF = date(2015, 7, 31)  # last day of data: governance is evaluated "as of" this date
+AS_OF = date(2015, 7, 31)  # last day of the full data; the live feed's as-of date overrides it
+
+
+def as_of() -> date:
+    """Governance is evaluated as of the last day of data loaded."""
+    return config.as_of() or AS_OF
 
 
 def load_all() -> list[dict]:
     return yaml.safe_load(PATH.read_text())
 
 
-def eligible(as_of: date = AS_OF, books: list[dict] | None = None) -> list[dict]:
+def eligible(day: date | None = None, books: list[dict] | None = None) -> list[dict]:
+    day = day or as_of()
     books = load_all() if books is None else books
     ok = [b for b in books if b["status"] == "approved"
-          and b["effective_from"] <= as_of <= b["review_by"]]
+          and b["effective_from"] <= day <= b["review_by"]]
     latest: dict[str, dict] = {}
     for b in ok:
         if b["id"] not in latest or b["version"] > latest[b["id"]]["version"]:
@@ -47,8 +53,12 @@ def _pct(x: float) -> str:
     return f"{x * 100:+.1f}%"
 
 
-@lru_cache
 def _impact_values() -> dict:
+    return _load_impact_values(str(config.as_of()))
+
+
+@lru_cache(maxsize=2)
+def _load_impact_values(data_key: str) -> dict:
     p = config.path("reports") / "m3_competitor_impact.json"
     if not p.exists():
         return {}

@@ -1,6 +1,6 @@
 RUN = uv run python -m
 
-.PHONY: setup data eda forecast select-features detect rca causal recommend opportunity kpis report all test lint
+.PHONY: setup data eda forecast select-features feed-start feed-next feed-stop detect rca causal recommend opportunity kpis report all test lint
 
 setup:      ## install deps into .venv
 	uv sync
@@ -16,6 +16,15 @@ forecast:   ## M2: rolling-origin backtest (~7 min)
 
 select-features: ## M2: feature selection on pre-backtest windows (~30 min) -> reports/m2_feature_selection.json
 	$(RUN) sic.forecast.select
+
+feed-start: ## live replay: open data/live with data to feed.start, run every step
+	$(RUN) sic.feed start
+
+feed-next:  ## live replay: load the next week and re-run every step (~20 s)
+	$(RUN) sic.feed next
+
+feed-stop:  ## live replay: delete data/live; back to the full dataset
+	$(RUN) sic.feed stop
 
 detect:     ## M2: interval calibration + anomaly episodes
 	$(RUN) sic.detect.anomalies

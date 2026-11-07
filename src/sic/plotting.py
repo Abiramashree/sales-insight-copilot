@@ -52,7 +52,7 @@ def save(fig, name: str) -> str:
     out = config.path("figures") / f"{name}.png"
     fig.savefig(out)
     plt.close(fig)
-    return str(out.relative_to(config.ROOT))
+    return str(out.relative_to(config.ROOT) if out.is_relative_to(config.ROOT) else out)
 
 
 def eur(x, _=None) -> str:
