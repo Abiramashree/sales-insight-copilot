@@ -1,7 +1,5 @@
 # Sales Insight Copilot
 
-![KPIs for the chain, with the week's biggest anomaly opened](docs/images/kpis_chain.png)
-
 ## Overview
 
 This project is a decision-intelligence app for a retail chain. It shows how the chain and every store are doing, flags the weeks that were unusual and says why, and gives a business analyst a junior colleague: an assistant that turns a goal like *"grow type b sales 5% next quarter"* into a plan with target stores, tested hypotheses, an A/B test design and alternatives.
