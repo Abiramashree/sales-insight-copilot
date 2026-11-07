@@ -119,20 +119,6 @@ make app            # http://localhost:8501
 
 The assistant needs an API key. Copy `.env.example` to `.env` and set `GEMINI_API_KEY` (or `GROQ_API_KEY`, with `llm.provider: groq` in `config.yaml`). Everything except the assistant's chat works without one.
 
-## Deploy
-
-The app is a Streamlit server: it keeps each visitor's session open over a WebSocket. Host it somewhere that runs a long-lived Python process.
-
-**Streamlit Community Cloud (free).**
-
-1. Build the data locally with `make all`. The app reads `data/warehouse/` and `data/outputs/`, which are git-ignored because they contain the Kaggle data. Commit them only to a **private** repository: remove `data/warehouse/` and `data/outputs/` from `.gitignore` there. The largest file is 69 MB, under GitHub's 100 MB limit.
-2. On [share.streamlit.io](https://share.streamlit.io), create an app from that repository with main file `app/main.py`. Dependencies install from `requirements.txt`.
-3. In the app's secrets, add `GEMINI_API_KEY = "your-key"` at the top level. Streamlit exposes top-level secrets as environment variables, which is where the app reads the key.
-
-**Render, Railway or Fly.io.** Any of them can run the same app as a web service: build with `pip install -r requirements.txt`, start with `streamlit run app/main.py --server.port $PORT --server.address 0.0.0.0`, and set `GEMINI_API_KEY` in the service's environment.
-
-**Why not Vercel.** Vercel runs serverless functions. WebSockets on Vercel Functions are in beta, and a connection closes when the function reaches its maximum duration (300 seconds on the Hobby plan, up to 1,800 on Pro). Streamlit keeps each session in the server's memory, so every reconnect would lose the chat and the selections. Vercel can host a static landing page that links to the app hosted on one of the platforms above.
-
 ## Contact
 
 Developed and maintained by Abi Adaikalam [Email](mailto:abiadaikalam@gmail.com)
