@@ -334,7 +334,7 @@ def analyze_ab_test(store_ids: list[int], start_week: str, weeks: int | None = 6
     except ValueError as e:
         raise SQLError(str(e)) from None
     r["note"] = ("Dry run on history: no treatment was applied, so a sound design shows a "
-                 "lift near 0. Real results can be uploaded in the assistant's manual panel.")
+                 "lift near 0.")
     return r
 
 

@@ -23,9 +23,9 @@ Two pages. Numbers always come from deterministic code; the LLM only writes and 
   grow, if/then/because hypotheses each tested on history, an A/B design (stores per
   group, weeks, detectable lift, reproducible test/control list), and alternatives sized
   in € with a range.
-- A/B readout: dry run on history (no fake effect) or uploaded CSV of real results.
+- A/B readout: dry run on history (no fake effect).
 - Sources collapsed under every answer; unverified numbers flagged.
-- Manual panel beside the chat (no LLM): test a hypothesis, design an A/B, analyze results.
+- No manual panel (removed 2026-11-06 at the user's request); the chat is the interface.
 
 ## Not in the UI
 Live feed controls (code stays: `make feed-start`), the old Pipeline/Actions/Test/Ask pages.

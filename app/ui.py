@@ -181,20 +181,6 @@ def sources(work: dict, key: str) -> None:
                 st.json(res, expanded=False)
 
 
-def test_result(r: dict) -> None:
-    """One hypothesis test: design and significance badges, effect with CI, p, stores."""
-    within = r["design"] == "within-store"
-    sig = r["p_value"] < 0.05
-    st.markdown((":green-badge[Within-store]" if within else ":orange-badge[Association only]")
-                + (" :blue-badge[Significant]" if sig else " :gray-badge[Not significant]"))
-    m = st.columns(3)
-    m[0].metric("Difference", pct(r["effect_pct"]))
-    m[1].metric("p-value", fmt_p(r["p_value"]))
-    m[2].metric("Stores", f"{r['n_a']:,}" if within else f"{r['n_a']:,} vs {r['n_b']:,}")
-    st.markdown(f":gray[95% CI {pct(r['ci_pct'][0])} to {pct(r['ci_pct'][1])} · "
-                f"rank test p {fmt_p(r['p_rank'])}]")
-
-
 def fmt_p(x: float) -> str:
     return "< 0.001" if x < 0.001 else f"{x:.3f}"
 

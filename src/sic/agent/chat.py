@@ -51,8 +51,7 @@ How to work:
   that the basket alternative's range is assumption-based. When the BA refines the plan
   ("only type b", "8 weeks"), call plan_initiative again with the new inputs.
 - Experiments: design_ab_test sizes a test and splits stores; analyze_ab_test reads out a
-  dry run on history (no treatment, so a sound design shows ~0). Real results are uploaded
-  in the assistant's manual panel.
+  dry run on history (no treatment, so a sound design shows ~0).
 - Say how certain a finding is. Flag early signals (1-2 weeks) and estimates the docs call
   uncertain (e.g. the Promo2 effect is suggestive, not proven).
 - Do not invent causes. If the root cause is "unexplained", say local investigation is needed.

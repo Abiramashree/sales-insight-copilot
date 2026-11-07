@@ -1,5 +1,5 @@
-"""Both pages render, the KPI drill-down works for chain and store, the manual panel runs
-without an LLM, and an anomaly hands off to the assistant. The LLM is stubbed: no tokens."""
+"""Both pages render, the KPI drill-down works for chain and store, the assistant is a
+single chat, and an anomaly hands off to it. The LLM is stubbed: no tokens."""
 
 import json
 
@@ -45,15 +45,10 @@ def test_kpis_single_store():
     assert at.metric[0].label == "Sales" and at.metric[0].value.startswith("€")
 
 
-def test_assistant_manual_panel_without_llm():
+def test_assistant_is_one_chat():
     at = _app("views/assistant.py")
-    assert "Difference" in _labels(at)                  # Test tool
-    at.segmented_control[0].set_value("Design").run()
-    _ok(at)
-    assert "Detectable lift" in _labels(at)
-    at.segmented_control[0].set_value("Analyze").run()
-    _ok(at)
-    assert any(m.label.startswith("Lift") for m in at.metric)   # dry-run readout
+    assert len(at.chat_input) == 1 and not at.segmented_control      # no manual panel
+    assert at.get("button_group")                                     # example prompts
 
 
 def test_anomaly_hands_off_to_assistant(monkeypatch):
