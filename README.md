@@ -120,6 +120,10 @@ make app            # http://localhost:8501
 
 The assistant needs an API key. Copy `.env.example` to `.env` and set `GEMINI_API_KEY` (or `GROQ_API_KEY`, with `llm.provider: groq` in `config.yaml`). Everything except the assistant's chat works without one.
 
+## License
+
+The code is released under the MIT License, see the [LICENSE](LICENSE) file. The data keeps its own terms, above.
+
 ## Contact
 
 Developed and maintained by Abi Adaikalam [Email](mailto:abiadaikalam@gmail.com)
