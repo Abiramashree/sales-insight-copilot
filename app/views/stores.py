@@ -1,4 +1,4 @@
-"""Stores: pick a store; see what it's worth, why, its competition, and what to do."""
+"""Stores: pick a store; see what it's worth, why, and what an action would bring."""
 
 from __future__ import annotations
 
@@ -15,21 +15,16 @@ from ui import (
     complete_weeks,
     eur,
     load,
-    load_json,
     pct,
     require,
     simulation,
     stores,
 )
 
-from sic.playbooks import library as PL
-
 opp, sw, ep = load("opportunity_scores.parquet"), load("store_weeks.parquet"), load(
     "episode_rca.parquet")
 require(opp, sw, ep)
-recs, comp_fx = load("recommendations.parquet"), load("competitor_store_effects.parquet")
-comp = load_json("m3_competitor_impact.json")
-dim = stores()
+recs, dim = load("recommendations.parquet"), stores()
 
 # ---------------------------------------------------------------- pick a store
 LEVERS = {"all": "All", "promo": "Promos", "peer": "Basket", "competitor": "Competitor"}
@@ -58,9 +53,7 @@ if recs is not None:
 
 s = sw[(sw.store_id == sid) & sw.week_start.isin(complete_weeks())].sort_values("week_start")
 e = ep[ep.store_id == sid].sort_values("start", ascending=False).head(5)
-pb = PL.for_store(sid)["playbooks"]
-names = ["Sales", "What-if", "Competition", "Similar stores"] + (
-    [f"Anomalies · {len(e)}"] if len(e) else []) + (["Playbook"] if pb else [])
+names = ["Sales", "What-if"] + ([f"Anomalies · {len(e)}"] if len(e) else [])
 tabs = dict(zip(names, st.tabs(names)))
 
 # ---------------------------------------------------------------- tabs
@@ -87,53 +80,10 @@ with tabs["What-if"]:
         simulation(run_sim(scenario="competitor_opens", store_ids=[sid],
                            competitor_distance_m=float(d)), f"comp_{sid}")
 
-with tabs["Competition"]:
-    if pd.isna(dist):
-        st.write("No competitor recorded for this store.")
-    else:
-        all_d = dim.competition_distance_m.dropna()
-        opened = dim.competition_open_date.get(sid)
-        band = comp["by_distance"]["within_1000m" if dist < 1000 else "beyond_1000m"] \
-            if comp else None
-        own = comp_fx[comp_fx.store_id == sid] if comp_fx is not None else pd.DataFrame()
-        k = st.columns(4)
-        k[0].metric("Closer than", f"{(all_d > dist).mean():.0%} of stores")
-        k[1].metric("Opened", "Unknown" if pd.isna(opened) else f"{pd.Timestamp(opened):%b %Y}")
-        if band:
-            k[2].metric(f"Typical impact {'< 1 km' if dist < 1000 else '≥ 1 km'}",
-                        pct(band["effect_pct"]),
-                        f"{pct(band['ci_pct'][0])} to {pct(band['ci_pct'][1])}",
-                        delta_color="off", delta_arrow="off")
-        if len(own):
-            o = own.iloc[0]
-            k[3].metric("This store after opening", pct(o.effect_pct),
-                        f"{pct(o.ci_lo_pct)} to {pct(o.ci_hi_pct)}", delta_color="off",
-                        delta_arrow="off")
-
-with tabs["Similar stores"]:
-    ids = [sid, *[int(i) for i in r.peers]]
-    p = opp.set_index("store_id").loc[ids]
-    st.dataframe(pd.DataFrame({
-        "Store": [f"{i} (selected)" if i == sid else str(i) for i in ids],
-        "Sales / day": p.spd.map(eur).values, "Basket": p.basket.map(lambda x: f"€{x:.2f}").values,
-        "vs forecast, 13 wk": p.gap_recent.map(pct).values,
-        "Competitor": [("—" if pd.isna(x) else f"{x:,.0f} m")
-                       for x in dim.competition_distance_m.reindex(ids)],
-        "Trend": p.momentum.str.capitalize().values}), hide_index=True, width="stretch")
-
 if len(e):
-    with tabs[names[4]]:
+    with tabs[names[2]]:
         for x in e.itertuples():
             causes = "; ".join(d["detail"] for d in json.loads(x.evidence))
             st.markdown(f"**{x.start:%-d %b %Y}** · {pct(x.gap_pct, 0)} · "
                         f"{x.root_cause.replace('_', ' ')}  \n"
                         f"{eur(x.gap)} over {x.weeks} weeks, {x.tb_driver}-driven. {causes}")
-
-if pb:
-    b = pb[0]
-    with tabs["Playbook"]:
-        st.markdown(f"**{b['title']}** · {b['citation']}")
-        st.markdown("\n".join(f"{i}. {p}" for i, p in enumerate(b["plays"], 1)))
-        if b["do_not"]:
-            st.markdown("**Don't** " + "; ".join(b["do_not"]))
-        st.markdown("**Measure** " + "; ".join(b["measure"]))
