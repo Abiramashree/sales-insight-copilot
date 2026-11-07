@@ -116,3 +116,20 @@ def test_store_competitor_effects_agree_with_pooled_study():
         avg = np.expm1(np.log1p(e[mask].effect_pct).mean())
         assert abs(avg - pooled["by_distance"][band]["effect_pct"]) < 0.03
     assert (e.ci_lo_pct <= e.effect_pct).all() and (e.effect_pct <= e.ci_hi_pct).all()
+
+
+def test_period_kpis_match_the_weekly_scorecard():
+    from sic import config
+    from sic.kpi.period import kpis, periods
+
+    p = config.path("outputs") / "weekly_kpis.parquet"
+    if not p.exists():
+        pytest.skip("run make kpis first")
+    k = pd.read_parquet(p)
+    for wk in ["2014-08-04", "2014-12-22", "2015-07-20"]:
+        a = k[(k.segment == "ALL") & (k.week_start == wk)].iloc[0]
+        r = kpis(wk, pd.Timestamp(wk) + pd.Timedelta(days=6))
+        assert r["sales"] == pytest.approx(a.sales)
+        assert r["vs_forecast"] == pytest.approx(a.sales_vs_forecast)
+        assert r["vs_last_year"] == pytest.approx(a.yoy_growth)
+    assert [len(periods(g)) for g in ("week", "month", "quarter")] == [53, 12, 5]

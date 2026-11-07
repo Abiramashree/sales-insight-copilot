@@ -120,7 +120,7 @@ A momentum flag (improving, stable or sliding) and a plain-English reason come w
 - The first peer metric I tried, *sales per day* vs peers, was rejected: it correlated 0.90
   with store size, so it measured catchment rather than anything a manager can change.
 
-The scores appear in the app's **Actions** page (with a one-click what-if to size an
+The scores appear in the assistant (plans and `get_opportunities`) (with a one-click what-if to size an
 action) and through the copilot's `get_opportunities` tool.
 
 ### What-if simulator (causal inference + AI)
@@ -137,7 +137,7 @@ the 20 lowest-response stores?"*. The work is split between the LLM and the mode
   assumptions and caveats.
 - **Scenarios the engine doesn't support** are refused, and the copilot lists the ones it can
   run.
-- **A form in the app** (Ask → Simulate) runs the same engine with **zero
+- **A form in the app** (the assistant's simulate_scenario tool) runs the same engine with **zero
   LLM tokens**.
 
 **Show your work.** Every chat answer has an expandable panel listing each tool call with its
@@ -161,7 +161,7 @@ which numbers in the answer were verified against tool outputs.
 | `src/sic/agent` | Chat agent loop, sandboxed tools, TF-IDF retrieval over KPI + method docs |
 | `docs/knowledge/` | Methodology and promo-program docs the agent retrieves from |
 | `src/sic/kpi` | Weekly KPI scorecard (day-matched WoW/YoY, same-store) |
-| `app/` | Streamlit UI: `main.py` (navigation), `views/` (Pipeline, Actions, Test, Ask), `ui.py` (shared helpers) |
+| `app/` | Streamlit UI: `main.py` (navigation), `views/` (KPIs, Assistant); spec in `docs/APP_SPEC.md`, `ui.py` (shared helpers) |
 | `demo/` | Saved insight-card snapshot used when the live LLM is unavailable |
 | `docs/playbooks/` | Governed store-response playbooks (status, version, review date, triggers) |
 | `src/sic/playbooks` | Playbook retrieval: governance filter, evidence matching, semantic search |

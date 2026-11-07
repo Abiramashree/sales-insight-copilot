@@ -1,47 +1,75 @@
-"""Every page renders without an exception and the no-LLM tools produce results. Uses
-pipeline outputs; nothing here calls the LLM (cards and chat only do on user action)."""
+"""Both pages render, the KPI drill-down works for chain and store, the manual panel runs
+without an LLM, and an anomaly hands off to the assistant. The LLM is stubbed: no tokens."""
+
+import json
 
 import pytest
 from streamlit.testing.v1 import AppTest
 
 from sic import config
 
-PAGES = ["views/pipeline.py", "views/actions.py", "views/test.py", "views/ask.py"]
 pytestmark = pytest.mark.skipif(
     not (config.path("outputs") / "weekly_kpis.parquet").exists(), reason="run make all first")
 
 
-def _app(page: str = PAGES[0]) -> AppTest:
-    at = AppTest.from_file("../app/main.py", default_timeout=90).run()
-    if page != PAGES[0]:
+def _app(page: str | None = None) -> AppTest:
+    at = AppTest.from_file("../app/main.py", default_timeout=120).run()
+    if page:
         at.switch_page(page).run()
-    assert not at.exception, [e.value for e in at.exception]
+    _ok(at)
     return at
 
 
-@pytest.mark.parametrize("page", PAGES)
-def test_page_renders(page):
-    _app(page)
-
-
-def test_actions_store_view_runs_a_simulation():
-    at = _app("views/actions.py")
-    at.segmented_control[0].set_value("Stores").run()
+def _ok(at: AppTest) -> None:
     assert not at.exception, [e.value for e in at.exception]
-    assert any(m.label == "Expected impact" for m in at.metric)
 
 
-def test_tester_and_planner_return_numbers():
-    at = _app("views/test.py")
-    assert any(m.label == "Difference" and "95% CI" in m.delta for m in at.metric)
-    at.segmented_control[0].set_value("Plan").run()
-    assert not at.exception, [e.value for e in at.exception]
-    assert any(m.label == "Detectable lift" for m in at.metric)
+def _labels(at: AppTest) -> list[str]:
+    return [m.label for m in at.metric]
 
 
-def test_ask_simulate_mode_runs_without_llm():
-    at = _app("views/ask.py")
-    at.segmented_control[0].set_value("Simulate").run()
-    at.button[0].click().run()
-    assert not at.exception, [e.value for e in at.exception]
-    assert any(m.label == "Expected impact" for m in at.metric)
+def test_kpis_chain_week_month_quarter():
+    at = _app()
+    assert _labels(at)[:3] == ["Sales", "vs forecast", "vs last year"]
+    assert "Gap vs forecast" in _labels(at)            # anomaly drill-down rendered
+    for grain in ("month", "quarter"):
+        at.segmented_control[0].set_value(grain).run()
+        _ok(at)
+        assert at.metric[0].value not in ("—", "")
+
+
+def test_kpis_single_store():
+    at = _app()
+    at.selectbox[0].set_value(1114).run()
+    _ok(at)
+    assert at.metric[0].label == "Sales" and at.metric[0].value.startswith("€")
+
+
+def test_assistant_manual_panel_without_llm():
+    at = _app("views/assistant.py")
+    assert "Difference" in _labels(at)                  # Test tool
+    at.segmented_control[0].set_value("Design").run()
+    _ok(at)
+    assert "Detectable lift" in _labels(at)
+    at.segmented_control[0].set_value("Analyze").run()
+    _ok(at)
+    assert any(m.label.startswith("Lift") for m in at.metric)   # dry-run readout
+
+
+def test_anomaly_hands_off_to_assistant(monkeypatch):
+    seen = {}
+
+    def fake_ask(q, history=None, **kw):
+        seen["q"] = q
+        args = json.dumps({"target_pct": 0.05, "store_type": "b"})
+        return {"answer": "**Goal** stub", "unsupported_numbers": [],
+                "tool_calls": [{"tool": "plan_initiative", "arguments": args, "ok": True,
+                                "latency_s": 0.1, "result_preview": "{}"}]}
+
+    import sic.agent.chat
+    monkeypatch.setattr(sic.agent.chat, "ask", fake_ask)
+    at = _app()
+    next(b for b in at.button if b.label == "Investigate with the assistant").click().run()
+    _ok(at)
+    assert seen["q"].startswith("Investigate store ")
+    assert any(m.label == "Weekly sales now" for m in at.metric)   # plan block rendered

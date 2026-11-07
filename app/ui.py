@@ -137,3 +137,140 @@ def simulation(r: dict, key: str) -> None:
     with st.expander("Method and assumptions"):
         st.markdown(f"{r['effect_used']}  \n{r['method']}  \n{r['uncertainty']}")
         st.markdown("\n".join(f"- {a}" for a in r["assumptions"] + r["caveats"]))
+
+
+# ---------------------------------------------------------------- assistant blocks
+TOOLS = {"run_sql": "SQL", "explain_store": "Store explainer", "lookup_definition": "Definitions",
+         "get_recommendations": "Recommendations", "get_playbook": "Playbook",
+         "simulate_scenario": "Simulation", "get_opportunities": "Opportunities",
+         "test_hypothesis": "Hypothesis test", "plan_ab_test": "A/B sizing",
+         "plan_initiative": "Plan", "design_ab_test": "A/B design",
+         "analyze_ab_test": "A/B readout"}
+
+
+def unverified(work: dict) -> None:
+    if work.get("unsupported_numbers"):
+        st.warning("Not found in any source: " + ", ".join(work["unsupported_numbers"]))
+
+
+def sources(work: dict, key: str) -> None:
+    """What an answer was built from: each tool call with its input and result."""
+    calls = work.get("tool_calls") or []
+    if not calls:
+        return
+    with st.expander(f"Sources · {len(calls)}"):
+        for i, c in enumerate(calls, 1):
+            st.markdown(f"**{TOOLS.get(c['tool'], c['tool'])}**" + ("" if c["ok"] else " · failed"))
+            try:
+                args = {k: v for k, v in json.loads(c["arguments"] or "{}").items()
+                        if v is not None}
+            except json.JSONDecodeError:
+                args = {"raw": c["arguments"]}
+            if c["tool"] == "run_sql" and "query" in args:
+                st.code(args["query"], language="sql")
+            elif args:
+                st.code(json.dumps(args, indent=1), language="json")
+            try:
+                res = json.loads(c.get("result_preview") or "")
+            except json.JSONDecodeError:
+                res = None
+            if isinstance(res, dict) and "rows" in res and "columns" in res:
+                st.dataframe(pd.DataFrame(res["rows"], columns=res["columns"]).head(20),
+                             hide_index=True, width="stretch")
+            elif res is not None:
+                st.json(res, expanded=False)
+
+
+def test_result(r: dict) -> None:
+    """One hypothesis test: design and significance badges, effect with CI, p, stores."""
+    within = r["design"] == "within-store"
+    sig = r["p_value"] < 0.05
+    st.markdown((":green-badge[Within-store]" if within else ":orange-badge[Association only]")
+                + (" :blue-badge[Significant]" if sig else " :gray-badge[Not significant]"))
+    m = st.columns(3)
+    m[0].metric("Difference", pct(r["effect_pct"]))
+    m[1].metric("p-value", fmt_p(r["p_value"]))
+    m[2].metric("Stores", f"{r['n_a']:,}" if within else f"{r['n_a']:,} vs {r['n_b']:,}")
+    st.markdown(f":gray[95% CI {pct(r['ci_pct'][0])} to {pct(r['ci_pct'][1])} · "
+                f"rank test p {fmt_p(r['p_rank'])}]")
+
+
+def fmt_p(x: float) -> str:
+    return "< 0.001" if x < 0.001 else f"{x:.3f}"
+
+
+def readout(r: dict) -> None:
+    """An A/B readout: decision, CUPED lift with CI, raw for comparison."""
+    best = r.get("cuped") or r["raw"]
+    go_ = r["decision"] == "roll out"
+    st.markdown((":green-badge[Roll out]" if go_ else ":orange-badge[Do not roll out]")
+                + (" :gray-badge[Dry run on history]" if r.get("dry_run") else ""))
+    m = st.columns(3)
+    m[0].metric("Lift" + (" (CUPED)" if r.get("cuped") else ""), pct(best["lift"]))
+    m[1].metric("p-value", fmt_p(best["p_value"]))
+    m[2].metric("Stores", f"{r['stores_test']} vs {r['stores_control']}")
+    st.markdown(f":gray[95% CI {pct(best['ci'][0])} to {pct(best['ci'][1])}"
+                + (f" · raw lift {pct(r['raw']['lift'])}" if r.get("cuped") else "")
+                + f" · {r['weeks']} weeks from {r['test_start']}]")
+    st.write(r["rule"])
+
+
+def plan_block(p: dict, key: str) -> None:
+    """The deterministic plan behind an assistant answer: stores, alternatives, design."""
+    pl, b = p["plausibility"], p["baseline"]
+    color = {"Plausible": "green", "Stretch": "blue", "Unlikely": "orange"}[pl["verdict"]]
+    st.markdown(f":{color}-badge[{pl['verdict']}] :gray-badge[upside covers "
+                f"{pl['coverage']:.2f}× the goal]")
+    m = st.columns(3)
+    m[0].metric("Weekly sales now", eur(b["weekly_sales_eur"]))
+    m[1].metric("Needed per week", eur(b["required_eur_per_week"]),
+                pct(p["goal"]["target_pct"], 1), delta_color="off", delta_arrow="off")
+    m[2].metric("Covered by plan", eur(p["covered_eur_per_week"]),
+                f"gap {eur(p['gap_eur_per_week'])}" if p["gap_eur_per_week"] > 1 else None,
+                delta_color="off", delta_arrow="off")
+    t1, t2, t3, t4 = st.tabs([f"Stores · {len(p['stores'])}", "Alternatives", "Hypotheses",
+                              "Experiment"])
+    with t1:
+        s = pd.DataFrame(p["stores"])
+        if len(s):
+            st.dataframe(pd.DataFrame({
+                "Store": s.store_id, "Type": s.store_type,
+                "Weekly sales": s.weekly_sales.map(eur), "Add / week": s.add_eur_per_week.map(eur),
+                "Add %": s.add_pct.map(pct), "Lever": s.main_lever}),
+                hide_index=True, width="stretch", height=min(36 * len(s) + 38, 300))
+    with t2:
+        st.dataframe(pd.DataFrame([{
+            "Option": a["option"], "€ / week": eur(a["eur_per_week"]),
+            "Range": f"{eur(a['range'][0])} to {eur(a['range'][1])}",
+            "Confidence": a["confidence"].capitalize()} for a in p["alternatives"]]),
+            hide_index=True, width="stretch")
+    with t3:
+        for h in p["hypotheses"]:
+            st.markdown(f"**{h['id']}** If {h['if']}, then {h['then']}, because {h['because']}.")
+            if "effect_pct" in h:
+                st.markdown(f"{h['test']}: {pct(h['effect_pct'])} (95% CI {pct(h['ci_pct'][0])}"
+                            f" to {pct(h['ci_pct'][1])}, p {fmt_p(h['p_value'])}, "
+                            f"{h['n_a']} stores)")
+            else:
+                st.markdown(f"{h['test']}: customers {pct(h['customers_effect_pct'])}, "
+                            f"basket {pct(h['basket_effect_pct'])}"
+                            + (" (supported)" if h["supported"] else " (not supported)"))
+    with t4:
+        e = p["experiment"] or {}
+        if "note" in e:
+            st.write(e["note"])
+        else:
+            st.markdown(":green-badge[Powered]" if e["powered"] else
+                        f":orange-badge[Under-powered: needs {e['stores_needed_cuped']} stores "
+                        "per group]")
+            k = st.columns(3)
+            k[0].metric("Stores per group", e["stores_per_arm"])
+            k[1].metric("Weeks", e["weeks"])
+            k[2].metric("Detectable lift", pct(e["mde_cuped"]), f"target {pct(e['target_lift'])}",
+                        delta_color="off", delta_arrow="off")
+            st.write(f"Primary metric: {e['primary_metric']}. Guardrail: {e['guardrail']}. "
+                     f"Decision: {e['decision_rule']}.")
+            g = pd.DataFrame(e["groups"])
+            st.dataframe(g.rename(columns={"store_id": "Store", "group": "Group",
+                                           "weekly_sales": "Weekly sales"}),
+                         hide_index=True, width="stretch", height=200, key=f"groups_{key}")

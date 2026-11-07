@@ -235,6 +235,109 @@ def get_opportunities(limit: int | None = 10, opportunity_type: str | None = Non
                     "(opportunity:). Use simulate_scenario to size a specific action."}
 
 
+def test_hypothesis(metric: str, comparison: str, group_a: str | None = None,
+                    group_b: str | None = None, store_type: str | None = None) -> dict:
+    """Is a metric different between two conditions? Store-level test from src/sic/hypothesis."""
+    from sic import hypothesis as H
+
+    try:
+        r = H.test(metric, comparison, group_a, group_b, store_type=store_type)
+    except ValueError as e:
+        raise SQLError(str(e)) from None
+    r.pop("per_store")
+    r["reading"] = ("within-store: each store vs itself on the same weekdays; close to causal "
+                    "but timing can confound" if r["design"] == "within-store" else
+                    "between-store: an association only; stores differ in other ways")
+    return r
+
+
+def plan_ab_test(target_lift: float, weeks: int | None = 4,
+                 stores_per_group: int | None = 50) -> dict:
+    """Store-level A/B test sizing from the data's real spread, with and without CUPED."""
+    from sic import hypothesis as H
+
+    if not 0 < target_lift < 1:
+        raise SQLError("target_lift is a fraction, e.g. 0.03 for 3%.")
+    weeks, n = int(weeks or 4), int(stores_per_group or 50)
+    if not (2 <= weeks <= 12 and 5 <= n <= 550):
+        raise SQLError("weeks must be 2-12 and stores_per_group 5-550.")
+    p = H.plan(weeks=weeks, stores_per_arm=n, target_lift=target_lift)
+    p["note"] = ("mde_* = smallest lift detectable with these stores and weeks; "
+                 "stores_needed_* = stores per group for target_lift. CUPED adjusts each "
+                 "store by its own pre-period and is the recommended analysis.")
+    return p
+
+
+def _summarize_groups(groups: list[dict]) -> dict:
+    t = [g["store_id"] for g in groups if g["group"] == "test"]
+    c = [g["store_id"] for g in groups if g["group"] == "control"]
+    return {"test_stores": len(t), "control_stores": len(c), "test_sample": t[:10],
+            "control_sample": c[:10]}
+
+
+def plan_initiative(target_pct: float, store_type: str | None = None,
+                    store_ids: list[int] | None = None, test_weeks: int | None = 8) -> dict:
+    """Deterministic initiative plan (src/sic/planner.py), trimmed for the model."""
+    from sic import planner
+
+    try:
+        p = planner.plan(target_pct, store_type=store_type, store_ids=store_ids,
+                         test_weeks=int(test_weeks or 8))
+    except ValueError as e:
+        raise SQLError(str(e)) from None
+    p["stores_selected"] = len(p["stores"])
+    p["stores"] = p["stores"][:15]
+    if p["experiment"] and "groups" in p["experiment"]:
+        p["experiment"]["groups"] = _summarize_groups(p["experiment"]["groups"])
+    return p
+
+
+def _select(store_ids, store_type, top_n) -> list[int]:
+    o = pd.read_parquet(config.path("outputs") / "opportunity_scores.parquet")
+    if store_ids:
+        return [int(i) for i in store_ids]
+    if store_type:
+        o = o[o.store_type == store_type.lower()]
+    return o.sort_values("score_eur", ascending=False).head(int(top_n or 40)).store_id \
+        .astype(int).tolist()
+
+
+def design_ab_test(target_lift: float, store_ids: list[int] | None = None,
+                   store_type: str | None = None, top_n: int | None = None,
+                   weeks: int | None = 8, seed: int | None = 7) -> dict:
+    """Size a store-level A/B test and assign test/control stores reproducibly."""
+    from sic import experiment as X
+    from sic import hypothesis as H
+
+    ids = _select(store_ids, store_type, top_n)
+    try:
+        g = X.assign(ids, seed=int(seed or 7))
+        size = H.plan(weeks=int(weeks or 8), stores_per_arm=len(ids) // 2,
+                      target_lift=float(target_lift))
+    except ValueError as e:
+        raise SQLError(str(e)) from None
+    return {**size, "powered": size["stores_needed_cuped"] <= len(ids) // 2,
+            "seed": int(seed or 7), "store_ids": ids,
+            "groups": _summarize_groups(g.to_dict(orient="records")),
+            "decision_rule": "roll out if the 95% CI is above 0 and the lift is at least half "
+                             "the target lift"}
+
+
+def analyze_ab_test(store_ids: list[int], start_week: str, weeks: int | None = 6,
+                    planned_lift: float | None = None, seed: int | None = 7) -> dict:
+    """Dry-run readout on real past weeks (no treatment applied: an A/A check)."""
+    from sic import experiment as X
+
+    try:
+        g = X.assign([int(i) for i in store_ids], seed=int(seed or 7))
+        r = X.dry_run(g, start_week, int(weeks or 6), planned_lift)
+    except ValueError as e:
+        raise SQLError(str(e)) from None
+    r["note"] = ("Dry run on history: no treatment was applied, so a sound design shows a "
+                 "lift near 0. Real results can be uploaded in the assistant's manual panel.")
+    return r
+
+
 TOOLS = {
     "run_sql": run_sql,
     "lookup_definition": lookup_definition,
@@ -243,9 +346,83 @@ TOOLS = {
     "get_playbook": get_playbook,
     "simulate_scenario": simulate_scenario,
     "get_opportunities": get_opportunities,
+    "test_hypothesis": test_hypothesis,
+    "plan_ab_test": plan_ab_test,
+    "plan_initiative": plan_initiative,
+    "design_ab_test": design_ab_test,
+    "analyze_ab_test": analyze_ab_test,
 }
 
 TOOL_SPECS = [
+    {"type": "function", "function": {
+        "name": "plan_initiative",
+        "description": "Build a deterministic plan for a sales goal: baseline and required "
+                       "EUR, plausibility (Plausible/Stretch/Unlikely with coverage), which "
+                       "stores and the % each must add, if/then/because hypotheses already "
+                       "tested on history, alternatives sized in EUR/week with ranges, and an "
+                       "A/B design with test/control groups. target_pct is a fraction (0.05 = "
+                       "5%). Scope: store_type ('a'-'d'), store_ids, or neither for the chain.",
+        "parameters": {"type": "object", "properties": {
+            "target_pct": {"type": "number"},
+            "store_type": {"type": ["string", "null"]},
+            "store_ids": {"type": ["array", "null"], "items": {"type": "integer"}},
+            "test_weeks": {"type": ["integer", "null"]}},
+            "required": ["target_pct"]}}},
+    {"type": "function", "function": {
+        "name": "design_ab_test",
+        "description": "Design a store-level A/B test: sizing (detectable lift, stores needed, "
+                       "with and without CUPED) and a reproducible stratified test/control "
+                       "split. Stores: store_ids, or the top_n highest-upside stores "
+                       "(optionally within store_type). target_lift is a fraction.",
+        "parameters": {"type": "object", "properties": {
+            "target_lift": {"type": "number"},
+            "store_ids": {"type": ["array", "null"], "items": {"type": "integer"}},
+            "store_type": {"type": ["string", "null"]},
+            "top_n": {"type": ["integer", "null"]},
+            "weeks": {"type": ["integer", "null"]},
+            "seed": {"type": ["integer", "null"]}},
+            "required": ["target_lift"]}}},
+    {"type": "function", "function": {
+        "name": "analyze_ab_test",
+        "description": "Read out an A/B design as a dry run on real past weeks (no treatment "
+                       "applied, an A/A check): lift, 95% CI and p-value, raw and CUPED, and "
+                       "the decision under the fixed rule. start_week is YYYY-MM-DD.",
+        "parameters": {"type": "object", "properties": {
+            "store_ids": {"type": "array", "items": {"type": "integer"}},
+            "start_week": {"type": "string"},
+            "weeks": {"type": ["integer", "null"]},
+            "planned_lift": {"type": ["number", "null"]},
+            "seed": {"type": ["integer", "null"]}},
+            "required": ["store_ids", "start_week"]}}},
+    {"type": "function", "function": {
+        "name": "test_hypothesis",
+        "description": "Test whether a metric differs between two conditions, with the store "
+                       "as the unit of analysis. metric: sales | customers | basket. "
+                       "comparison: promo or school_holiday (within-store, weekday-matched, "
+                       "close to causal), or store_type, assortment, promo2, competitor "
+                       "(between stores, association only; give group_a and group_b, e.g. "
+                       "store_type 'b' vs 'a', assortment 'basic'/'extended'/'extra', promo2 "
+                       "'Enrolled'/'Not enrolled', competitor 'Within 1 km'/'1 km or more'). "
+                       "Returns effect_pct, 95% ci_pct, p_value, a rank-test p and store counts.",
+        "parameters": {"type": "object", "properties": {
+            "metric": {"type": "string", "enum": ["sales", "customers", "basket"]},
+            "comparison": {"type": "string", "enum": ["promo", "school_holiday", "store_type",
+                                                       "assortment", "promo2", "competitor"]},
+            "group_a": {"type": ["string", "null"]},
+            "group_b": {"type": ["string", "null"]},
+            "store_type": {"type": ["string", "null"]}},
+            "required": ["metric", "comparison"]}}},
+    {"type": "function", "function": {
+        "name": "plan_ab_test",
+        "description": "Size a store-level A/B test from the data's real week-to-week spread: "
+                       "smallest detectable lift for a given number of stores per group and "
+                       "weeks, and stores per group needed to detect target_lift, with and "
+                       "without CUPED. target_lift is a fraction (0.03 = 3%).",
+        "parameters": {"type": "object", "properties": {
+            "target_lift": {"type": "number"},
+            "weeks": {"type": ["integer", "null"]},
+            "stores_per_group": {"type": ["integer", "null"]}},
+            "required": ["target_lift"]}}},
     {"type": "function", "function": {
         "name": "get_opportunities",
         "description": "Ranked store opportunities: which stores have the most upside from "

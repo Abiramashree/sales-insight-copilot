@@ -19,7 +19,7 @@ from sic.agent import tools as T
 from sic.insights.factcheck import check, numbers_in
 
 SYSTEM = """You are the Sales Insight Copilot, an analyst assistant for a retail chain's sales
-managers (1,115 stores, daily data through 2015-07-31, amounts in EUR).
+managers (1,115 stores, daily data through {data_end}, amounts in EUR).
 
 How to work:
 - Get every number from a tool. Never guess or do mental arithmetic on large figures; if you
@@ -37,22 +37,43 @@ How to work:
   opening, enrolling stores in Promo2), call simulate_scenario. Report the expected impact,
   the 90% range, the confidence level and the main caveat. If the scenario is not one of the
   supported ones, say so and list what can be simulated.
+- To check whether a metric really differs between conditions (promo, school holiday, store
+  type, assortment, Promo2, competitor distance), call test_hypothesis; to size an A/B
+  test, call plan_ab_test. Say whether a test is within-store or an association only.
+- Planning a goal ("grow / increase / reach ..."): you are the BA's junior analyst. If the
+  target %, the scope (chain, a store type, or specific stores) or the time frame is
+  missing, ask ONE short clarifying question that offers a sensible default, then stop.
+  Otherwise call plan_initiative and write the plan under these headings, in order:
+  **Goal**, **Is it plausible?**, **Stores and targets**, **Hypotheses and tests**,
+  **Experiment**, **Alternatives**, **Risks and decision**. Use only numbers the tools
+  return: state the verdict with its coverage, quote CIs, say if the experiment is
+  under-powered and what fixes it (more stores, more weeks, a larger effect), and note
+  that the basket alternative's range is assumption-based. When the BA refines the plan
+  ("only type b", "8 weeks"), call plan_initiative again with the new inputs.
+- Experiments: design_ab_test sizes a test and splits stores; analyze_ab_test reads out a
+  dry run on history (no treatment, so a sound design shows ~0). Real results are uploaded
+  in the assistant's manual panel.
 - Say how certain a finding is. Flag early signals (1-2 weeks) and estimates the docs call
   uncertain (e.g. the Promo2 effect is suggestive, not proven).
 - Do not invent causes. If the root cause is "unexplained", say local investigation is needed.
 - If a question is outside the data, say so plainly.
 
-Answer style: lead with the answer in 1-2 sentences, then up to 4 short bullets of evidence,
-then a suggested next step if relevant. Keep numbers exactly as the tools return them
-(you may format 0.231 as 23.1% and 13326 as €13.3k).
+Answer style (questions): lead with the answer in 1-2 sentences, then up to 4 short bullets
+of evidence, then a suggested next step if relevant. Plans use the headings above.
+Keep numbers exactly as the tools return them (you may format 0.231 as 23.1% and 13326 as
+€13.3k).
 
 Tables you can query with run_sql:
 {schema}
 """
 
 
+def data_end() -> str:
+    return str(config.as_of() or config.load()["feed"]["end"])
+
+
 def _system() -> str:
-    return SYSTEM.format(schema=T.schema_description())
+    return SYSTEM.format(schema=T.schema_description(), data_end=data_end())
 
 
 def _tool_call_dict(c) -> dict:
@@ -76,16 +97,19 @@ def _call_tool(name: str, args_json: str) -> tuple[dict, bool]:
         return {"error": f"Bad arguments for {name}: {e}"}, False
 
 
-def ask(question: str, llm=None, history: list[dict] | None = None) -> dict:
+def ask(question: str, llm=None, history: list[dict] | None = None,
+        system: str | None = None, max_steps: int | None = None) -> dict:
+    """Run the tool loop. `system` replaces the copilot brief (the test advisor uses this);
+    tools, tracing and the numeric fact-check are the same either way."""
     from sic.llm.client import get_llm
 
     llm = llm or get_llm()
     cfg = config.load()["agent"]
-    messages = [{"role": "system", "content": _system()}, *(history or []),
+    messages = [{"role": "system", "content": system or _system()}, *(history or []),
                 {"role": "user", "content": question}]
     trace, evidence, t0 = [], [], time.time()
     answer = None
-    for step in range(cfg["max_steps"]):
+    for step in range(max_steps or cfg["max_steps"]):
         msg = llm.chat(messages, tools=T.TOOL_SPECS, purpose="agent")
         calls = getattr(msg, "tool_calls", None) or []
         if not calls:

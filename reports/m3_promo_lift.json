@@ -1,71 +1,71 @@
 {
   "n_stores": 1115,
-  "pooled_lift": 0.3777550059729513,
-  "median_store_lift": 0.40108376723877637,
+  "pooled_lift": 0.3806364960907569,
+  "median_store_lift": 0.4026343333428537,
   "lift_p10_p90": [
-    0.25769761210659137,
-    0.5591066796559849
+    0.2594737458316069,
+    0.5653223851495476
   ],
   "share_stores_ci_above_zero": 1.0,
   "naive_raw_uplift_for_comparison": null,
   "by_store_type": {
-    "a": 0.375,
+    "a": 0.3772,
     "b": 0.1407,
-    "c": 0.4225,
-    "d": 0.4326
+    "c": 0.4227,
+    "d": 0.4352
   },
   "by_assortment": {
-    "basic": 0.4271,
-    "extended": 0.37,
-    "extra": 0.1165
+    "basic": 0.4301,
+    "extended": 0.3725,
+    "extra": 0.1146
   },
   "heterogeneity_model": {
-    "r2": 0.2260991005940166,
+    "r2": 0.22654093958445454,
     "coefficients": {
       "Intercept": {
-        "coef": 0.4175,
-        "se": 0.0859,
+        "coef": 0.4135,
+        "se": 0.0868,
         "p": 0.0
       },
       "C(store_type)[T.b]": {
-        "coef": -0.0685,
-        "se": 0.0236,
-        "p": 0.0037
+        "coef": -0.069,
+        "se": 0.0237,
+        "p": 0.0036
       },
       "C(store_type)[T.c]": {
-        "coef": 0.0284,
-        "se": 0.0082,
-        "p": 0.0006
+        "coef": 0.028,
+        "se": 0.0083,
+        "p": 0.0008
       },
       "C(store_type)[T.d]": {
-        "coef": 0.0453,
-        "se": 0.0054,
+        "coef": 0.0455,
+        "se": 0.0055,
         "p": 0.0
       },
       "C(assortment)[T.extended]": {
-        "coef": -0.0262,
-        "se": 0.0052,
+        "coef": -0.027,
+        "se": 0.0053,
         "p": 0.0
       },
       "C(assortment)[T.extra]": {
-        "coef": -0.1388,
-        "se": 0.0251,
+        "coef": -0.1433,
+        "se": 0.0255,
         "p": 0.0
       },
       "promo2_enrolled[T.True]": {
-        "coef": 0.0386,
+        "coef": 0.0395,
         "se": 0.0053,
         "p": 0.0
       },
       "log_comp": {
         "coef": -0.0023,
         "se": 0.0017,
-        "p": 0.1715
+        "p": 0.1859
       },
       "log_sales": {
-        "coef": -0.0111,
-        "se": 0.0095,
-        "p": 0.2421
+        "coef": -0.0105,
+        "se": 0.0096,
+        "p": 0.2752
       }
     }
   },
@@ -73,79 +73,79 @@
     {
       "store_id": 261,
       "store_type": "d",
-      "lift": 0.74,
-      "lift_lo": 0.701,
-      "lift_hi": 0.779,
-      "incremental_eur_per_promo_week": 34834.797
+      "lift": 0.75,
+      "lift_lo": 0.709,
+      "lift_hi": 0.792,
+      "incremental_eur_per_promo_week": 35315.237
     },
     {
       "store_id": 335,
       "store_type": "b",
-      "lift": 0.501,
-      "lift_lo": 0.469,
-      "lift_hi": 0.534,
-      "incremental_eur_per_promo_week": 30953.164
+      "lift": 0.502,
+      "lift_lo": 0.468,
+      "lift_hi": 0.537,
+      "incremental_eur_per_promo_week": 31010.048
     },
     {
       "store_id": 1027,
       "store_type": "a",
-      "lift": 0.563,
-      "lift_lo": 0.526,
-      "lift_hi": 0.601,
-      "incremental_eur_per_promo_week": 29362.945
+      "lift": 0.566,
+      "lift_lo": 0.529,
+      "lift_hi": 0.605,
+      "incremental_eur_per_promo_week": 29517.863
     },
     {
       "store_id": 380,
       "store_type": "a",
-      "lift": 0.483,
-      "lift_lo": 0.454,
-      "lift_hi": 0.513,
-      "incremental_eur_per_promo_week": 28427.498
+      "lift": 0.496,
+      "lift_lo": 0.465,
+      "lift_hi": 0.527,
+      "incremental_eur_per_promo_week": 29178.647
     },
     {
-      "store_id": 368,
-      "store_type": "d",
-      "lift": 0.752,
-      "lift_lo": 0.71,
-      "lift_hi": 0.794,
-      "incremental_eur_per_promo_week": 27656.026
+      "store_id": 909,
+      "store_type": "a",
+      "lift": 0.541,
+      "lift_lo": 0.511,
+      "lift_hi": 0.573,
+      "incremental_eur_per_promo_week": 28997.208
     }
   ],
   "weakest_responders": [
     {
+      "store_id": 794,
+      "store_type": "c",
+      "lift": 0.02,
+      "lift_lo": 0.003,
+      "lift_hi": 0.037
+    },
+    {
       "store_id": 789,
       "store_type": "a",
       "lift": 0.022,
-      "lift_lo": 0.001,
-      "lift_hi": 0.043
-    },
-    {
-      "store_id": 794,
-      "store_type": "c",
-      "lift": 0.024,
-      "lift_lo": 0.008,
-      "lift_hi": 0.041
+      "lift_lo": 0.0,
+      "lift_hi": 0.045
     },
     {
       "store_id": 948,
       "store_type": "b",
-      "lift": 0.089,
-      "lift_lo": 0.074,
-      "lift_hi": 0.105
+      "lift": 0.086,
+      "lift_lo": 0.07,
+      "lift_hi": 0.102
     },
     {
       "store_id": 353,
       "store_type": "b",
-      "lift": 0.091,
-      "lift_lo": 0.074,
-      "lift_hi": 0.108
+      "lift": 0.086,
+      "lift_lo": 0.068,
+      "lift_hi": 0.104
     },
     {
       "store_id": 274,
       "store_type": "b",
       "lift": 0.104,
       "lift_lo": 0.085,
-      "lift_hi": 0.123
+      "lift_hi": 0.122
     }
   ]
 }

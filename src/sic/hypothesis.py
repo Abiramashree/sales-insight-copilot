@@ -106,16 +106,19 @@ def between(d: pd.DataFrame, metric: str, by: str, a: str, b: str) -> dict:
 
 def test(metric: str, comparison: str, a: str | None = None, b: str | None = None,
          store_type: str | None = None, start: str | None = None,
-         end: str | None = None) -> dict:
+         end: str | None = None, store_ids: list[int] | None = None) -> dict:
     if metric not in METRICS or comparison not in {**WITHIN, **BETWEEN}:
         raise ValueError(f"metric in {list(METRICS)}, comparison in "
                          f"{list(WITHIN) + list(BETWEEN)}")
     d = daily(start, end)
     if store_type:
         d = d[d.store_type == store_type]
+    if store_ids:
+        d = d[d.store_id.isin([int(i) for i in store_ids])]
     r = within(d, metric, comparison) if comparison in WITHIN else between(
         d, metric, comparison, a, b)
     r.update({"metric": metric, "comparison": comparison, "store_type": store_type,
+              "stores_filtered": len(store_ids) if store_ids else None,
               "period": [str(d.date.min().date()), str(d.date.max().date())]})
     return r
 
