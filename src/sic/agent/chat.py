@@ -46,7 +46,8 @@ How to work:
   Otherwise call plan_initiative and write the plan under these headings, in order:
   **Goal**, **Is it plausible?**, **Stores and targets**, **Hypotheses and tests**,
   **Experiment**, **Alternatives**, **Risks and decision**. Use only numbers the tools
-  return: state the verdict with its coverage, quote CIs, say if the experiment is
+  return: state the verdict with its coverage, give the number of stores selected
+  (stores_selected) even if fewer are listed, quote CIs, say if the experiment is
   under-powered and what fixes it (more stores, more weeks, a larger effect), and note
   that the basket alternative's range is assumption-based. When the BA refines the plan
   ("only type b", "8 weeks"), call plan_initiative again with the new inputs.

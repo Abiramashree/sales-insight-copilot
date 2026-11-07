@@ -1,184 +1,140 @@
 # Sales Insight Copilot
 
-An automated sales insight pipeline: it **detects** what changed, **diagnoses** why, and
-**recommends** what to do, with every number traceable to the data. An LLM insight layer
-(weekly cards and a tool-using chat agent) comes next and will narrate these outputs without
-computing numbers itself.
+![KPIs for the chain, with the week's biggest anomaly opened](docs/images/kpis_chain.png)
 
-Built on the public Rossmann Store Sales dataset (1,115 stores, daily, 2013–2015).
+## Overview
+
+This project is a decision-intelligence app for a retail chain. It shows how the chain and every store are doing, flags the weeks that were unusual and says why, and gives a business analyst a junior colleague: an assistant that turns a goal like *"grow type b sales 5% next quarter"* into a plan with target stores, tested hypotheses, an A/B test design and alternatives.
+
+The data is Rossmann's daily sales for 1,115 stores from January 2013 to July 2015, 1,017,209 store-days.
+
+The rule throughout is that **numbers come from code, not from the language model.** Forecasts, anomalies, causal effects, plans and test results are computed deterministically. The LLM (Gemini 3.5 Flash) only writes and converses, and every number it writes is checked against the tool outputs it was given.
+
+- The forecast is off by **6.1% per store-week**, against 9.5% for a seasonal baseline, measured out of sample over four quarters.
+- **A promo week lifts a store's sales by 38%** on average, measured within each store against its own non-promo weekdays.
+- **A new competitor nearby costs a store 8.2% of sales**, 15.4% within 1 km and 5.4% beyond, from 120 openings. The Promo2 loyalty programme looks positive (+2.9%), but enrolled stores were already declining, so it is reported as unproven.
+- **For the type b goal above, the assistant answers *Unlikely*.** The measured upside in those 17 stores covers 0.29 of what the goal needs, and a test inside them would need 230 stores per group to detect the lift.
+
+## The app
+
+**KPIs.** Pick the chain or any store, and a week, month or quarter. Three numbers: sales, against forecast, and against the same days last year. The ten largest anomalies in the period are listed. Opening one shows why it happened, the weeks around it, how look-alike stores did that week, and the recommended next step, with a button that hands the case to the assistant.
+
+![One store, with its anomaly explained](docs/images/kpis_store.png)
+
+**Assistant.** One chat for questions ("which stores fell most last month?") and for plans. For a goal, it asks one clarifying question if the target, scope or time frame is missing, then writes the plan under fixed headings: goal, plausibility, stores and targets, hypotheses and tests, experiment, alternatives, risks and decision.
+
+![A plan written by the assistant](docs/images/assistant_plan.png)
+
+Under the text, the deterministic plan it was written from is shown in full, with the sources it used. Numbers that do not appear in any source are flagged: here, a p-value it rewrote in scientific notation and a rounding of its own.
+
+![The numbers behind the plan, with flagged numbers](docs/images/assistant_numbers.png)
+
+## How it works
 
 ```
-CSV ─▶ DuckDB warehouse ─▶ forecasts ─▶ anomalies ─▶ root cause ─▶ causal lift ─▶ recommendations
-       raw/staged/marts    (backtested)  (calibrated)  (3 lenses)   (FE + DiD)     (ranked, € sized)
-       + KPI dictionary                                                              │
-                                                              M4: LLM cards + agent ◀┘
+Kaggle CSVs ─▶ DuckDB warehouse ─▶ forecasts ─▶ anomalies ─▶ root cause ─▶ causal effects ─▶ planner
+               raw / staged / marts  (rolling     (calibrated   (traffic vs     (within-store,    stores, tests,
+               + KPI dictionary       origin)      intervals)    basket, events)  DiD)             A/B design
+                                                                                                    │
+                                              Streamlit app: KPIs  ·  Assistant (LLM + tools) ◀─────┘
 ```
 
-## Status
+**Forecast.** A gradient-boosted tree model (scikit-learn `HistGradientBoostingRegressor`) predicts each store's daily sales from 33 features known in advance: calendar, promotions, holidays, closures, competition, and store averages computed from the training window only. It is retrained each quarter and tested on the next one (rolling origin, four folds from August 2014 to July 2015), so every forecast in the app is out of sample. Prediction intervals come from quantile models, widened by conformal calibration on the previous fold.
 
-| Milestone | What | Status |
+**Anomalies.** A store-week is flagged when it is at least 10% off forecast and most of its days fall outside the calibrated interval in the same direction. Consecutive weeks form an episode: 2,001 episodes, 4.7% of store-weeks.
+
+**Root cause.** Each episode is split into fewer or more customers against smaller or bigger baskets, then matched to events: holidays, refurbishment reopenings, competitor openings, and moves shared by the whole store type.
+
+**Causal effects.** The promo effect is a within-store regression of log sales on promo days, against the same store's non-promo weekdays. Competitor openings and Promo2 enrolment use stacked difference-in-differences against stores whose situation did not change, with an event study, a pre-trend test and a placebo.
+
+**Planner.** For a goal, it takes the scope's weekly sales over the last eight complete weeks and compares the euros needed with the measured upside available (`src/sic/opportunity`). It picks the fewest stores that cover the goal and splits the target between them, tests two hypotheses on those stores' history, sizes the alternatives with a Monte Carlo what-if engine, and designs the A/B test.
+
+**Experiments.** Stores are the unit, never store-days. Tests within a store are matched by weekday and paired; tests between stores are Welch tests and are labelled as associations. The A/B design pairs stores by sales and randomises within pairs (seeded, so the split can be reproduced), and the readout adjusts each store by its own pre-period (CUPED).
+
+## How firm are the results?
+
+**The forecast.** Out of sample over four quarters:
+
+| | Seasonal baseline | Model |
 |---|---|---|
-| M1 | Warehouse, KPI dictionary, EDA | ✅ |
-| M2 | Forecasting backtest, interval calibration, anomaly detection | ✅ |
-| M3 | Root-cause engine, promo lift, Promo2 DiD, recommendations | ✅ |
-| M4 | LLM insight cards + tool-using chat agent (Groq · gpt-oss-120b), KPI RAG | ✅ built, awaiting live run |
-| M5 | Evals: retrieval, card-QA defect injection, agent golden set, A/B power, drift, LLM observability | ✅ |
-| M6 | Streamlit app ✅ · FastAPI, Docker, CI | in progress |
+| Error per store-week (WAPE) | 9.5% | **6.1%** |
+| Error per store-day (WAPE) | 12.6% | **8.7%** |
+| 90% interval, share of actuals inside (last quarter) | | **90.2%** |
 
-**Results and limitations:** see [reports/REVIEW_M1_M3.md](reports/REVIEW_M1_M3.md).
-Weekly scorecard: [reports/weekly_kpis.md](reports/weekly_kpis.md).
-Evals & monitoring: [reports/M5_EVALS.md](reports/M5_EVALS.md) (`make eval`, `make eval-live`).
+The Christmas quarter is the weakest: interval coverage there is 81%, because no earlier holiday fold exists to calibrate it from.
 
-### Forecast model v2 (holiday proximity, promo sequence, recent store level)
+**Feature selection.** Redundancy clustering, grouped permutation importance, group ablation and backward elimination proposed dropping 6 of the 33 features. The rule, set before the test, was to adopt the smaller set only if it was no worse on a quarter never used to choose it. It was worse (daily error +0.08 points, 95% CI +0.05 to +0.11), so all 33 are kept.
 
-| Metric (rolling-origin backtest) | Baseline | v1 | **v2** |
-|---|---|---|---|
-| Daily WAPE | 12.6% | 9.7% | **8.7%** |
-| Store-week WAPE | 9.5% | 7.1% | **6.0%** |
-| Christmas fold WAPE | 16.3% | 12.5% | **10.7%** |
+**The causal effects.** The promo effect is a stable property of a store: estimated separately on two periods, it ranks stores almost identically (Spearman 0.95). The competitor effect passes its pre-trend test and placebo. Promo2 fails its pre-trend test (p = 0.0007), so the assistant and the plans call it unproven and suggest a randomised rollout instead.
 
-v2 removed the pre-Easter false anomaly and cut below-forecast episodes from 750 to 525.
-Known trade-off: a slight summer-2015 under-forecast (fold 4 bias −2.9%).
+**The A/B design.** Measuring sales against forecast and adjusting each store by its own history (CUPED) removes 98% of the variance of raw weekly sales. Over two promo cycles a test can then detect a 3.4% lift, where raw sales would need 27.7%. Running longer barely helps; adding stores does.
 
-## Run it
+**The readout.** On real data with +5% added to the test group, the readout recovers it inside its 95% interval, and the CUPED interval is narrower than the raw one. On real past weeks with nothing added (an A/A test), the interval covers zero and the decision is *do not roll out*.
 
-```bash
-# 1. Download train.csv + store.csv from kaggle.com/c/rossmann-store-sales
-#    and set paths.raw_source in config.yaml
-make setup
-make all       # ~8 min, mostly the forecast backtest
-make test
-```
+**The language model.** A card-checking gate was tested on cards with defects injected on purpose. The rules alone catch 74% of the defects; with an LLM critic, 100%, with no false alarms on correct cards. The agent answers 13 of 15 questions in a golden set correctly. In the live plan above, 98.5% of the numbers it wrote are found in its sources.
 
-### LLM layer (M4)
+## Checks
 
-Works with any OpenAI-compatible provider. The default is [Groq](https://console.groq.com)
-running `openai/gpt-oss-120b` with low reasoning effort. Provider, model and prices are set in
-`config.yaml → llm`.
+`tests/` holds 61 tests (`make test`). Among them:
 
-```bash
-export GROQ_API_KEY=gsk_...      # or put it in .env (gitignored)
-make llm-check                   # one tiny call: confirms key + model id
-make cards                       # weekly insight cards -> reports/insight_cards.md
-make ask Q="Why is store 921 below forecast?"
-make chat                        # interactive
-make demo                        # live cards, or saved snapshot if the LLM is down/slow
-make demo-cached                 # saved snapshot only (no network)
-make app                         # Streamlit UI at http://localhost:8501
-```
+- the KPIs for any period match the weekly scorecard exactly on three test weeks, Christmas included
+- the hypothesis tests recover known effects from synthetic data, and the between-store interval covers the true value in 97% of 200 simulated datasets
+- the readout recovers an injected +5% lift, and a dry run on history behaves as an A/A test
+- the planner gives identical plans and test groups for the same goal, its verdict and coverage agree, and it never calls a hypothesis supported when the confidence intervals overlap
+- the per-store competitor effects average to the pooled study within 3 points
+- every page renders, for the chain and for a store, and an anomaly hands off to the assistant (with the LLM stubbed, so tests spend no tokens)
 
-**Demo safety net.** A card run where at least 80% of cards pass QA is saved to
-`demo/insight_cards_snapshot.json`. A weaker run can never overwrite it. When the live
-LLM fails, is rate-limited, or goes over its time budget, the CLI and the app show a
-short notice and then display the saved cards.
+## What was found and fixed along the way
 
-How the LLM layer stays honest:
-- **Fact packs.** The LLM only receives numbered, pre-formatted facts taken from the pipeline,
-  and it must cite them (`[f3]`).
-- **Numeric fact-check.** Every number in a card or answer must match a source value. Direction
-  errors (e.g. "+23%" for a −23% fact) count as failures.
-- **Critic and revision.** An LLM reviewer flags unsupported claims and overstated certainty.
-  A failing card gets one rewrite, and if it still fails it's held back, not published.
-- **SQL sandbox.** The agent queries in-memory DuckDB with the warehouse attached read-only,
-  external file access turned off, and the configuration locked.
-- **Logged calls.** Every call goes to `data/outputs/llm_calls.jsonl` (latency, tokens, cost),
-  and agent runs go to `agent_traces.jsonl`. These are the inputs for M5 evals.
+- **The first week of the KPIs showed sales 243% above forecast.** The forecasts start on a Friday, so a full week of sales was compared with three days of forecast. Comparisons now use only days that have a forecast.
+- **The last week, which ends on a Friday, was not marked partial.** A partial week is now any week with fewer than seven days of data, and charts in euros leave such weeks out.
+- **A briefing said sales grew 19.9% on the prior week.** It compared five days with seven. The same-days comparison is +42.7%.
+- **The planner called a hypothesis supported because one estimate was higher (+9.7% against +8.8%)** while their intervals overlapped. It now says *inconclusive* unless the intervals separate.
+- **The assistant added the chain total to the store types** when answering a chain question, counting sales twice. The tables now tell it that the total is a row of its own.
 
-### Competitive-response playbooks (governed RAG)
+## Data
 
-The copilot only suggests actions that come from **approved store playbooks**
-([docs/playbooks/playbooks.yaml](docs/playbooks/playbooks.yaml)). They were written for this
-project and are not real Rossmann policy.
+The data is the [Rossmann Store Sales](https://www.kaggle.com/competitions/rossmann-store-sales) competition on Kaggle: `train.csv` (daily sales, customers, promotions and holidays per store) and `store.csv` (store type, assortment, competition and Promo2). It is not included in this repository; download it from Kaggle under the competition's rules.
 
-- **Governance:** only `approved`, in-date, latest-version playbooks can be retrieved. Drafts,
-  superseded versions and expired guidance are blocked, and an eval checks for leaks.
-- **Measured impact:** a stacked difference-in-differences study of 120 competitor openings
-  (`make causal`) estimates **−15.4%** weekly sales when a competitor opens within 1 km and −5.4%
-  beyond that. Pre-trends are flat and the placebo is zero. Playbooks quote these numbers
-  straight from the analysis.
-- **Where playbooks are used:** the root-cause engine picks a playbook by matching its evidence
-  (for example, store 770 had a competitor open 100 m away, so it gets `PB-COMP-NEAR v2`).
-  Insight-card actions must be one of that playbook's plays and cite it, which code enforces.
-  The agent has a `get_playbook` tool, and the store explorer shows the matching playbook.
-
-### Store opportunity scoring
-
-This is the store version of lead scoring: which stores have the most upside from management
-attention? Each store gets a **risk-adjusted weekly € upside** from three levers
-([src/sic/opportunity/score.py](src/sic/opportunity/score.py)):
-
-| Lever | How it's measured | Weight |
-|---|---|---|
-| Grow with promos | Measured causal promo lift × the store's baseline (one extra promo week per quarter) | 1.0 |
-| Defend vs competitor | A competitor opened within 5 km in the last 6 months (DiD effect × defensible share) | 0.9 |
-| Lift basket to peer level | Spend per customer vs the 10 most similar stores × the store's own customers × capture rate | 0.5 |
-
-A momentum flag (improving, stable or sliding) and a plain-English reason come with each store.
-**Validation:**
-- Promo lift ranks stores the same way when estimated on two separate periods (Spearman 0.95).
-- The basket gap is persistent (0.99) and only weakly related to store size (0.21).
-- The first peer metric I tried, *sales per day* vs peers, was rejected: it correlated 0.90
-  with store size, so it measured catchment rather than anything a manager can change.
-
-The scores appear in the assistant (plans and `get_opportunities`) (with a one-click what-if to size an
-action) and through the copilot's `get_opportunities` tool.
-
-### What-if simulator (causal inference + AI)
-
-Ask *"What if a competitor opens 300 m from store 262?"* or *"What if we add a promo week in
-the 20 lowest-response stores?"*. The work is split between the LLM and the models:
-
-- **The LLM translates.** The copilot maps the question onto a supported scenario and store
-  selection by calling the `simulate_scenario` tool, then explains the result.
-- **Causal estimates compute.** [src/sic/whatif/engine.py](src/sic/whatif/engine.py) applies
-  effects measured earlier in the pipeline to each store's baseline: per-store promo lift,
-  competitor-opening impact (within or beyond 1 km), and Promo2 (marked low confidence). It
-  returns the expected € impact with a **90% range from Monte Carlo draws**, plus the method,
-  assumptions and caveats.
-- **Scenarios the engine doesn't support** are refused, and the copilot lists the ones it can
-  run.
-- **A form in the app** (the assistant's simulate_scenario tool) runs the same engine with **zero
-  LLM tokens**.
-
-**Show your work.** Every chat answer has an expandable panel listing each tool call with its
-SQL or parameters, the data returned (as tables, simulation charts or playbook citations), and
-which numbers in the answer were verified against tool outputs.
-
-## Layout
-
-| Path | Purpose |
+| Path | Holds |
 |---|---|
-| `sql/` | Warehouse SQL (`01_raw` → `02_staged` → `03_marts`) and `kpis.yaml` |
-| `src/sic/data` | Warehouse build + data-quality checks |
-| `src/sic/eda` | Exploratory facts and figures |
-| `src/sic/forecast` | Features (leakage-safe target encodings), rolling-origin backtest |
-| `src/sic/detect` | Conformal interval calibration, store-week anomalies, episodes, segment anomalies |
-| `src/sic/rca` | Traffic-vs-basket decomposition, Adtributor-style drill-down, event evidence |
-| `src/sic/causal` | FE-OLS helper, within-store promo lift, stacked DiD for Promo2, recommendations |
-| `src/sic/report` | Builds the review report from outputs |
-| `src/sic/llm` | OpenAI-compatible client (Groq) with call logging; `FakeLLM` for tests |
-| `src/sic/insights` | Fact packs, numeric fact-checker, insight cards (write → critique → revise) |
-| `src/sic/agent` | Chat agent loop, sandboxed tools, TF-IDF retrieval over KPI + method docs |
-| `docs/knowledge/` | Methodology and promo-program docs the agent retrieves from |
-| `src/sic/kpi` | Weekly KPI scorecard (day-matched WoW/YoY, same-store) |
-| `app/` | Streamlit UI: `main.py` (navigation), `views/` (KPIs, Assistant); spec in `docs/APP_SPEC.md`, `ui.py` (shared helpers) |
-| `demo/` | Saved insight-card snapshot used when the live LLM is unavailable |
-| `docs/playbooks/` | Governed store-response playbooks (status, version, review date, triggers) |
-| `src/sic/playbooks` | Playbook retrieval: governance filter, evidence matching, semantic search |
-| `src/sic/whatif` | What-if scenario engine: causal effects x baselines, Monte Carlo ranges |
-| `src/sic/opportunity` | Store opportunity scoring (promo, competitor, basket-vs-peers levers) |
-| `config.yaml` | Paths, backtest folds, detection thresholds, causal windows |
+| `sql/` | Warehouse layers (raw, staged, marts) and the KPI dictionary `kpis.yaml` |
+| `src/sic/forecast/` | Features, rolling-origin backtest, feature selection |
+| `src/sic/detect/`, `src/sic/rca/` | Interval calibration, anomaly episodes, root cause |
+| `src/sic/causal/` | Promo lift, Promo2 and competitor difference-in-differences, recommendations |
+| `src/sic/planner.py`, `experiment.py`, `hypothesis.py` | Plans, A/B design and readout, hypothesis tests |
+| `src/sic/agent/`, `llm/`, `insights/` | Tool-using assistant, LLM client, fact-checker, briefing cards |
+| `app/` | Streamlit app: `main.py`, `views/kpis.py`, `views/assistant.py`, `ui.py` |
+| `reports/` | Every result above as JSON, plus `REVIEW_M1_M3.md` and `M5_EVALS.md` |
+| `docs/APP_SPEC.md` | What the app does, as agreed |
 
-## Method notes
+## Run it yourself
 
-- **Forecasting:** a global `HistGradientBoostingRegressor` on log sales, with quantile models
-  for the intervals. It's compared against a store × weekday × promo baseline over 4 quarterly
-  rolling-origin folds. Store target encodings are computed only from each fold's training window.
-- **Calibration:** conformalized quantile regression. Each fold's interval is widened by the
-  previous fold's 90th-percentile conformity score, so calibration only ever uses past data.
-- **Promo lift:** promo dates are the same for every store, so lift is estimated within each store
-  over time, with day-of-week, month, year, holiday and adjacent-closure controls.
-- **Promo2:** stores enroll in Promo2 at different times, so the analysis is a stacked
-  difference-in-differences (cohort stacks, never-enrolled controls, store×stack and week×stack
-  fixed effects, SE clustered by store). It includes an event study, a placebo test and
-  checks against the pre-enrollment dip.
+Needs Python 3.11+ and [uv](https://docs.astral.sh/uv/). Put the Kaggle files in `../rossmann-store-sales/`, next to this folder (the path is `paths.raw_source` in `config.yaml`).
+
+```
+make setup          # install dependencies
+make all            # warehouse, forecasts (about 7 minutes), anomalies, causal, plans, KPIs
+make test           # 61 tests
+make app            # http://localhost:8501
+```
+
+The assistant needs an API key. Copy `.env.example` to `.env` and set `GEMINI_API_KEY` (or `GROQ_API_KEY`, with `llm.provider: groq` in `config.yaml`). Everything except the assistant's chat works without one.
+
+## Deploy
+
+The app is a Streamlit server: it keeps each visitor's session open over a WebSocket. Host it somewhere that runs a long-lived Python process.
+
+**Streamlit Community Cloud (free).**
+
+1. Build the data locally with `make all`. The app reads `data/warehouse/` and `data/outputs/`, which are git-ignored because they contain the Kaggle data. Commit them only to a **private** repository: remove `data/warehouse/` and `data/outputs/` from `.gitignore` there. The largest file is 69 MB, under GitHub's 100 MB limit.
+2. On [share.streamlit.io](https://share.streamlit.io), create an app from that repository with main file `app/main.py`. Dependencies install from `requirements.txt`.
+3. In the app's secrets, add `GEMINI_API_KEY = "your-key"` at the top level. Streamlit exposes top-level secrets as environment variables, which is where the app reads the key.
+
+**Render, Railway or Fly.io.** Any of them can run the same app as a web service: build with `pip install -r requirements.txt`, start with `streamlit run app/main.py --server.port $PORT --server.address 0.0.0.0`, and set `GEMINI_API_KEY` in the service's environment.
+
+**Why not Vercel.** Vercel runs serverless functions. WebSockets on Vercel Functions are in beta, and a connection closes when the function reaches its maximum duration (300 seconds on the Hobby plan, up to 1,800 on Pro). Streamlit keeps each session in the server's memory, so every reconnect would lose the chat and the selections. Vercel can host a static landing page that links to the app hosted on one of the platforms above.
+
+## Contact
+
+Developed and maintained by Ari Adaikalam. [Portfolio](https://ariadaikalam.com) | [Email](mailto:ariadaikalam1234@gmail.com)

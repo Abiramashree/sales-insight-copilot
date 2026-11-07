@@ -106,7 +106,10 @@ def plan(target_pct: float, store_type: str | None = None, store_ids: list[int] 
              "test": "within-store promo vs no promo: customers and basket",
              "customers_effect_pct": cust["effect_pct"], "customers_ci_pct": cust["ci_pct"],
              "basket_effect_pct": bask["effect_pct"], "basket_ci_pct": bask["ci_pct"],
-             "supported": bool(cust["effect_pct"] > bask["effect_pct"])},
+             # supported only if the intervals don't overlap; overlapping = inconclusive
+             "result": ("supported" if cust["ci_pct"][0] > bask["ci_pct"][1] else
+                        "contradicted" if bask["ci_pct"][0] > cust["ci_pct"][1] else
+                        "inconclusive (confidence intervals overlap)")},
         ]
 
     # alternatives, sized in €/week with a range

@@ -287,6 +287,9 @@ def plan_initiative(target_pct: float, store_type: str | None = None,
         raise SQLError(str(e)) from None
     p["stores_selected"] = len(p["stores"])
     p["stores"] = p["stores"][:15]
+    if p["stores_selected"] > 15:
+        p["stores_note"] = (f"'stores' lists the top 15 of {p['stores_selected']} selected; "
+                            "upside, coverage and covered EUR are for all selected stores.")
     if p["experiment"] and "groups" in p["experiment"]:
         p["experiment"]["groups"] = _summarize_groups(p["experiment"]["groups"])
     return p

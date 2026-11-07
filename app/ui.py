@@ -239,8 +239,7 @@ def plan_block(p: dict, key: str) -> None:
                             f"{h['n_a']} stores)")
             else:
                 st.markdown(f"{h['test']}: customers {pct(h['customers_effect_pct'])}, "
-                            f"basket {pct(h['basket_effect_pct'])}"
-                            + (" (supported)" if h["supported"] else " (not supported)"))
+                            f"basket {pct(h['basket_effect_pct'])}: {h['result']}")
     with t4:
         e = p["experiment"] or {}
         if "note" in e:

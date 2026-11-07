@@ -73,3 +73,8 @@ def test_planner_is_deterministic_and_consistent():
     with pytest.raises(ValueError, match="Unknown stores"):
         P.plan(0.05, store_ids=[99999])
     assert "note" in P.plan(0.1, store_ids=[262, 770, 1114])["experiment"]
+    h2 = P.plan(0.05, store_type="b")["hypotheses"][1]
+    lo_c, hi_c = h2["customers_ci_pct"]
+    lo_b, hi_b = h2["basket_ci_pct"]
+    overlap = lo_c <= hi_b and lo_b <= hi_c
+    assert h2["result"].startswith("inconclusive") == overlap   # never "supported" on overlap
