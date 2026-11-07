@@ -1,0 +1,130 @@
+{
+  "features": [
+    "store_type",
+    "state_holiday",
+    "dow",
+    "day",
+    "dayofyear",
+    "year",
+    "promo",
+    "school_holiday",
+    "promo2_active",
+    "promo2_renewal_month",
+    "competition_active",
+    "months_since_competition_open",
+    "competition_distance",
+    "closed_yesterday",
+    "days_since_reopen",
+    "days_to_closure",
+    "days_since_closure",
+    "easter_offset",
+    "days_to_christmas",
+    "promo_last_week",
+    "promo_next_week",
+    "lvl_recent",
+    "days_since_anchor",
+    "te_store",
+    "te_store_dow",
+    "te_store_promo",
+    "lvl_vs_longrun"
+  ],
+  "n_features": 27,
+  "folds": [
+    {
+      "fold": 1,
+      "start": "2014-08-01",
+      "end": "2014-10-31",
+      "n_train": 528798,
+      "seconds": 129,
+      "baseline": {
+        "rmspe": 0.15071711170134916,
+        "wape": 0.10457813916318104,
+        "bias": 0.04249065941839704
+      },
+      "p50": {
+        "rmspe": 0.11084404549801082,
+        "wape": 0.076805493999401,
+        "bias": -0.0065691138265898015
+      },
+      "interval_coverage": 0.8660276598658085
+    },
+    {
+      "fold": 2,
+      "start": "2014-11-01",
+      "end": "2015-01-31",
+      "n_train": 601828,
+      "seconds": 111,
+      "baseline": {
+        "rmspe": 0.42691211311387567,
+        "wape": 0.16320692412907142,
+        "bias": -0.09900276920496194
+      },
+      "p50": {
+        "rmspe": 0.390182791485208,
+        "wape": 0.10549593924416846,
+        "bias": -0.021281902037127404
+      },
+      "interval_coverage": 0.7733772792515018
+    },
+    {
+      "fold": 3,
+      "start": "2015-02-01",
+      "end": "2015-04-30",
+      "n_train": 677072,
+      "seconds": 109,
+      "baseline": {
+        "rmspe": 0.22596547942387807,
+        "wape": 0.13243246247469304,
+        "bias": 0.04060432895582273
+      },
+      "p50": {
+        "rmspe": 0.15229994668376473,
+        "wape": 0.0844763998304519,
+        "bias": -0.008836524052783627
+      },
+      "interval_coverage": 0.8444476659901421
+    },
+    {
+      "fold": 4,
+      "start": "2015-05-01",
+      "end": "2015-07-31",
+      "n_train": 759848,
+      "seconds": 121,
+      "baseline": {
+        "rmspe": 0.14458880943386457,
+        "wape": 0.10164617088547405,
+        "bias": -0.02030403826486394
+      },
+      "p50": {
+        "rmspe": 0.10968996582611205,
+        "wape": 0.08024946227151965,
+        "bias": -0.027200321277439894
+      },
+      "interval_coverage": 0.838821162267724
+    }
+  ],
+  "overall_daily": {
+    "baseline": {
+      "rmspe": 0.2602123278155037,
+      "wape": 0.12588173443676978,
+      "bias": -0.010927355314064762
+    },
+    "p50": {
+      "rmspe": 0.2201229094697845,
+      "wape": 0.08701029876054885,
+      "bias": -0.016460708340382532
+    },
+    "interval_coverage": 0.830988147303036,
+    "nominal_coverage": 0.8999999999999999
+  },
+  "wape_by_store_type": {
+    "a": 0.08575457901652886,
+    "b": 0.08560483246934644,
+    "c": 0.09010748616799977,
+    "d": 0.08800101111278281
+  },
+  "weekly_store_wape": {
+    "baseline": 0.09547534489946025,
+    "p50": 0.060547934026857174
+  }
+}

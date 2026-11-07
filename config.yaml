@@ -23,6 +23,28 @@ forecast:
     max_leaf_nodes: 63
     min_samples_leaf: 50
     l2_regularization: 1.0
+  # Feature selection (src/sic/forecast/select.py, make select-features). Selection uses
+  # backtest folds 1-3 (they cover Christmas and Easter with the previous year's in training);
+  # fold 4 is never seen during selection and is the held-out comparison.
+  # (v0 used windows before fold 1; rejected: no prior Christmas/Easter in training, so
+  # seasonal features were untestable.)
+  selection:
+    windows:
+      - {start: "2014-08-01", end: "2014-10-31"}   # = backtest fold 1
+      - {start: "2014-11-01", end: "2015-01-31"}   # = fold 2 (Christmas)
+      - {start: "2015-02-01", end: "2015-04-30"}   # = fold 3 (Easter)
+    holdout_fold: 4
+    n_threads: 8                  # cap model threads (12-core Mac); avoids CPU oversubscription
+    redundancy_spearman: 0.8      # |rho| above this -> same redundancy cluster
+    permutation_repeats: 3
+    candidate_max_importance: 0.005   # only features below 0.5 pp WAPE importance are tried for removal
+    drop_tolerance: 0.0005        # drop if mean WAPE rises <= 0.05 pp ...
+    drop_tolerance_per_window: 0.001  # ... and no single window rises > 0.1 pp
+    bootstrap: 300                # store-level bootstrap for delta-WAPE CIs
+  # Selection (folds 1-3) proposed dropping promo_day_index, month, assortment, closed_tomorrow,
+  # te_store_cust, weekofyear. REJECTED on held-out fold 4: daily WAPE +0.08 pp (95% CI +0.05 to
+  # +0.11), store-week WAPE unchanged. See reports/m2_feature_selection_holdout.json.
+  drop_features: []
 
 detect:
   min_weekly_gap_pct: 0.10    # |actual/forecast - 1| for a store-week to count

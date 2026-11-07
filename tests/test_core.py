@@ -52,3 +52,36 @@ def test_episodes_merge_consecutive_same_direction_weeks_only():
     e = episodes(w)
     assert len(e) == 3  # [w1,w2] up, [w3] down, [w5] down after a gap
     assert sorted(e.weeks.tolist()) == [1, 1, 2]
+
+
+def test_feature_selection_bootstrap_and_redundancy():
+    from sic.forecast import select as S
+
+    rng = np.random.default_rng(0)
+    n = 4000
+    sales = rng.uniform(50, 150, n)
+    w = {"store": rng.integers(0, 40, n), "sales": sales}
+    a = sales * 1.05                       # 5% error everywhere
+    b = sales * 1.10                       # 10% error everywhere -> delta exactly +5 pp
+    lo, hi = S.bootstrap_delta([w], [a], [b], n=50)
+    assert lo == pytest.approx(0.05, abs=1e-9) and hi == pytest.approx(0.05, abs=1e-9)
+
+    x = rng.normal(size=n)
+    X = pd.DataFrame({"a": x, "b": 2 * x + rng.normal(0, 0.01, n), "c": rng.normal(size=n),
+                      "store_type": pd.Categorical(rng.choice(list("abcd"), n)),
+                      "assortment": pd.Categorical(rng.choice(list("ab"), n)),
+                      "state_holiday": pd.Categorical(["none"] * n)})
+    r = S.redundancy(X, 0.8)
+    assert ["a", "b"] in r["clusters"]
+    assert "state_holiday" in r["near_constant"]
+
+
+def test_feature_groups_cover_features_and_drop_list_validated(monkeypatch):
+    from sic.forecast import features as F
+    from sic.forecast import select as S
+
+    assert sorted(f for g in S.GROUPS.values() for f in g) == sorted(F.FEATURES)
+    cfg = {"forecast": {"drop_features": ["not_a_feature"]}}
+    monkeypatch.setattr(F.config, "load", lambda: cfg)
+    with pytest.raises(ValueError):
+        F.active_features()

@@ -1,0 +1,83 @@
+{
+ "holdout_fold": 4,
+ "by_fold": {
+  "1": {
+   "full": {
+    "daily_wape": 0.07651556030208179,
+    "store_week_wape": 0.05290019048004445
+   },
+   "selected": {
+    "daily_wape": 0.076805493999401,
+    "store_week_wape": 0.05392424699079515
+   },
+   "delta_daily_wape_ci95": [
+    -2.3905572638617533e-05,
+    0.000552413205114674
+   ],
+   "used_in_selection": true
+  },
+  "2": {
+   "full": {
+    "daily_wape": 0.10691384539794625,
+    "store_week_wape": 0.07877248273420767
+   },
+   "selected": {
+    "daily_wape": 0.10549593924416846,
+    "store_week_wape": 0.07662468675273658
+   },
+   "delta_daily_wape_ci95": [
+    -0.00185187000239112,
+    -0.0009642669658136251
+   ],
+   "used_in_selection": true
+  },
+  "3": {
+   "full": {
+    "daily_wape": 0.08342758634995982,
+    "store_week_wape": 0.05876450722839836
+   },
+   "selected": {
+    "daily_wape": 0.0844763998304519,
+    "store_week_wape": 0.060057102715512053
+   },
+   "delta_daily_wape_ci95": [
+    0.0006383233910307064,
+    0.0014925780959902486
+   ],
+   "used_in_selection": true
+  },
+  "4": {
+   "full": {
+    "daily_wape": 0.07944917788478889,
+    "store_week_wape": 0.052278328221283726
+   },
+   "selected": {
+    "daily_wape": 0.08024946227151965,
+    "store_week_wape": 0.05228967395047365
+   },
+   "delta_daily_wape_ci95": [
+    0.0005226055146385907,
+    0.0010943462930273111
+   ],
+   "used_in_selection": false
+  }
+ },
+ "full": {
+  "daily_wape": 0.07944917788478889,
+  "store_week_wape": 0.052278328221283726
+ },
+ "selected": {
+  "daily_wape": 0.08024946227151965,
+  "store_week_wape": 0.05228967395047365
+ },
+ "delta_daily_wape_ci95": [
+  0.0005226055146385907,
+  0.0010943462930273111
+ ],
+ "n_features": {
+  "full": 33,
+  "selected": 27
+ },
+ "adopt": false,
+ "rule": "adopt if the held-out delta CI includes or is below 0 (not worse)"
+}

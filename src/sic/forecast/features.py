@@ -157,8 +157,19 @@ def target_encode(train: pd.DataFrame, apply: pd.DataFrame) -> pd.DataFrame:
     return out
 
 
-def to_matrix(df: pd.DataFrame) -> pd.DataFrame:
-    X = df[FEATURES].copy()
+def active_features() -> list[str]:
+    """FEATURES minus forecast.drop_features in config.yaml (set from the feature-selection
+    study, src/sic/forecast/select.py)."""
+    drop = set(config.load()["forecast"].get("drop_features") or [])
+    unknown = drop - set(FEATURES)
+    if unknown:
+        raise ValueError(f"drop_features not in FEATURES: {sorted(unknown)}")
+    return [f for f in FEATURES if f not in drop]
+
+
+def to_matrix(df: pd.DataFrame, feats: list[str] | None = None) -> pd.DataFrame:
+    X = df[feats if feats is not None else active_features()].copy()
     for c in CATEGORICAL:
-        X[c] = X[c].astype("category")
+        if c in X:
+            X[c] = X[c].astype("category")
     return X

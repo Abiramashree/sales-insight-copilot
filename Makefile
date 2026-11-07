@@ -1,6 +1,6 @@
 RUN = uv run python -m
 
-.PHONY: setup data eda forecast detect rca causal recommend opportunity kpis report all test lint
+.PHONY: setup data eda forecast select-features detect rca causal recommend opportunity kpis report all test lint
 
 setup:      ## install deps into .venv
 	uv sync
@@ -13,6 +13,9 @@ eda:        ## M1: exploratory facts + figures
 
 forecast:   ## M2: rolling-origin backtest (~7 min)
 	$(RUN) sic.forecast.backtest
+
+select-features: ## M2: feature selection on pre-backtest windows (~30 min) -> reports/m2_feature_selection.json
+	$(RUN) sic.forecast.select
 
 detect:     ## M2: interval calibration + anomaly episodes
 	$(RUN) sic.detect.anomalies

@@ -49,8 +49,11 @@ def metrics(df: pd.DataFrame, col: str) -> dict:
     }
 
 
-def run() -> dict:
+def run(feats: list[str] | None = None, tag: str = "") -> dict:
+    """tag="" is the production run (writes forecasts.parquet); a non-empty tag writes
+    only reports/m2_backtest_metrics_<tag>.json, for comparing feature sets."""
     cfg = config.load()["forecast"]
+    feats = feats or F.active_features()
     lo_q, hi_q = cfg["interval"]
     base = F.load_base()
     preds, fold_metrics = [], []
@@ -63,7 +66,7 @@ def run() -> dict:
 
         fit_rows = F.target_encode(train, train[(train.is_open == 1) & (train.sales > 0)])
         test = F.target_encode(train, test)
-        X, Xt = F.to_matrix(fit_rows), F.to_matrix(test)
+        X, Xt = F.to_matrix(fit_rows, feats), F.to_matrix(test, feats)
         y, yc = np.log1p(fit_rows.sales), np.log1p(fit_rows.customers)
 
         open_ = test.is_open.values == 1
@@ -86,7 +89,8 @@ def run() -> dict:
                            "baseline", "p50", "lo", "hi", "cust_p50"]])
 
     fc = pd.concat(preds, ignore_index=True)
-    fc.to_parquet(config.path("outputs") / "forecasts.parquet", index=False)
+    if not tag:
+        fc.to_parquet(config.path("outputs") / "forecasts.parquet", index=False)
 
     overall = {col: metrics(fc, col) for col in ["baseline", "p50"]}
     o = fc[(fc.is_open == 1) & (fc.sales > 0)]
@@ -98,12 +102,15 @@ def run() -> dict:
     wk = wk[wk.sales > 0]
     weekly = {c: float(np.abs(wk[c] - wk.sales).sum() / wk.sales.sum()) for c in ["baseline", "p50"]}
 
-    result = {"folds": fold_metrics, "overall_daily": overall, "wape_by_store_type": by_type,
+    result = {"features": feats, "n_features": len(feats), "folds": fold_metrics, "overall_daily": overall, "wape_by_store_type": by_type,
               "weekly_store_wape": weekly}
-    (config.path("reports") / "m2_backtest_metrics.json").write_text(json.dumps(result, indent=2))
+    name = f"m2_backtest_metrics_{tag}.json" if tag else "m2_backtest_metrics.json"
+    (config.path("reports") / name).write_text(json.dumps(result, indent=2))
     return result
 
 
 if __name__ == "__main__":
-    r = run()
+    import sys
+
+    r = run(tag=sys.argv[1] if len(sys.argv) > 1 else "")
     print(json.dumps({k: r[k] for k in r if k != "folds"}, indent=2))

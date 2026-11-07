@@ -517,21 +517,27 @@ with tabs[4]:
 # ================================================================ 5. Model
 with tabs[5]:
     bt, bt1 = load_json("m2_backtest_metrics.json"), load_json("m2_backtest_metrics_v1.json")
+    bt2 = load_json("m2_backtest_metrics_v2_allfeatures.json")
     pl, did = load_json("m3_promo_lift.json"), load_json("m3_promo2_did.json")
     if bt:
         st.subheader("Forecast accuracy (rolling-origin backtest)")
-        rows = [("Daily WAPE", bt["overall_daily"]["baseline"]["wape"],
-                 bt1["overall_daily"]["p50"]["wape"] if bt1 else None,
-                 bt["overall_daily"]["p50"]["wape"]),
-                ("Store-week WAPE", bt["weekly_store_wape"]["baseline"],
-                 bt1["weekly_store_wape"]["p50"] if bt1 else None, bt["weekly_store_wape"]["p50"]),
-                ("Interval coverage (target 90%)", None,
-                 bt1["overall_daily"]["interval_coverage"] if bt1 else None,
-                 bt["overall_daily"]["interval_coverage"])]
-        st.dataframe(pd.DataFrame([{"Metric": n, "Baseline": pct(b, sign=False) if b else "—",
-                                    "Model v1": pct(v1, sign=False) if v1 else "—",
-                                    "Current model": pct(v2, sign=False)}
-                                   for n, b, v1, v2 in rows]),
+        def g(m, *keys):
+            for k in keys:
+                m = m[k] if m else None
+            return m
+        rows = [("Daily WAPE", ("overall_daily", "baseline", "wape"),
+                 ("overall_daily", "p50", "wape")),
+                ("Store-week WAPE", ("weekly_store_wape", "baseline"),
+                 ("weekly_store_wape", "p50")),
+                ("Interval coverage (target 90%)", None, ("overall_daily", "interval_coverage"))]
+        cur_n = bt.get("n_features", len(bt.get("features", [])) or 33)
+        cols = [("Model v1", bt1), ("v2: all 33 features", bt2 if bt2 is not bt else None),
+                (f"Current: {cur_n} selected features" if bt2 else "Current model", bt)]
+        st.dataframe(pd.DataFrame([{"Metric": n,
+                                    "Baseline": pct(g(bt, *bk), sign=False) if bk else "—",
+                                    **{c: pct(g(m, *mk), sign=False) if m else "—"
+                                       for c, m in cols}}
+                                   for n, bk, mk in rows]),
                      hide_index=True, width="stretch")
         f = pd.DataFrame(bt["folds"])
         fig = go.Figure()
@@ -540,11 +546,106 @@ with tabs[5]:
         if bt1:
             fig.add_bar(x=f.start, y=[d["p50"]["wape"] for d in bt1["folds"]], name="Model v1",
                         marker_color=ORANGE)
+        if bt2:
+            fig.add_bar(x=f.start, y=[d["p50"]["wape"] for d in bt2["folds"]],
+                        name="v2: all features", marker_color="#9db8d9")
         fig.add_bar(x=f.start, y=[d["wape"] for d in f.p50], name="Current model",
                     marker_color=BLUE)
         fig.update_yaxes(tickformat=".0%")
         plot(st, style(fig).update_layout(title="Daily WAPE by fold", barmode="group"),
                         width="stretch")
+    fs = load_json("m2_feature_selection.json")
+    if fs:
+        st.subheader("Feature selection")
+        st.caption(
+            f"Chosen on backtest folds 1-3 ({', '.join(fs['selection_windows'])}); fold "
+            f"{fs['settings']['holdout_fold']} (May-Jul 2015) is never seen during selection "
+            "and is the held-out comparison. Methods: redundancy clustering (Spearman), out-of-sample permutation "
+            "importance (correlated features shuffled together), group ablation, and backward "
+            "elimination with retraining. Source: src/sic/forecast/select.py")
+        m = st.columns(4)
+        ho = load_json("m2_feature_selection_holdout.json")
+        m[0].metric("Proposed feature set",
+                    f"{len(fs['selected_features'])} of {fs['n_features_full']}",
+                    f"{len(fs['dropped_features'])} proposed drops", delta_color="off")
+        if ho:
+            m[1].metric("Decision on held-out fold", "Adopted" if ho["adopt"] else "Rejected",
+                        f"in production: {ho['n_features']['full'] if not ho['adopt'] else ho['n_features']['selected']} features",
+                        delta_color="off")
+        if ho:
+            d = ho["selected"]["store_week_wape"] - ho["full"]["store_week_wape"]
+            m[2].metric("Held-out store-week WAPE", pct(ho["selected"]["store_week_wape"], 2,
+                                                         sign=False),
+                        f"{d * 100:+.2f} pp vs all features", delta_color="inverse")
+            dd = ho["selected"]["daily_wape"] - ho["full"]["daily_wape"]
+            m[3].metric("Held-out daily WAPE", pct(ho["selected"]["daily_wape"], 2, sign=False),
+                        f"{dd * 100:+.2f} pp vs all features", delta_color="inverse")
+            lo, hi = ho["delta_daily_wape_ci95"]
+            st.info(f"**Held-out fold {ho['holdout_fold']}** (never used to choose features): "
+                    f"the {ho['n_features']['selected']}-feature set changes daily WAPE by "
+                    f"{dd * 100:+.2f} pp (95% CI {lo * 100:+.2f} to {hi * 100:+.2f}) and "
+                    f"store-week WAPE by {d * 100:+.2f} pp. Rule fixed before the test: adopt "
+                    "only if not significantly worse. "
+                    + ("Adopted." if ho["adopt"] else "Not adopted: the production model keeps "
+                       "all features (dropping the proposed ones slightly hurt the held-out fold)."))
+        c1, c2 = st.columns(2)
+        ga = pd.DataFrame([{"group": g, **v} for g, v in fs["group_ablation"].items()])
+        ga = ga.sort_values("delta_wape")
+        has_ci = ga.ci95.notna().all()
+        fig = go.Figure(go.Bar(
+            x=ga.delta_wape * 100, y=ga.group, orientation="h", marker_color=BLUE,
+            error_x={"type": "data", "symmetric": False,
+                     "array": [(c[1] - v) * 100 for c, v in zip(ga.ci95, ga.delta_wape)],
+                     "arrayminus": [(v - c[0]) * 100 for c, v in zip(ga.ci95, ga.delta_wape)],
+                     "color": NEUTRAL} if has_ci else None,
+            hovertemplate="%{y}: %{x:+.2f} pp WAPE<extra></extra>"))
+        fig.update_xaxes(title="WAPE increase when the group is removed (pp"
+                         + (", 95% CI)" if has_ci else ")"))
+        plot(c1, style(fig, height=380).update_layout(
+            title="Group ablation: what each block is worth", hovermode="closest"),
+            width="stretch")
+        if fs["permutation_importance"]:
+            pi = pd.DataFrame([{"unit": u, **v} for u, v in fs["permutation_importance"].items()
+                               if len(v["features"]) == 1]).sort_values("mean").tail(15)
+            fig = go.Figure(go.Bar(
+                x=pi["mean"] * 100, y=pi.unit, orientation="h", marker_color=BLUE,
+                error_x={"type": "data", "array": pi["std"] * 100, "color": NEUTRAL},
+                hovertemplate="%{y}: %{x:+.2f} pp WAPE<extra></extra>"))
+            fig.update_xaxes(title="WAPE increase when shuffled (pp)")
+            plot(c2, style(fig, height=380).update_layout(
+                title="Permutation importance (top 15, out-of-sample)", hovermode="closest"),
+                width="stretch")
+        else:
+            el = pd.DataFrame(fs["elimination"]).sort_values("delta_wape")
+            fig = go.Figure(go.Bar(
+                x=el.delta_wape * 100, y=el.feature, orientation="h",
+                marker_color=[BLUE if not d else NEUTRAL for d in el.dropped],
+                hovertemplate="%{y}: %{x:+.3f} pp WAPE when removed<extra></extra>"))
+            fig.update_xaxes(title="WAPE change when removed, retrained (pp); grey = dropped")
+            plot(c2, style(fig, height=380).update_layout(
+                title="Elimination: cost of removing each candidate", hovermode="closest"),
+                width="stretch")
+        c1, c2 = st.columns(2)
+        with c1:
+            st.markdown("**Backward elimination** (weakest first, retrain after each step)")
+            st.dataframe(pd.DataFrame([{
+                "Feature": e["feature"], "Decision": "dropped" if e["dropped"] else "kept",
+                "Δ WAPE": f"{e['delta_wape'] * 100:+.3f} pp",
+                "By fold (pp)": " / ".join(f"{x * 100:+.2f}" for x in e["delta_by_window"])}
+                for e in fs["elimination"]]), hide_index=True, width="stretch", height=300)
+        with c2:
+            st.markdown("**Redundant clusters** (|Spearman ρ| ≥ "
+                        f"{fs['redundancy']['threshold']})")
+            for cl in fs["redundancy"]["clusters"]:
+                kept = [f for f in cl if f in fs["selected_features"]]
+                st.write(f"- {', '.join(cl)} → kept: {', '.join(kept) or 'none'}")
+            if fs["redundancy"]["near_constant"]:
+                st.write("Near-constant on open days: "
+                         + ", ".join(fs["redundancy"]["near_constant"]))
+            st.write("Dropped: " + (", ".join(fs["dropped_features"]) or "none"))
+            if fs.get("partial"):
+                st.caption("⚠️ " + fs["note"])
+
     c1, c2 = st.columns(2)
     if pl:
         lift = load("promo_lift_by_store.parquet")
